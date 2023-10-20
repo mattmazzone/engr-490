@@ -9,12 +9,14 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { NavigationProp } from "@react-navigation/native";
 
-const Login = () => {
+interface RouterProps {
+  navigation: NavigationProp<any, any>;
+}
+
+const Login = ({ navigation }: RouterProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -67,7 +69,10 @@ const Login = () => {
         ) : (
           <>
             <Button title="Login" onPress={signIn}></Button>
-            <Button title="Create Account" onPress={signUp}></Button>
+            <Button
+              title="Don't have an account? Sign Up"
+              onPress={() => navigation.navigate("SignUp")}
+            ></Button>
           </>
         )}
       </KeyboardAvoidingView>

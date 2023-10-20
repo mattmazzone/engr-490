@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import Login from "./app/screens/Login";
+import SignUp from "./app/screens/SignUp";
 import Home from "./app/screens/Home";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
@@ -41,16 +42,21 @@ export default function App() {
             name="InsideLayout"
             component={InsideLayout}
             options={{ headerShown: false }}
-          />          
-        )
-        : (
-          <Stack.Screen
-            name="Login"
-            component={Login}
-            options={{ headerShown: false }}
           />
+        ) : (
+          <>
+            <Stack.Screen
+              name="Login"
+              component={Login}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="SignUp"
+              component={SignUp}
+              options={{ headerShown: false }}
+            />
+          </>
         )}
-        
       </Stack.Navigator>
     </NavigationContainer>
   );
