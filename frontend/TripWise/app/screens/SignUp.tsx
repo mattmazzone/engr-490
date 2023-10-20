@@ -37,6 +37,7 @@ const SignUp = ({ navigation }: RouterProps) => {
 
         // Set the additional user data
         await setDoc(userDocRef, {
+          uid: user.uid,
           firstName: firstName,
           lastName: lastName,
         });

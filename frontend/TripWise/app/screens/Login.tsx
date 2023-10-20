@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { NavigationProp } from "@react-navigation/native";
+import LoginScreenButton from "../../components/LoginScreenButton";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -29,17 +30,6 @@ const Login = ({ navigation }: RouterProps) => {
       console.log(response);
     } catch (error) {
       console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signUp = async () => {
-    setLoading(true);
-    try {
-      const response = createUserWithEmailAndPassword(auth, email, password);
-    } catch (e) {
-      console.log(e);
     } finally {
       setLoading(false);
     }
@@ -68,11 +58,11 @@ const Login = ({ navigation }: RouterProps) => {
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
           <>
-            <Button title="Login" onPress={signIn}></Button>
-            <Button
-              title="Don't have an account? Sign Up"
+            <LoginScreenButton onPress={signIn} title="Login" />
+            <LoginScreenButton
               onPress={() => navigation.navigate("SignUp")}
-            ></Button>
+              title="Don't have an account? Sign Up"
+            />
           </>
         )}
       </KeyboardAvoidingView>

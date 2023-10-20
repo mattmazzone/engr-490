@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import Login from "./app/screens/Login";
 import SignUp from "./app/screens/SignUp";
+import SelectLogin from "./app/screens/SelectLogin";
 import Home from "./app/screens/Home";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
@@ -36,7 +37,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName="SelectLogin">
         {user ? (
           <Stack.Screen
             name="InsideLayout"
@@ -45,6 +46,11 @@ export default function App() {
           />
         ) : (
           <>
+            <Stack.Screen
+              name="SelectLogin"
+              component={SelectLogin}
+              options={{ headerShown: false }}
+            />
             <Stack.Screen
               name="Login"
               component={Login}
