@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
+  Dimensions,
 } from "react-native";
 import React, { useState } from "react";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
@@ -100,12 +101,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   input: {
-    marginVertical: 4,
-    height: 40,
-    borderWidth: 1,
-    borderRadius: 4,
+    marginVertical: 10,
+    width: Dimensions.get("window").width * 0.8, // 80% of screen width
+    height: 45, // Adjusted height
+    borderRadius: 10, // Rounded corners
     padding: 10,
     backgroundColor: "#fff",
-    width: "100%",
+    borderColor: "#ccc", // Subtle border
+    borderWidth: 1,
+    shadowColor: "#000", // Optional shadow for a "lifted" effect
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
