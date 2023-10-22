@@ -1,14 +1,26 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import TripWiseLogo from "../../components/SVGLogos/TripWiseLogo";
+import LoginProviderButton from "../../components/SelectLogin/LoginProviderButton";
+import { NavigationProp } from "@react-navigation/native";
 
-const SelectLogin = () => {
+interface RouterProps {
+  navigation: NavigationProp<any, any>;
+}
+
+const SelectLogin = ({ navigation }: RouterProps) => {
   return (
     <View style={styles.container}>
-      <View style={styles.logo}>
-        <TripWiseLogo />
+      <View style={styles.logoContainer}>
+        <View style={styles.logo}>
+          <TripWiseLogo />
+        </View>
       </View>
-      <Text>SelectLogin</Text>
+
+      <View style={styles.loginProviders}>
+        <LoginProviderButton provider={"email"} navigation={navigation} />
+        <LoginProviderButton provider={"google"} navigation={navigation} />
+      </View>
     </View>
   );
 };
@@ -16,14 +28,24 @@ const SelectLogin = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1E90FF",
+    backgroundColor: "#874EBF",
     alignItems: "center",
-    justifyContent: "center",
+  },
+  logoContainer: {
+    flex: 2,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    width: "100%",
   },
   logo: {
-    position: "absolute",
-    top: "8.33%",
-    bottom: "8.33%",
+    marginTop: "25%", // Adjust this value to position the logo within the top third
+  },
+  loginProviders: {
+    flex: 1,
+    justifyContent: "flex-end",
+    marginBottom: "55%", // Adjust this value to position the content within the bottom third
+    width: "100%",
+    alignItems: "center",
   },
 });
 
