@@ -1,10 +1,10 @@
 import React from "react";
-import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import { TouchableOpacity, Text, Image, StyleSheet, ImageSourcePropType } from "react-native";
 import { NavigationProp } from "@react-navigation/native";
 
 interface ProviderDetails {
   title: string;
-  logo: string;
+  logo: ImageSourcePropType;
   onPress: (navigation: NavigationProp<any, any>) => void;
 }
 
@@ -46,6 +46,7 @@ const LoginScreenButton = ({
 
   return (
     <TouchableOpacity onPress={() => onPress(navigation)} style={styles.button}>
+      {logo && <Image source={logo} style={styles.logo} />}
       <Text style={styles.buttonText}>{title}</Text>
     </TouchableOpacity>
   );
@@ -65,6 +66,9 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
   },
+  logo: {
+    marginRight: 10,
+  }
 });
 
 export default LoginScreenButton;

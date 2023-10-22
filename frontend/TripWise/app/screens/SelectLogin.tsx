@@ -20,6 +20,7 @@ const SelectLogin = ({ navigation }: RouterProps) => {
       <View style={styles.loginProviders}>
         <LoginProviderButton provider={"email"} navigation={navigation} />
         <LoginProviderButton provider={"google"} navigation={navigation} />
+        <LoginProviderButton provider={"apple"} navigation={navigation} />
       </View>
     </View>
   );

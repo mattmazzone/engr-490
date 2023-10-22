@@ -12,6 +12,7 @@ import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { NavigationProp } from "@react-navigation/native";
 import LoginScreenButton from "../../components/LoginScreenButton";
+import BackButton from "../../components/BackButton";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -37,6 +38,11 @@ const Login = ({ navigation }: RouterProps) => {
 
   return (
     <View style={styles.container}>
+      <View>
+        <BackButton />
+      </View>
+
+      
       <KeyboardAvoidingView behavior="padding">
         <TextInput
           value={email}
