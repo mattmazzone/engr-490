@@ -42,8 +42,7 @@ const Login = ({ navigation }: RouterProps) => {
         <BackButton />
       </View>
 
-      
-      <KeyboardAvoidingView behavior="padding">
+      <KeyboardAvoidingView behavior="padding" style={styles.loginContainer}>
         <TextInput
           value={email}
           style={styles.input}
@@ -80,16 +79,25 @@ export default Login;
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#874EBF",
+    alignItems: "center",
+  },
+
+  loginContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    marginBottom: "35%", // Adjust this value to position the content within the bottom third
+    width: "100%",
+    alignItems: "center",
   },
   input: {
     marginVertical: 4,
-    height: 50,
+    height: 40,
     borderWidth: 1,
     borderRadius: 4,
     padding: 10,
     backgroundColor: "#fff",
+    width: "70%",
   },
 });

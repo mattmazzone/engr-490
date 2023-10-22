@@ -17,16 +17,17 @@ const LoginScreenButton = ({ onPress, title }: LoginScreenButtonProps) => {
 const styles = StyleSheet.create({
   button: {
     backgroundColor: "#1E90FF",
-    width: "100%",
-    height: 50,
-    borderRadius: 10,
+    flexDirection: "row",
+    width: "70%",
+    height: 45,
+    borderRadius: 7,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 10,
   },
   buttonText: {
-    color: "white",
     fontSize: 18,
+    marginRight: 10, // add some space between text and logo
   },
 });
 
