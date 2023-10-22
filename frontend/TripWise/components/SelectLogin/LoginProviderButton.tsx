@@ -47,7 +47,7 @@ const providerMap: Record<string, ProviderDetails> = {
       alert("Apple");
     },
     bgColor: "#FFFFFF",
-    textColor: "#00000",
+    textColor: "#000000",
   },
 };
 
