@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   loginProviders: {
     flex: 1,
     justifyContent: "flex-end",
-    marginBottom: "55%", // Adjust this value to position the content within the bottom third
+    marginBottom: "35%", // Adjust this value to position the content within the bottom third
     width: "100%",
     alignItems: "center",
   },

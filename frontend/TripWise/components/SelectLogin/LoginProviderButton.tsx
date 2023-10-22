@@ -1,11 +1,19 @@
 import React from "react";
-import { TouchableOpacity, Text, Image, StyleSheet, ImageSourcePropType } from "react-native";
+import {
+  TouchableOpacity,
+  Text,
+  Image,
+  StyleSheet,
+  ImageSourcePropType,
+} from "react-native";
 import { NavigationProp } from "@react-navigation/native";
 
 interface ProviderDetails {
   title: string;
   logo: ImageSourcePropType;
   onPress: (navigation: NavigationProp<any, any>) => void;
+  bgColor: string;
+  textColor: string;
 }
 
 interface LoginProviderButtonProps {
@@ -20,6 +28,8 @@ const providerMap: Record<string, ProviderDetails> = {
     onPress: (navigation) => {
       navigation.navigate("Login");
     },
+    bgColor: "#1E90FF",
+    textColor: "#FFFFFF",
   },
   google: {
     title: "Continue with Google",
@@ -27,6 +37,8 @@ const providerMap: Record<string, ProviderDetails> = {
     onPress: () => {
       alert("Google");
     },
+    bgColor: "#DB4437",
+    textColor: "#FFFFFF",
   },
   apple: {
     title: "Continue with Apple",
@@ -34,6 +46,8 @@ const providerMap: Record<string, ProviderDetails> = {
     onPress: () => {
       alert("Apple");
     },
+    bgColor: "#FFFFFF",
+    textColor: "#00000",
   },
 };
 
@@ -41,13 +55,16 @@ const LoginScreenButton = ({
   provider,
   navigation,
 }: LoginProviderButtonProps) => {
-  const { title, logo, onPress } =
+  const { title, logo, onPress, bgColor, textColor } =
     providerMap[provider.toLowerCase()] || providerMap["email"];
 
   return (
-    <TouchableOpacity onPress={() => onPress(navigation)} style={styles.button}>
-      {logo && <Image source={logo} style={styles.logo} />}
-      <Text style={styles.buttonText}>{title}</Text>
+    <TouchableOpacity
+      onPress={() => onPress(navigation)}
+      style={[styles.button, { backgroundColor: bgColor }]}
+    >
+      <Image source={logo} style={styles.logo} />
+      <Text style={[styles.buttonText, { color: textColor }]}>{title}</Text>
     </TouchableOpacity>
   );
 };
@@ -55,20 +72,23 @@ const LoginScreenButton = ({
 const styles = StyleSheet.create({
   button: {
     backgroundColor: "#1E90FF",
-    width: "100%",
-    height: 50,
-    borderRadius: 10,
+    flexDirection: "row",
+    width: "70%",
+    height: 45,
+    borderRadius: 7,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 10,
   },
   buttonText: {
-    color: "white",
     fontSize: 18,
+    marginRight: 10, // add some space between text and logo
   },
   logo: {
+    width: 25,
+    height: 25,
     marginRight: 10,
-  }
+  },
 });
 
 export default LoginScreenButton;
