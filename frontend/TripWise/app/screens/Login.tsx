@@ -41,7 +41,7 @@ const Login = ({ navigation }: RouterProps) => {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <TouchableWithoutFeedback>
       <KeyboardAwareScrollView
         style={{ flex: 1 }}
         contentContainerStyle={styles.container}
