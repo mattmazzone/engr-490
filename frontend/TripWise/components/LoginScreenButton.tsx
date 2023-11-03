@@ -16,9 +16,8 @@ const LoginScreenButton = ({ onPress, title }: LoginScreenButtonProps) => {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "#1E90FF",
+    backgroundColor: "#D9D9D9",
     flexDirection: "row",
-    width: "80%",
     height: 45,
     borderRadius: 7,
     justifyContent: "center",
@@ -27,7 +26,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 18,
-    marginRight: 10, // add some space between text and logo
+    marginRight: 20,
+    marginLeft: 20
   },
 });
 
