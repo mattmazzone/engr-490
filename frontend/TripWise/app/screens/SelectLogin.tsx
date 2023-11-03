@@ -1,35 +1,38 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, useColorScheme } from "react-native";
 import TripWiseLogo from "../../components/SVGLogos/TripWiseLogo";
 import LoginProviderButton from "../../components/SelectLogin/LoginProviderButton";
 import { NavigationProp } from "@react-navigation/native";
+import BackGroundGradient from "../../components/BackGroundGradient";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
+
 const SelectLogin = ({ navigation }: RouterProps) => {
+  const isDarkMode = useColorScheme() === 'dark';
+
   return (
-    <View style={styles.container}>
+    <BackGroundGradient>
+    <View style={styles.container}>   
       <View style={styles.logoContainer}>
         <View style={styles.logo}>
           <TripWiseLogo />
         </View>
       </View>
-
       <View style={styles.loginProviders}>
         <LoginProviderButton provider={"email"} navigation={navigation} />
         <LoginProviderButton provider={"google"} navigation={navigation} />
         <LoginProviderButton provider={"apple"} navigation={navigation} />
       </View>
     </View>
+</BackGroundGradient>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#874EBF",
     alignItems: "center",
   },
   logoContainer: {
