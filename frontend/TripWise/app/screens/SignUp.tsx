@@ -6,7 +6,12 @@ import {
   Button,
   StyleSheet,
   KeyboardAvoidingView,
+  Dimensions,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
+import LoginScreenButton from "../../components/LoginScreenButton";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 import { doc, setDoc } from "firebase/firestore"; // Import doc and setDoc
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -48,7 +53,15 @@ const SignUp = ({ navigation }: RouterProps) => {
   };
 
   return (
-    <View style={styles.container}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <KeyboardAwareScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.container}
+        resetScrollToCoords={{ x: 0, y: 0 }}
+        scrollEnabled={false}
+      >
+
+    <View style={styles.loginContainer}>
       <KeyboardAvoidingView behavior="padding">
         <TextInput
           placeholder="First Name"
@@ -75,13 +88,15 @@ const SignUp = ({ navigation }: RouterProps) => {
           onChangeText={setPassword}
           secureTextEntry
         />
-        <Button title="Sign Up" onPress={handleSignUp} />
-        <Button
+        <LoginScreenButton title="Sign Up" onPress={handleSignUp} />
+        <LoginScreenButton
           title="Already have an account? Login"
           onPress={() => navigation.navigate("Login")}
-        ></Button>
+        ></LoginScreenButton>
       </KeyboardAvoidingView>
     </View>
+    </KeyboardAwareScrollView>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -89,16 +104,32 @@ export default SignUp;
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
     flex: 1,
+    backgroundColor: "#874EBF",
+    alignItems: "center",
     justifyContent: "center",
   },
+  loginContainer: {
+    justifyContent: "flex-end",
+    width: "100%",
+    alignItems: "center",
+  },
   input: {
-    marginVertical: 4,
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 4,
+    marginVertical: 10,
+    width: Dimensions.get("window").width * 0.8, // 80% of screen width
+    height: 45, // Adjusted height
+    borderRadius: 10, // Rounded corners
     padding: 10,
     backgroundColor: "#fff",
+    borderColor: "#ccc", // Subtle border
+    borderWidth: 1,
+    shadowColor: "#000", // Optional shadow for a "lifted" effect
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
