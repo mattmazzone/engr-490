@@ -3,21 +3,41 @@ import { NavigationProp } from "@react-navigation/native";
 import {
   TextInput,
   View,
-  Button,
   StyleSheet,
-  KeyboardAvoidingView,
   Dimensions,
+  Platform,
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
 import LoginScreenButton from "../../components/LoginScreenButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import BackButton from "../../components/BackButton";
 import { doc, setDoc } from "firebase/firestore"; // Import doc and setDoc
 import { createUserWithEmailAndPassword } from "firebase/auth";
+
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
+
+const mobileRenderContent = (children: React.ReactNode) => {
+  if (Platform.OS === "ios" || Platform.OS === "android") {
+    return (
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAwareScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.container}
+          resetScrollToCoords={{ x: 0, y: 0 }}
+          scrollEnabled={false}
+        >
+          {children}
+        </KeyboardAwareScrollView>
+      </TouchableWithoutFeedback>
+    );
+  } else {
+    return <View style={styles.container}>{children}</View>;
+  }
+};
 
 const SignUp = ({ navigation }: RouterProps) => {
   const auth = FIREBASE_AUTH;
@@ -53,48 +73,47 @@ const SignUp = ({ navigation }: RouterProps) => {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAwareScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={styles.container}
-        resetScrollToCoords={{ x: 0, y: 0 }}
-        scrollEnabled={false}
-      >
-
-    <View style={styles.loginContainer}>
-        <TextInput
-          placeholder="First Name"
-          style={styles.input}
-          value={firstName}
-          onChangeText={setFirstName}
-        />
-        <TextInput
-          placeholder="Last Name"
-          style={styles.input}
-          value={lastName}
-          onChangeText={setLastName}
-        />
-        <TextInput
-          placeholder="Email"
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput
-          placeholder="Password"
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        <LoginScreenButton title="Sign Up" onPress={handleSignUp} />
-        <LoginScreenButton
-          title="Already have an account? Login"
-          onPress={() => navigation.navigate("Login")}
-        ></LoginScreenButton>
-    </View>
-    </KeyboardAwareScrollView>
-    </TouchableWithoutFeedback>
+    <>
+      {mobileRenderContent(
+        <>
+          <View>
+            <BackButton />
+          </View>
+          <View style={styles.loginContainer}>
+            <TextInput
+              placeholder="First Name"
+              style={styles.input}
+              value={firstName}
+              onChangeText={setFirstName}
+            />
+            <TextInput
+              placeholder="Last Name"
+              style={styles.input}
+              value={lastName}
+              onChangeText={setLastName}
+            />
+            <TextInput
+              placeholder="Email"
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+            />
+            <TextInput
+              placeholder="Password"
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+            <LoginScreenButton title="Sign Up" onPress={handleSignUp} />
+            <LoginScreenButton
+              title="Already have an account? Login"
+              onPress={() => navigation.navigate("Login")}
+            ></LoginScreenButton>
+          </View>
+        </>
+      )}
+    </>
   );
 };
 
