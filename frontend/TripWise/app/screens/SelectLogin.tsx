@@ -11,7 +11,6 @@ interface RouterProps {
 
 
 const SelectLogin = ({ navigation }: RouterProps) => {
-  const isDarkMode = useColorScheme() === 'dark';
 
   return (
     <BackgroundGradient>
