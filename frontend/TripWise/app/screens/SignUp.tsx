@@ -62,7 +62,6 @@ const SignUp = ({ navigation }: RouterProps) => {
       >
 
     <View style={styles.loginContainer}>
-      <KeyboardAvoidingView behavior="padding">
         <TextInput
           placeholder="First Name"
           style={styles.input}
@@ -93,7 +92,6 @@ const SignUp = ({ navigation }: RouterProps) => {
           title="Already have an account? Login"
           onPress={() => navigation.navigate("Login")}
         ></LoginScreenButton>
-      </KeyboardAvoidingView>
     </View>
     </KeyboardAwareScrollView>
     </TouchableWithoutFeedback>
