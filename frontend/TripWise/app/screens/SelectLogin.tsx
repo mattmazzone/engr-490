@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, useColorScheme } from "react-native";
 import TripWiseLogo from "../../components/SVGLogos/TripWiseLogo";
 import LoginProviderButton from "../../components/SelectLogin/LoginProviderButton";
 import { NavigationProp } from "@react-navigation/native";
-import BackGroundGradient from "../../components/BackGroundGradient";
+import BackgroundGradient from "../../components/BackgroundGradient";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -14,7 +14,7 @@ const SelectLogin = ({ navigation }: RouterProps) => {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
-    <BackGroundGradient>
+    <BackgroundGradient>
     <View style={styles.container}>   
       <View style={styles.logoContainer}>
         <View style={styles.logo}>
@@ -27,7 +27,7 @@ const SelectLogin = ({ navigation }: RouterProps) => {
         <LoginProviderButton provider={"apple"} navigation={navigation} />
       </View>
     </View>
-</BackGroundGradient>
+</BackgroundGradient>
   );
 };
 const styles = StyleSheet.create({

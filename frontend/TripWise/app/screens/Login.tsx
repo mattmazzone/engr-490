@@ -17,7 +17,7 @@ import { NavigationProp } from "@react-navigation/native";
 import LoginScreenButton from "../../components/LoginScreenButton";
 import BackButton from "../../components/BackButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import BackGroundGradient from "../../components/BackGroundGradient";
+import BackgroundGradient from "../../components/BackgroundGradient";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -42,7 +42,7 @@ const Login = ({ navigation }: RouterProps) => {
   };
 
   return (
-    <BackGroundGradient>
+    <BackgroundGradient>
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAwareScrollView
         style={{ flex: 1 }}
@@ -85,7 +85,7 @@ const Login = ({ navigation }: RouterProps) => {
         </View>
       </KeyboardAwareScrollView>
     </TouchableWithoutFeedback>
-    </BackGroundGradient>
+    </BackgroundGradient>
   );
 };
 

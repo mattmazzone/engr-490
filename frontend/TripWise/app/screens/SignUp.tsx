@@ -10,7 +10,7 @@ import {
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 import { doc, setDoc } from "firebase/firestore"; // Import doc and setDoc
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import BackGroundGradient from "../../components/BackGroundGradient";
+import BackgroundGradient from "../../components/BackgroundGradient";
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
@@ -49,7 +49,7 @@ const SignUp = ({ navigation }: RouterProps) => {
   };
 
   return (
-<BackGroundGradient>
+<BackgroundGradient>
     <View style={styles.container}>
       <KeyboardAvoidingView behavior="padding">
         <TextInput
@@ -84,7 +84,7 @@ const SignUp = ({ navigation }: RouterProps) => {
         ></Button>
       </KeyboardAvoidingView>
     </View>
-    </BackGroundGradient>
+    </BackgroundGradient>
   );
 };
 

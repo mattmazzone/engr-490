@@ -7,7 +7,7 @@ type ContainerProps = {
     children: React.ReactNode;
 };
 
-const BackGroundGradient: React.FC<ContainerProps> = ({children}) => {
+const BackgroundGradient: React.FC<ContainerProps> = ({children}) => {
     const isDarkMode = useColorScheme() === 'dark';
     const DarkTheme = ['#082B14', '#2BCD61'];
     const LightTheme = ['#1F9346', '#B4C8B1'];
@@ -33,4 +33,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default BackGroundGradient
+export default BackgroundGradient
