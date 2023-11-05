@@ -75,9 +75,10 @@ const SignUp = ({ navigation }: RouterProps) => {
 
   return (
     <>
+    <BackgroundGradient>
       {mobileRenderContent(
         <>
-          <BackgroundGradient>
+          
             <View>
               <BackButton />
             </View>
@@ -113,9 +114,10 @@ const SignUp = ({ navigation }: RouterProps) => {
                 onPress={() => navigation.navigate("Login")}
               ></LoginScreenButton>
             </View>
-          </BackgroundGradient>
+          
         </>
       )}
+      </BackgroundGradient>
     </>
     
   );
@@ -126,7 +128,6 @@ export default SignUp;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#874EBF",
     alignItems: "center",
     justifyContent: "center",
   },

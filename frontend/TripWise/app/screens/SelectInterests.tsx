@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
+import BackgroundGradient from "../../components/BackgroundGradient";
 
 const interestsArray = [
   "Restaurants",
@@ -61,6 +62,7 @@ const SelectInterests = () => {
   };
 
   return (
+    <BackgroundGradient>
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.welcomeText}>Welcome Matteo!</Text>
       <Text style={styles.instructionsText}>
@@ -68,6 +70,7 @@ const SelectInterests = () => {
       </Text>
       <View style={styles.interestsWrapper}>{renderInterestButtons()}</View>
     </ScrollView>
+    </BackgroundGradient>
   );
 };
 
