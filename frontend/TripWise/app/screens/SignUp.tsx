@@ -1,20 +1,20 @@
+import React, { useState } from "react";
+import { NavigationProp } from "@react-navigation/native";
 import {
+  TextInput,
   View,
   StyleSheet,
-  TextInput,
-  ActivityIndicator,
-  TouchableWithoutFeedback,
-  Keyboard,
   Dimensions,
   Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
-import React, { useState } from "react";
-import { FIREBASE_AUTH } from "../../FirebaseConfig";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { NavigationProp } from "@react-navigation/native";
 import LoginScreenButton from "../../components/LoginScreenButton";
-import BackButton from "../../components/BackButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import BackButton from "../../components/BackButton";
+import { doc, setDoc } from "firebase/firestore"; // Import doc and setDoc
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -39,21 +39,36 @@ const mobileRenderContent = (children: React.ReactNode) => {
   }
 };
 
-const Login = ({ navigation }: RouterProps) => {
+const SignUp = ({ navigation }: RouterProps) => {
+  const auth = FIREBASE_AUTH;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const auth = FIREBASE_AUTH;
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
-  const signIn = async () => {
-    setLoading(true);
+  const handleSignUp = async () => {
     try {
-      const response = await signInWithEmailAndPassword(auth, email, password);
-      console.log(response);
+      // Sign up the user
+      const response = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = response.user;
+
+      if (user) {
+        // Get a reference to the Firestore document for the new user
+        const userDocRef = doc(FIREBASE_DB, "users", user.uid);
+
+        // Set the additional user data
+        await setDoc(userDocRef, {
+          uid: user.uid,
+          firstName: firstName,
+          lastName: lastName,
+        });
+      }
     } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
+      console.error("Error signing up:", error);
     }
   };
 
@@ -64,35 +79,37 @@ const Login = ({ navigation }: RouterProps) => {
           <View>
             <BackButton />
           </View>
-
           <View style={styles.loginContainer}>
             <TextInput
-              value={email}
+              placeholder="First Name"
               style={styles.input}
-              placeholder="Email"
-              autoCapitalize="none"
-              onChange={(text) => setEmail(text.nativeEvent.text)}
-            ></TextInput>
+              value={firstName}
+              onChangeText={setFirstName}
+            />
             <TextInput
-              secureTextEntry={true}
-              value={password}
+              placeholder="Last Name"
               style={styles.input}
+              value={lastName}
+              onChangeText={setLastName}
+            />
+            <TextInput
+              placeholder="Email"
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+            />
+            <TextInput
               placeholder="Password"
-              autoCapitalize="none"
-              onChange={(text) => setPassword(text.nativeEvent.text)}
-            ></TextInput>
-
-            {loading ? (
-              <ActivityIndicator size="large" color="#0000ff" />
-            ) : (
-              <>
-                <LoginScreenButton onPress={signIn} title="Login" />
-                <LoginScreenButton
-                  onPress={() => navigation.navigate("SignUp")}
-                  title="Don't have an account? Sign Up"
-                />
-              </>
-            )}
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+            <LoginScreenButton title="Sign Up" onPress={handleSignUp} />
+            <LoginScreenButton
+              title="Already have an account? Login"
+              onPress={() => navigation.navigate("Login")}
+            ></LoginScreenButton>
           </View>
         </>
       )}
@@ -100,7 +117,7 @@ const Login = ({ navigation }: RouterProps) => {
   );
 };
 
-export default Login;
+export default SignUp;
 
 const styles = StyleSheet.create({
   container: {
