@@ -9,6 +9,7 @@ const Account = () => {
   };
 
   return (
+    <BackgroundGradient>
     <View style={styles.container}>
       <View style={styles.header}>
         {/* Profile image and name */}
@@ -34,6 +35,7 @@ const Account = () => {
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
     </View>
+    </BackgroundGradient>
   );
 };
 
@@ -48,10 +50,8 @@ const SettingOption = (iconName: any, title: any) => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#EFEFEF",
   },
   header: {
-    backgroundColor: "#008000",
     padding: 20,
     alignItems: "center",
     justifyContent: "center",
