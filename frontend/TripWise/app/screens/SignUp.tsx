@@ -3,17 +3,42 @@ import { NavigationProp } from "@react-navigation/native";
 import {
   TextInput,
   View,
-  Button,
   StyleSheet,
-  KeyboardAvoidingView,
+  Dimensions,
+  Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
+import LoginScreenButton from "../../components/LoginScreenButton";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import BackButton from "../../components/BackButton";
 import { doc, setDoc } from "firebase/firestore"; // Import doc and setDoc
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import BackgroundGradient from "../../components/BackgroundGradient";
+
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
+
+const mobileRenderContent = (children: React.ReactNode) => {
+  if (Platform.OS === "ios" || Platform.OS === "android") {
+    return (
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAwareScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.container}
+          resetScrollToCoords={{ x: 0, y: 0 }}
+          scrollEnabled={false}
+        >
+          {children}
+        </KeyboardAwareScrollView>
+      </TouchableWithoutFeedback>
+    );
+  } else {
+    return <View style={styles.container}>{children}</View>;
+  }
+};
 
 const SignUp = ({ navigation }: RouterProps) => {
   const auth = FIREBASE_AUTH;
@@ -49,42 +74,50 @@ const SignUp = ({ navigation }: RouterProps) => {
   };
 
   return (
-<BackgroundGradient>
-    <View style={styles.container}>
-      <KeyboardAvoidingView behavior="padding">
-        <TextInput
-          placeholder="First Name"
-          style={styles.input}
-          value={firstName}
-          onChangeText={setFirstName}
-        />
-        <TextInput
-          placeholder="Last Name"
-          style={styles.input}
-          value={lastName}
-          onChangeText={setLastName}
-        />
-        <TextInput
-          placeholder="Email"
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput
-          placeholder="Password"
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        <Button title="Sign Up" onPress={handleSignUp} />
-        <Button
-          title="Already have an account? Login"
-          onPress={() => navigation.navigate("Login")}
-        ></Button>
-      </KeyboardAvoidingView>
-    </View>
-    </BackgroundGradient>
+    <>
+      {mobileRenderContent(
+        <>
+          <BackgroundGradient>
+            <View>
+              <BackButton />
+            </View>
+            <View style={styles.loginContainer}>
+              <TextInput
+                placeholder="First Name"
+                style={styles.input}
+                value={firstName}
+                onChangeText={setFirstName}
+              />
+              <TextInput
+                placeholder="Last Name"
+                style={styles.input}
+                value={lastName}
+                onChangeText={setLastName}
+              />
+              <TextInput
+                placeholder="Email"
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+              />
+              <TextInput
+                placeholder="Password"
+                style={styles.input}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
+              <LoginScreenButton title="Sign Up" onPress={handleSignUp} />
+              <LoginScreenButton
+                title="Already have an account? Login"
+                onPress={() => navigation.navigate("Login")}
+              ></LoginScreenButton>
+            </View>
+          </BackgroundGradient>
+        </>
+      )}
+    </>
+    
   );
 };
 
@@ -92,16 +125,32 @@ export default SignUp;
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
     flex: 1,
+    backgroundColor: "#874EBF",
+    alignItems: "center",
     justifyContent: "center",
   },
+  loginContainer: {
+    justifyContent: "flex-end",
+    width: "100%",
+    alignItems: "center",
+  },
   input: {
-    marginVertical: 4,
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 4,
+    marginVertical: 10,
+    width: Dimensions.get("window").width * 0.8, // 80% of screen width
+    height: 45, // Adjusted height
+    borderRadius: 10, // Rounded corners
     padding: 10,
     backgroundColor: "#fff",
+    borderColor: "#ccc", // Subtle border
+    borderWidth: 1,
+    shadowColor: "#000", // Optional shadow for a "lifted" effect
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });

@@ -28,8 +28,8 @@ const providerMap: Record<string, ProviderDetails> = {
     onPress: (navigation) => {
       navigation.navigate("Login");
     },
-    bgColor: "#1E90FF",
-    textColor: "#FFFFFF",
+    bgColor: "#D9D9D9",
+    textColor: "#000000",
   },
   google: {
     title: "Continue with Google",
@@ -73,16 +73,17 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#1E90FF",
     flexDirection: "row",
-    width: "70%",
+    //width: "55%",
     height: 45,
     borderRadius: 7,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 10,
+    paddingLeft: 30
   },
   buttonText: {
     fontSize: 18,
-    marginRight: 10, // add some space between text and logo
+    marginRight: 30 // add some space between text and logo
   },
   logo: {
     width: 25,

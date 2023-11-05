@@ -1,14 +1,12 @@
 import {
   View,
-  Text,
   StyleSheet,
   TextInput,
   ActivityIndicator,
-  Button,
-  KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
   Dimensions,
+  Platform,
 } from "react-native";
 import React, { useState } from "react";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
@@ -22,6 +20,25 @@ import BackgroundGradient from "../../components/BackgroundGradient";
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
+
+const mobileRenderContent = (children: React.ReactNode) => {
+  if (Platform.OS === "ios" || Platform.OS === "android") {
+    return (
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAwareScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.container}
+          resetScrollToCoords={{ x: 0, y: 0 }}
+          scrollEnabled={false}
+        >
+          {children}
+        </KeyboardAwareScrollView>
+      </TouchableWithoutFeedback>
+    );
+  } else {
+    return <View style={styles.container}>{children}</View>;
+  }
+};
 
 const Login = ({ navigation }: RouterProps) => {
   const [email, setEmail] = useState("");
@@ -42,50 +59,47 @@ const Login = ({ navigation }: RouterProps) => {
   };
 
   return (
-    <BackgroundGradient>
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAwareScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={styles.container}
-        resetScrollToCoords={{ x: 0, y: 0 }}
-        scrollEnabled={false}
-      >
-        <View>
-          <BackButton />
-        </View>
+    <>
+      <BackgroundGradient>
+        {mobileRenderContent(
+          <>
+            <View>
+              <BackButton />
+            </View>
 
-        <View style={styles.loginContainer}>
-          <TextInput
-            value={email}
-            style={styles.input}
-            placeholder="Email"
-            autoCapitalize="none"
-            onChange={(text) => setEmail(text.nativeEvent.text)}
-          ></TextInput>
-          <TextInput
-            secureTextEntry={true}
-            value={password}
-            style={styles.input}
-            placeholder="Password"
-            autoCapitalize="none"
-            onChange={(text) => setPassword(text.nativeEvent.text)}
-          ></TextInput>
+            <View style={styles.loginContainer}>
+              <TextInput
+                value={email}
+                style={styles.input}
+                placeholder="Email"
+                autoCapitalize="none"
+                onChange={(text) => setEmail(text.nativeEvent.text)}
+              ></TextInput>
+              <TextInput
+                secureTextEntry={true}
+                value={password}
+                style={styles.input}
+                placeholder="Password"
+                autoCapitalize="none"
+                onChange={(text) => setPassword(text.nativeEvent.text)}
+              ></TextInput>
 
-          {loading ? (
-            <ActivityIndicator size="large" color="#0000ff" />
-          ) : (
-            <>
-              <LoginScreenButton onPress={signIn} title="Login" />
-              <LoginScreenButton
-                onPress={() => navigation.navigate("SignUp")}
-                title="Don't have an account? Sign Up"
-              />
-            </>
-          )}
-        </View>
-      </KeyboardAwareScrollView>
-    </TouchableWithoutFeedback>
-    </BackgroundGradient>
+              {loading ? (
+                <ActivityIndicator size="large" color="#0000ff" />
+              ) : (
+                <>
+                  <LoginScreenButton onPress={signIn} title="Login" />
+                  <LoginScreenButton
+                    onPress={() => navigation.navigate("SignUp")}
+                    title="Don't have an account? Sign Up"
+                  />
+                </>
+              )}
+            </View>
+          </>
+        )}
+        </BackgroundGradient>
+    </>
   );
 };
 
