@@ -1,8 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 
+//
+
 const Account = () => {
+  const [userProfile, setUserProfile] = useState(null);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        if (FIREBASE_AUTH.currentUser) {
+          const response = await fetch(
+            `http://localhost:3000/profile/${FIREBASE_AUTH.currentUser.uid}`
+          );
+          const data = await response.json();
+
+          setUserProfile(data);
+          console.log(data);
+        }
+      } catch (error) {
+        console.error("Error fetching user profile from backend:", error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
   const handleLogout = () => {
     FIREBASE_AUTH.signOut();
   };
