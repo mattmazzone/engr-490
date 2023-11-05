@@ -1,6 +1,7 @@
 import React from "react";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import BackgroundGradient from "../../components/BackgroundGradient";
 
 const Account = () => {
   const handleLogout = () => {
