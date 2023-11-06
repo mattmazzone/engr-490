@@ -51,7 +51,9 @@ const SelectInterests = () => {
   // Function to handle interest selection
   const handleSelectInterest = (interest: string) => {
     setSelectedInterests((prevSelected) =>
-      prevSelected.includes(interest) ? prevSelected.filter((i) => i !== interest) : [...prevSelected, interest]
+      prevSelected.includes(interest)
+        ? prevSelected.filter((i) => i !== interest)
+        : [...prevSelected, interest]
     );
   };
 
@@ -89,6 +91,15 @@ const SelectInterests = () => {
     ));
   };
 
+  // TODO: REPLACE WITH COOL SPINNER
+  if (isFetching) {
+    return (
+      <BackgroundGradient>
+        <Text>Loading...</Text>
+      </BackgroundGradient>
+    );
+  }
+
   return (
     <BackgroundGradient>
       <ScrollView contentContainerStyle={styles.container}>
@@ -102,7 +113,7 @@ const SelectInterests = () => {
 
         {/* Update Interests Button */}
         <TouchableOpacity
-          onPress={updateInterests}
+          onPress={handleUpdateInterests}
           disabled={selectedInterests.length < 4}
           style={[
             styles.button,
