@@ -32,8 +32,28 @@ export const fetchUserProfile = async (): Promise<UserProfile | null> => {
 };
 
 export const updateUserInterests = async (
-  uid: string,
   interests: string[]
 ): Promise<void> => {
-  // Implement the function to update the user's interests in the database.
+  try {
+    if (FIREBASE_AUTH.currentUser) {
+      const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+      const response = await fetch(
+        `http://localhost:3000/api/interests/${FIREBASE_AUTH.currentUser.uid}`,
+        {
+          headers: {
+            Authorization: idToken,
+            "Content-Type": "application/json",
+          },
+          method: "PUT",
+          body: JSON.stringify({ interests }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update user interests.");
+      }
+    }
+  } catch (error) {
+    console.error("Error updating user interests:", error);
+    throw error;
+  }
 };

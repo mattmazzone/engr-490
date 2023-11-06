@@ -60,10 +60,7 @@ const SelectInterests = () => {
   const handleUpdateInterests = async () => {
     if (userProfile && userProfile.uid) {
       try {
-        await UserService.updateUserInterests(
-          userProfile.uid,
-          selectedInterests
-        );
+        await UserService.updateUserInterests(selectedInterests);
         // Handle success, perhaps navigate away or show a success message
       } catch (error) {
         console.error("Error updating interests:", error);

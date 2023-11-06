@@ -32,5 +32,18 @@ router.get("/profile/:uid", authenticate, async (req, res) => {
   }
 });
 
+// Route to update user interest array
+router.put("/interests/:uid", authenticate, async (req, res) => {
+  const uid = req.params.uid;
+  const interests = req.body.interests;
+  try {
+    await db.collection("users").doc(uid).update({ interests });
+    return res.status(200).send("Interests updated successfully");
+  } catch (error) {
+    console.error("Error updating interests", error);
+    res.status(500).send(error.message);
+  }
+});
+
 // Export the router
 module.exports = router;
