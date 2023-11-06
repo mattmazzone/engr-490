@@ -50,15 +50,9 @@ const SelectInterests = () => {
 
   // Function to handle interest selection
   const handleSelectInterest = (interest: string) => {
-    setSelectedInterests((prevSelected) => {
-      if (prevSelected.includes(interest)) {
-        // Deselect it
-        return prevSelected.filter((i) => i !== interest);
-      } else {
-        // Select it
-        return [...prevSelected, interest];
-      }
-    });
+    setSelectedInterests((prevSelected) =>
+      prevSelected.includes(interest) ? prevSelected.filter((i) => i !== interest) : [...prevSelected, interest]
+    );
   };
 
   const handleUpdateInterests = async () => {
