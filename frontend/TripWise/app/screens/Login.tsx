@@ -15,6 +15,7 @@ import { NavigationProp } from "@react-navigation/native";
 import LoginScreenButton from "../../components/LoginScreenButton";
 import BackButton from "../../components/BackButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import BackgroundGradient from "../../components/BackgroundGradient";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -63,43 +64,45 @@ const Login = ({ navigation }: RouterProps) => {
 
   return (
     <>
-      {mobileRenderContent(
-        <>
-          <View>
-            <BackButton />
-          </View>
+      <BackgroundGradient>
+        {mobileRenderContent(
+          <>
+            <View>
+              <BackButton />
+            </View>
 
-          <View style={styles.loginContainer}>
-            <TextInput
-              value={email}
-              style={styles.input}
-              placeholder="Email"
-              autoCapitalize="none"
-              onChange={(text) => setEmail(text.nativeEvent.text)}
-            ></TextInput>
-            <TextInput
-              secureTextEntry={true}
-              value={password}
-              style={styles.input}
-              placeholder="Password"
-              autoCapitalize="none"
-              onChange={(text) => setPassword(text.nativeEvent.text)}
-            ></TextInput>
+            <View style={styles.loginContainer}>
+              <TextInput
+                value={email}
+                style={styles.input}
+                placeholder="Email"
+                autoCapitalize="none"
+                onChange={(text) => setEmail(text.nativeEvent.text)}
+              ></TextInput>
+              <TextInput
+                secureTextEntry={true}
+                value={password}
+                style={styles.input}
+                placeholder="Password"
+                autoCapitalize="none"
+                onChange={(text) => setPassword(text.nativeEvent.text)}
+              ></TextInput>
 
-            {loading ? (
-              <ActivityIndicator size="large" color="#0000ff" />
-            ) : (
-              <>
-                <LoginScreenButton onPress={signIn} title="Login" />
-                <LoginScreenButton
-                  onPress={() => navigation.navigate("SignUp")}
-                  title="Don't have an account? Sign Up"
-                />
-              </>
-            )}
-          </View>
-        </>
-      )}
+              {loading ? (
+                <ActivityIndicator size="large" color="#0000ff" />
+              ) : (
+                <>
+                  <LoginScreenButton onPress={signIn} title="Login" />
+                  <LoginScreenButton
+                    onPress={() => navigation.navigate("SignUp")}
+                    title="Don't have an account? Sign Up"
+                  />
+                </>
+              )}
+            </View>
+          </>
+        )}
+        </BackgroundGradient>
     </>
   );
 };
@@ -109,7 +112,6 @@ export default Login;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#874EBF",
     alignItems: "center",
     justifyContent: "center",
   },
