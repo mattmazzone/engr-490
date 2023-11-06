@@ -2,18 +2,26 @@ import React, { useEffect, useState } from "react";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
-
+import { Use } from "react-native-svg";
+import { UserProfile } from "../../types/userTypes";
 //
 
 const Account = () => {
-  const [userProfile, setUserProfile] = useState(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         if (FIREBASE_AUTH.currentUser) {
+          const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+          console.log(FIREBASE_AUTH.currentUser.uid);
           const response = await fetch(
-            `http://localhost:3000/profile/${FIREBASE_AUTH.currentUser.uid}`
+            `http://localhost:3000/api/profile/${FIREBASE_AUTH.currentUser.uid}`,
+            {
+              headers: {
+                Authorization: idToken,
+              },
+            }
           );
           const data = await response.json();
 
@@ -34,31 +42,35 @@ const Account = () => {
 
   return (
     <BackgroundGradient>
-    <View style={styles.container}>
-      <View style={styles.header}>
-        {/* Profile image and name */}
-        <Image
-          source={{ uri: "path-to-your-image" }}
-          style={styles.profileImage}
-        />
-        <Text style={styles.profileName}>Matteo Mazzone</Text>
-      </View>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          {/* Profile image and name */}
+          <Image
+            source={{ uri: "path-to-your-image" }}
+            style={styles.profileImage}
+          />
+          {userProfile && (
+            <Text style={styles.profileName}>
+              {`${userProfile.firstName} ${userProfile.lastName}`}
+            </Text>
+          )}
+        </View>
 
-      <View style={styles.settings}>
-        {/* Settings options with icons */}
-        {SettingOption("cog", "App Settings")}
-        {SettingOption("shield", "Privacy Settings")}
-        {SettingOption("cloud-upload", "Backup and Restore")}
-        {SettingOption("question-circle", "Help and Support")}
-        {SettingOption("bell", "Notification Settings")}
-        {SettingOption("info-circle", "About")}
-      </View>
+        <View style={styles.settings}>
+          {/* Settings options with icons */}
+          {SettingOption("cog", "App Settings")}
+          {SettingOption("shield", "Privacy Settings")}
+          {SettingOption("cloud-upload", "Backup and Restore")}
+          {SettingOption("question-circle", "Help and Support")}
+          {SettingOption("bell", "Notification Settings")}
+          {SettingOption("info-circle", "About")}
+        </View>
 
-      {/* Logout button */}
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
-    </View>
+        {/* Logout button */}
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
     </BackgroundGradient>
   );
 };
