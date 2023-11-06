@@ -38,6 +38,8 @@ const SelectInterests = () => {
       try {
         const profile = await UserService.fetchUserProfile();
         setUserProfile(profile);
+        // If the user has interests, set the selected interests to the user's interests
+        setSelectedInterests(profile?.interests || []);
       } catch (error) {
         console.error("Error fetching user profile:", error);
       } finally {
@@ -62,7 +64,23 @@ const SelectInterests = () => {
     if (userProfile && userProfile.uid) {
       try {
         await UserService.updateUserInterests(selectedInterests);
-        // Handle success, perhaps navigate away or show a success message
+        // If success the button should be disabled
+        const updatedProfile = await UserService.fetchUserProfile();
+        
+        if (!updatedProfile) {
+          // Handle the error, perhaps by showing an error message
+          return;
+        }
+        
+        if (arraysEqual(updatedProfile.interests, selectedInterests)) {
+          // The interests have been successfully updated.
+          // Update local state or context with the new profile data
+          setUserProfile(updatedProfile);
+          // Optionally, show a success message to the user
+        } else {
+          // The fetched interests don't match the expected values.
+          // Handle the mismatch, possibly by showing an error message
+        }
       } catch (error) {
         console.error("Error updating interests:", error);
         // Handle error, perhaps show an error message
@@ -132,7 +150,9 @@ const SelectInterests = () => {
           disabled={selectedInterests.length < 4 || !hasChangedInterests()}
           style={[
             styles.button,
-            selectedInterests.length < 4 ? styles.buttonDisabled : {},
+            selectedInterests.length < 4 || !hasChangedInterests()
+              ? styles.buttonDisabled
+              : {},
           ]}
         >
           <Text style={styles.buttonText}>Update Interests</Text>
