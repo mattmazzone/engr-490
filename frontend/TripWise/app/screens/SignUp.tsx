@@ -15,6 +15,7 @@ import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 import BackButton from "../../components/BackButton";
 import { doc, setDoc } from "firebase/firestore"; // Import doc and setDoc
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import BackgroundGradient from "../../components/BackgroundGradient";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -74,46 +75,51 @@ const SignUp = ({ navigation }: RouterProps) => {
 
   return (
     <>
+    <BackgroundGradient>
       {mobileRenderContent(
         <>
-          <View>
-            <BackButton />
-          </View>
-          <View style={styles.loginContainer}>
-            <TextInput
-              placeholder="First Name"
-              style={styles.input}
-              value={firstName}
-              onChangeText={setFirstName}
-            />
-            <TextInput
-              placeholder="Last Name"
-              style={styles.input}
-              value={lastName}
-              onChangeText={setLastName}
-            />
-            <TextInput
-              placeholder="Email"
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-            />
-            <TextInput
-              placeholder="Password"
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-            <LoginScreenButton title="Sign Up" onPress={handleSignUp} />
-            <LoginScreenButton
-              title="Already have an account? Login"
-              onPress={() => navigation.navigate("Login")}
-            ></LoginScreenButton>
-          </View>
+          
+            <View>
+              <BackButton />
+            </View>
+            <View style={styles.loginContainer}>
+              <TextInput
+                placeholder="First Name"
+                style={styles.input}
+                value={firstName}
+                onChangeText={setFirstName}
+              />
+              <TextInput
+                placeholder="Last Name"
+                style={styles.input}
+                value={lastName}
+                onChangeText={setLastName}
+              />
+              <TextInput
+                placeholder="Email"
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+              />
+              <TextInput
+                placeholder="Password"
+                style={styles.input}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
+              <LoginScreenButton title="Sign Up" onPress={handleSignUp} />
+              <LoginScreenButton
+                title="Already have an account? Login"
+                onPress={() => navigation.navigate("Login")}
+              ></LoginScreenButton>
+            </View>
+          
         </>
       )}
+      </BackgroundGradient>
     </>
+    
   );
 };
 
@@ -122,7 +128,6 @@ export default SignUp;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#874EBF",
     alignItems: "center",
     justifyContent: "center",
   },
