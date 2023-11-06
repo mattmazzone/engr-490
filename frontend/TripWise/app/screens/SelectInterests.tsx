@@ -57,6 +57,7 @@ const SelectInterests = () => {
     );
   };
 
+  // Function to handle updating interests
   const handleUpdateInterests = async () => {
     if (userProfile && userProfile.uid) {
       try {
@@ -67,6 +68,23 @@ const SelectInterests = () => {
         // Handle error, perhaps show an error message
       }
     }
+  };
+
+  // Function to compare arrays regardless of order
+  const arraysEqual = (a: string[], b: string[]) => {
+    if (a.length !== b.length) return false;
+    const sortedA = [...a].sort();
+    const sortedB = [...b].sort();
+    return sortedA.every((value, index) => value === sortedB[index]);
+  };
+
+  // Check if the selected interests are different from the user profile's interests
+  const hasChangedInterests = () => {
+    // If userProfile.interests doesn't exist or if arrays are not equal, return true
+    return (
+      !userProfile?.interests ||
+      !arraysEqual(selectedInterests, userProfile.interests)
+    );
   };
 
   // Render each interest as a button
@@ -111,7 +129,7 @@ const SelectInterests = () => {
         {/* Update Interests Button */}
         <TouchableOpacity
           onPress={handleUpdateInterests}
-          disabled={selectedInterests.length < 4}
+          disabled={selectedInterests.length < 4 || !hasChangedInterests()}
           style={[
             styles.button,
             selectedInterests.length < 4 ? styles.buttonDisabled : {},
