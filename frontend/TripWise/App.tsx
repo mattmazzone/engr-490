@@ -20,7 +20,7 @@ const Tab = createBottomTabNavigator();
 // Tab Navigator
 function BottomTabNavigation() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Trip" component={Trip} />
       <Tab.Screen name="Account" component={Account} />

@@ -1,6 +1,6 @@
 import { NavigationProp } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
-import { Text, View, Button, StyleSheet } from "react-native";
+import { Text, View, Button, StyleSheet, TouchableOpacity } from "react-native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import BackgroundGradient from "../../components/BackgroundGradient";
 import { UserProfile } from "../../types/userTypes";
@@ -63,12 +63,17 @@ const Home = ({ navigation }: RouterProps) => {
     <BackgroundGradient>
       <View style={styles.container}>
         <Text style={styles.title}>No Ongoing Trips!</Text>
-        <Text style={styles.tripCardDetail}>Start a trip to get started!</Text>
-        <Button
-          title="Start a Trip"
+        <Text style={styles.subTitle}>
+          Click below to start planning a trip.
+        </Text>
+
+        <TouchableOpacity
           onPress={() => navigation.navigate("StartTrip")}
-        />
-        <Text>Review your past Trips</Text>
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>Start a Trip</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>Review your past Trips</Text>
         <View>{/* Map past trips to TSX here */}</View>
       </View>
     </BackgroundGradient>
@@ -80,8 +85,9 @@ export default Home;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 10,
+    alignItems: "flex-start",
+    marginHorizontal: 40,
+    marginTop: 40,
   },
   title: {
     fontSize: 24,
@@ -90,9 +96,15 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
+  subTitle: {
+    fontSize: 16,
+    color: "white",
+    marginBottom: 20,
+  },
   button: {
     backgroundColor: "#6200ee",
     padding: 10,
+    width: "50%",
     borderRadius: 5,
     marginBottom: 10,
   },
@@ -100,11 +112,7 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
   },
-  tripCardDetail: {
-    fontSize: 16,
-    color: "#ccc",
-    marginBottom: 5,
-  },
+
   loadingText: {
     color: "white",
     textAlign: "center",
