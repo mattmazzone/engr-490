@@ -34,7 +34,6 @@ function BottomTabNavigation() {
             return <AccountLogo focused={focused} />;
           }
         },
-
         headerShown: false,
         tabBarStyle: {
           position: "absolute",
