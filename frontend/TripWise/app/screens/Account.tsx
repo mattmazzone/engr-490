@@ -9,8 +9,8 @@ import {
   Modal,
 } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
-import { Use } from "react-native-svg";
 import { UserProfile } from "../../types/userTypes";
+import * as UserService from "../../services/userServices";
 import { NavigationProp } from "@react-navigation/native";
 import About from "../../components/AccountScreen/About";
 
@@ -21,37 +21,35 @@ interface RouterProps {
 const Account = ({ navigation }: RouterProps) => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [aboutModalVisible, setAboutModalVisible] = useState(false);
+  const [isFetching, setIsFetching] = useState<boolean>(true); // To track the fetching state
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const initializeUserProfile = async () => {
       try {
-        if (FIREBASE_AUTH.currentUser) {
-          const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
-          console.log(FIREBASE_AUTH.currentUser.uid);
-          const response = await fetch(
-            `http://localhost:3000/api/profile/${FIREBASE_AUTH.currentUser.uid}`,
-            {
-              headers: {
-                Authorization: idToken,
-              },
-            }
-          );
-          const data = await response.json();
-
-          setUserProfile(data);
-          console.log(data);
-        }
+        const profile = await UserService.fetchUserProfile();
+        setUserProfile(profile);
       } catch (error) {
-        console.error("Error fetching user profile from backend:", error);
+        console.error("Error fetching user profile:", error);
+      } finally {
+        setIsFetching(false);
       }
     };
 
-    fetchUserProfile();
+    initializeUserProfile();
   }, []);
 
   const handleLogout = () => {
     FIREBASE_AUTH.signOut();
   };
+
+  // TODO: REPLACE WITH COOL SPINNER
+  if (isFetching) {
+    return (
+      <BackgroundGradient>
+        <Text>Loading...</Text>
+      </BackgroundGradient>
+    );
+  }
 
   return (
     <BackgroundGradient>
