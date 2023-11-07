@@ -106,11 +106,13 @@ const styles = StyleSheet.create({
     padding: 10,
     width: "50%",
     borderRadius: 5,
-    marginBottom: 10,
+    marginBottom: 40,
   },
   buttonText: {
     color: "white",
     textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 
   loadingText: {
