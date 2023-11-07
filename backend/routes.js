@@ -94,6 +94,7 @@ router.get("/places/nearby", authenticate, async (req, res) => {
     );
 
     return res.status(200).json(response.data);
+    
   } catch (error) {
     console.error("Error getting nearby places", error);
     if (error.response) {

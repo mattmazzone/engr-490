@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { onAuthStateChanged } from "firebase/auth";
+import { FIREBASE_AUTH } from "./FirebaseConfig";
 import Login from "./app/screens/Login";
 import SignUp from "./app/screens/SignUp";
 import SelectLogin from "./app/screens/SelectLogin";
@@ -10,14 +11,13 @@ import Home from "./app/screens/Home";
 import Account from "./app/screens/Account";
 import Trip from "./app/screens/Trip";
 import SelectInterests from "./app/screens/SelectInterests";
-import { User, onAuthStateChanged } from "firebase/auth";
-import { FIREBASE_AUTH } from "./FirebaseConfig";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
-const Stack = createNativeStackNavigator();
+// Declare your stacks
+const RootStack = createNativeStackNavigator();
+const MainStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
-const InsideStack = createNativeStackNavigator();
 
+// Tab Navigator
 function BottomTabNavigation() {
   return (
     <Tab.Navigator>
@@ -29,56 +29,72 @@ function BottomTabNavigation() {
   );
 }
 
-function InsideLayout() {
+// Main stack navigator when logged in
+function LoggedInStack() {
   return (
-    <InsideStack.Navigator>
-      <InsideStack.Screen
+    <MainStack.Navigator>
+      <MainStack.Screen
         name="BottomTabNavigation"
         component={BottomTabNavigation}
         options={{ headerShown: false }}
       />
-    </InsideStack.Navigator>
+      {/* Add more screens that should be part of the main stack here */}
+    </MainStack.Navigator>
+  );
+}
+
+// Root navigator to switch between authentication and main app
+function RootNavigator({ user }: any) {
+  return (
+    <RootStack.Navigator>
+      {user ? (
+        <>
+          <RootStack.Group>
+            <RootStack.Screen
+              name="LoggedInStack"
+              component={LoggedInStack}
+              options={{ headerShown: false }}
+            />
+          </RootStack.Group>
+        </>
+      ) : (
+        <>
+          <RootStack.Screen
+            name="SelectLogin"
+            component={SelectLogin}
+            options={{ headerShown: false }}
+          />
+          <RootStack.Screen
+            name="Login"
+            component={Login}
+            options={{ headerShown: false }}
+          />
+          <RootStack.Screen
+            name="SignUp"
+            component={SignUp}
+            options={{ headerShown: false }}
+          />
+        </>
+      )}
+    </RootStack.Navigator>
   );
 }
 
 export default function App() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    onAuthStateChanged(FIREBASE_AUTH, (user) => {
+    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user: any) => {
       setUser(user);
     });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="SelectLogin">
-        {user ? (
-          <Stack.Screen
-            name="InsideLayout"
-            component={InsideLayout}
-            options={{ headerShown: false }}
-          />
-        ) : (
-          <>
-            <Stack.Screen
-              name="SelectLogin"
-              component={SelectLogin}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Login"
-              component={Login}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="SignUp"
-              component={SignUp}
-              options={{ headerShown: false }}
-            />
-          </>
-        )}
-      </Stack.Navigator>
+      <RootNavigator user={user} />
     </NavigationContainer>
   );
 }
