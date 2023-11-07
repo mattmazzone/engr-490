@@ -47,12 +47,22 @@ const testGoogleAPI = async () => {
   }
 };
 
-const About = ({ closeModal }: any) => {
+const About = ({ closeModal, navigation }: any) => {
   return (
     <View style={styles.container}>
       <Text>About Modal</Text>
       <TouchableOpacity onPress={() => testGoogleAPI()} style={styles.button}>
         <Text style={styles.buttonText}>Test Google API</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate("SelectInterests");
+          closeModal();
+        }}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>Open Select Interest Page</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={closeModal} style={styles.button}>

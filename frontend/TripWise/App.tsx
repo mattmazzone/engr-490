@@ -54,6 +54,8 @@ function BottomTabNavigation() {
     >
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Trip" component={Trip} />
+      {/* Dont display in nav */}
+
       <Tab.Screen name="Account" component={Account} />
       {/* <Tab.Screen name="SelectInterests" component={SelectInterests} /> */}
     </Tab.Navigator>
@@ -69,6 +71,7 @@ function LoggedInStack() {
         component={BottomTabNavigation}
         options={{ headerShown: false }}
       />
+      <MainStack.Screen name="SelectInterests" component={SelectInterests} />
       {/* Add more screens that should be part of the main stack here */}
     </MainStack.Navigator>
   );
