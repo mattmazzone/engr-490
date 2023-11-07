@@ -3,6 +3,8 @@ export type UserProfile = {
   firstName: string;
   lastName: string;
   interests: string[];
+  ongoingTrip: string; // trip id
+  pastTrips: string[]; // trip ids
   // ... other user profile properties
 };
 
