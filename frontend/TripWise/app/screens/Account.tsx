@@ -1,13 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Modal,
+} from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
 import { Use } from "react-native-svg";
 import { UserProfile } from "../../types/userTypes";
-//
+import { NavigationProp } from "@react-navigation/native";
+import About from "../../components/AccountScreen/About";
 
-const Account = () => {
+interface RouterProps {
+  navigation: NavigationProp<any, any>;
+}
+
+const Account = ({ navigation }: RouterProps) => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [aboutModalVisible, setAboutModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -63,8 +76,21 @@ const Account = () => {
           {SettingOption("cloud-upload", "Backup and Restore")}
           {SettingOption("question-circle", "Help and Support")}
           {SettingOption("bell", "Notification Settings")}
-          {SettingOption("info-circle", "About")}
+          {SettingOption("info-circle", "About", () => {
+            setAboutModalVisible(true);
+          })}
         </View>
+
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={aboutModalVisible}
+          onRequestClose={() => {
+            setAboutModalVisible(!aboutModalVisible);
+          }}
+        >
+          <About closeModal={() => setAboutModalVisible(false)} />
+        </Modal>
 
         {/* Logout button */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -76,8 +102,8 @@ const Account = () => {
 };
 
 // Helper function to create a setting option with an icon
-const SettingOption = (iconName: any, title: any) => (
-  <TouchableOpacity style={styles.settingOption}>
+const SettingOption = (iconName: any, title: any, action?: any) => (
+  <TouchableOpacity style={styles.settingOption} onPress={action}>
     {/* <Icon name={iconName} size={20} color="#000" style={styles.settingIcon} /> */}
     <Text style={styles.settingTitle}>{title}</Text>
   </TouchableOpacity>
