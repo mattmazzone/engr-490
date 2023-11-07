@@ -27,11 +27,11 @@ function BottomTabNavigation() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           if (route.name === "Home") {
-            return <HomeLogo />;
+            return <HomeLogo focused={focused} />;
           } else if (route.name === "Trip") {
-            return <TripLogo />;
+            return <TripLogo focused={focused} />;
           } else if (route.name === "Account") {
-            return <AccountLogo />;
+            return <AccountLogo focused={focused} />;
           }
         },
 
@@ -46,6 +46,11 @@ function BottomTabNavigation() {
         },
         tabBarActiveTintColor: "grey",
         tabBarInactiveTintColor: "white",
+        tabBarLabelPosition: "beside-icon",
+        tabBarLabelStyle: {
+          fontSize: 14,
+          fontWeight: "bold",
+        },
       })}
     >
       <Tab.Screen name="Home" component={Home} />
