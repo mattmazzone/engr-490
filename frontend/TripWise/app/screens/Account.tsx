@@ -87,7 +87,10 @@ const Account = ({ navigation }: RouterProps) => {
             setAboutModalVisible(!aboutModalVisible);
           }}
         >
-          <About closeModal={() => setAboutModalVisible(false)} />
+          <About
+            closeModal={() => setAboutModalVisible(false)}
+            navigation={navigation}
+          />
         </Modal>
 
         {/* Logout button */}
