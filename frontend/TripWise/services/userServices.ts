@@ -37,6 +37,7 @@ export const updateUserInterests = async (
   try {
     if (FIREBASE_AUTH.currentUser) {
       const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+      console.log("idToken", idToken);
       const response = await fetch(
         `http://localhost:3000/api/interests/${FIREBASE_AUTH.currentUser.uid}`,
         {
