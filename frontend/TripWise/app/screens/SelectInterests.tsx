@@ -66,12 +66,12 @@ const SelectInterests = () => {
         await UserService.updateUserInterests(selectedInterests);
         // If success the button should be disabled
         const updatedProfile = await UserService.fetchUserProfile();
-        
+
         if (!updatedProfile) {
           // Handle the error, perhaps by showing an error message
           return;
         }
-        
+
         if (arraysEqual(updatedProfile.interests, selectedInterests)) {
           // The interests have been successfully updated.
           // Update local state or context with the new profile data

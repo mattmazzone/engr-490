@@ -11,6 +11,9 @@ import Home from "./app/screens/Home";
 import Account from "./app/screens/Account";
 import Trip from "./app/screens/Trip";
 import SelectInterests from "./app/screens/SelectInterests";
+import AccountLogo from "./components/SVGLogos/AccountLogo";
+import HomeLogo from "./components/SVGLogos/HomeLogo";
+import TripLogo from "./components/SVGLogos/TripLogo";
 
 // Declare your stacks
 const RootStack = createNativeStackNavigator();
@@ -20,11 +23,39 @@ const Tab = createBottomTabNavigator();
 // Tab Navigator
 function BottomTabNavigation() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          if (route.name === "Home") {
+            return <HomeLogo focused={focused} />;
+          } else if (route.name === "Trip") {
+            return <TripLogo focused={focused} />;
+          } else if (route.name === "Account") {
+            return <AccountLogo focused={focused} />;
+          }
+        },
+        headerShown: false,
+        tabBarStyle: {
+          position: "absolute",
+          borderTopColor: "white", // Top border color
+          borderTopWidth: 2, // Top border width
+          borderStyle: "solid", // Add solid border style
+          backgroundColor: "rgba(255, 255, 255, 0.2)", // Only the background is semi-transparent
+          height: 60, // Set the height of the tab bar
+        },
+        tabBarActiveTintColor: "grey",
+        tabBarInactiveTintColor: "white",
+        tabBarLabelPosition: "beside-icon",
+        tabBarLabelStyle: {
+          fontSize: 14,
+          fontWeight: "bold",
+        },
+      })}
+    >
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Trip" component={Trip} />
       <Tab.Screen name="Account" component={Account} />
-      <Tab.Screen name="SelectInterests" component={SelectInterests} />
+      {/* <Tab.Screen name="SelectInterests" component={SelectInterests} /> */}
     </Tab.Navigator>
   );
 }
