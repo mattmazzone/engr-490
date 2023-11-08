@@ -14,6 +14,7 @@ import SelectInterests from "./app/screens/SelectInterests";
 import AccountLogo from "./components/SVGLogos/AccountLogo";
 import HomeLogo from "./components/SVGLogos/HomeLogo";
 import TripLogo from "./components/SVGLogos/TripLogo";
+import { PaperProvider } from "react-native-paper";
 
 // Declare your stacks
 const RootStack = createNativeStackNavigator();
