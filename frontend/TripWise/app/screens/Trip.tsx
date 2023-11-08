@@ -11,26 +11,13 @@ import BackgroundGradient from "../../components/BackgroundGradient";
 import { DatePickerModal } from "react-native-paper-dates";
 import { TimePickerModal } from "react-native-paper-dates";
 import { Picker } from "@react-native-picker/picker";
+import { DateRange, Meeting, Time } from "../../types/tripTypes";
+import MeetingList from "../../components/TripScreen/MeetingList";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
-interface DateRange {
-  startDate: Date | undefined;
-  endDate: Date | undefined;
-}
-interface Time {
-  hours: number;
-  minutes: number;
-}
 
-interface Meeting {
-  title: string;
-  start: Date;
-  end: Date;
-  id: number;
-  location: string;
-}
 // Trip planner
 // Step 1 - Get days in trip (Input start and end date)
 // Step 2 - For each day prompt user to enter times and location of their meetings
@@ -38,6 +25,11 @@ interface Meeting {
 // Step 3 - Calculate the free time between meetings
 // Step 4 - Get confirmation from user that they want to use those time slots
 // Step 5 - Algorithm to find places to go during free time
+
+// Helper function to check if two time ranges overlap
+const doTimesOverlap = (start1: Date, end1: Date, start2: Date, end2: Date) => {
+  return start1 < end2 && start2 < end1;
+};
 
 const Trip = ({ navigation }: RouterProps) => {
   // Control Date
@@ -124,6 +116,34 @@ const Trip = ({ navigation }: RouterProps) => {
     undefined
   );
   const [meetings, setMeetings] = React.useState<Meeting[]>([]);
+  const deleteMeeting = (id: string) => {
+    setMeetings((prevMeetings) =>
+      prevMeetings.filter((meeting) => meeting.id !== id)
+    );
+  };
+
+  const checkForMeetingConflict = (
+    newMeetingStart: Date,
+    newMeetingEnd: Date
+  ) => {
+    for (const meeting of meetings) {
+      // First, check if the meetings are on the same day
+      if (newMeetingStart.toDateString() === meeting.start.toDateString()) {
+        // Then check if the time ranges overlap
+        if (
+          doTimesOverlap(
+            newMeetingStart,
+            newMeetingEnd,
+            meeting.start,
+            meeting.end
+          )
+        ) {
+          return true; // There is a conflict
+        }
+      }
+    }
+    return false; // There is no conflict
+  };
 
   const addMeeting = () => {
     if (meetingDate) {
@@ -286,32 +306,7 @@ const Trip = ({ navigation }: RouterProps) => {
             <Text style={styles.addMeetingBtnTxt}>Add Meeting</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.meetingListContainer}>
-          <Text style={styles.subTitle}>Your Meetings</Text>
-          {meetings.length === 0 && (
-            <Text style={styles.subTitle}>No meetings added yet!</Text>
-          )}
-          {meetings.map((meeting) => (
-            <>
-              <View key={meeting.id}>
-                <Text>{meeting.title}</Text>
-                <Text>{meeting.start.toDateString()}</Text>
-                <Text>{meeting.start.toLocaleTimeString()}</Text>
-                <Text>{meeting.end.toLocaleTimeString()}</Text>
-                <Text>{meeting.location}</Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => {
-                  setMeetings(meetings.filter((m) => m.id !== meeting.id));
-                }}
-                style={styles.addMeetingBtn}
-                key={meeting.id + "_delete"}
-              >
-                <Text style={styles.addMeetingBtnTxt}>X</Text>
-              </TouchableOpacity>
-            </>
-          ))}
-        </View>
+        <MeetingList meetings={meetings} onDeleteMeeting={deleteMeeting} />
       </View>
     </BackgroundGradient>
   );
@@ -400,13 +395,5 @@ const styles = StyleSheet.create({
     height: 25,
     marginBottom: 10,
     borderRadius: 6, // Rounded corners
-  },
-  meetingListContainer: {
-    width: "100%",
-    borderColor: "#ccc", // Subtle border
-    borderWidth: 2,
-    borderRadius: 5,
-    padding: 10,
-    marginTop: 20,
   },
 });
