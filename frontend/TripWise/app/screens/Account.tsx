@@ -136,7 +136,7 @@ const SettingOption = (
     style={[styles.settingOption, isLast ? null : styles.settingOptionBorder]}
     onPress={action}
   >
-    {iconComponent}
+    <View style={styles.settingIconContainer}>{iconComponent}</View>
     <Text style={styles.settingTitle}>{title}</Text>
   </TouchableOpacity>
 );
@@ -188,20 +188,26 @@ const styles = StyleSheet.create({
   },
   settingOption: {
     flexDirection: "row",
+    justifyContent: "flex-start",
     padding: 20,
     alignItems: "center",
   },
-  settingOptionBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.2)",
-  },
-  settingIcon: {
-    marginRight: 10,
+  settingIconContainer: {
+    width: 50, // You can adjust this width as needed
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 20, // This will be the gap between the icon and the text
   },
   settingTitle: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#fff",
+    // Add flex: 1 if you want to ensure the text is aligned left and the TouchableOpacity fills the available space
+    flex: 1,
+  },
+  settingOptionBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.2)",
   },
   logoutButton: {
     backgroundColor: "rgba(255, 0, 0, 0.8)",
