@@ -68,12 +68,21 @@ const Trip = ({ navigation }: RouterProps) => {
         currentDate.setDate(currentDate.getDate() + 1);
       }
       setDates(newDates);
+
+      // Automatically set the meetingDate to the first date in the array
+      if (newDates.length > 0) {
+        setMeetingDate(newDates[0]);
+      }
     }
   };
 
   React.useEffect(() => {
     arrayOfDates();
-  }, [rangeDate]);
+
+    if (dates.length > 0) {
+      setMeetingDate(dates[0]);
+    }
+  }, [rangeDate, dates.length]);
 
   // Control Time
   const [openTimeStart, setOpenTimeStart] = React.useState(false);
@@ -251,15 +260,17 @@ const Trip = ({ navigation }: RouterProps) => {
                 Select the date for this meeting
               </Text>
               <Picker
-                selectedValue={meetingDate}
+                selectedValue={meetingDate?.toDateString()}
                 style={styles.meetingDropdown}
                 onValueChange={(itemValue, itemIndex) => {
-                  setMeetingDate(new Date(itemValue));
+                  setMeetingDate(
+                    dates.find((date) => date.toDateString() === itemValue)
+                  );
                 }}
               >
-                {dates.map((date) => (
+                {dates.map((date, index) => (
                   <Picker.Item
-                    key={date.toDateString()}
+                    key={index}
                     label={date.toDateString()}
                     value={date.toDateString()}
                   />
