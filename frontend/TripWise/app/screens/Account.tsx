@@ -13,6 +13,12 @@ import { UserProfile } from "../../types/userTypes";
 import * as UserService from "../../services/userServices";
 import { NavigationProp } from "@react-navigation/native";
 import About from "../../components/AccountScreen/About";
+import AppSettingsLogo from "../../components/SVGLogos/AppSettingsLogo";
+import PrivacySettingsLogo from "../../components/SVGLogos/PrivacySettingsLogo";
+import BackupAndRestoreLogo from "../../components/SVGLogos/BackupAndRestoreLogo";
+import HelpAndSupportLogo from "../../components/SVGLogos/HelpAndSupportLogo";
+import NotificationSettingsLogo from "../../components/SVGLogos/NotificationSettingsLogo";
+import TripWiseLogoSmall from "../../components/SVGLogos/TripWiseLogoSmall";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -57,7 +63,7 @@ const Account = ({ navigation }: RouterProps) => {
         <View style={styles.header}>
           {/* Profile image and name */}
           <Image
-            source={{ uri: "path-to-your-image" }}
+            source={{}}
             style={styles.profileImage}
           />
           {userProfile && (
@@ -69,14 +75,31 @@ const Account = ({ navigation }: RouterProps) => {
 
         <View style={styles.settings}>
           {/* Settings options with icons */}
-          {SettingOption("cog", "App Settings")}
-          {SettingOption("shield", "Privacy Settings")}
-          {SettingOption("cloud-upload", "Backup and Restore")}
-          {SettingOption("question-circle", "Help and Support")}
-          {SettingOption("bell", "Notification Settings")}
-          {SettingOption("info-circle", "About", () => {
-            setAboutModalVisible(true);
-          })}
+          {SettingOption(<AppSettingsLogo focused={false} />, "App Settings")}
+          {SettingOption(
+            <PrivacySettingsLogo focused={false} />,
+            "Privacy Settings"
+          )}
+          {SettingOption(
+            <BackupAndRestoreLogo focused={false} />,
+            "Backup and Restore"
+          )}
+          {SettingOption(
+            <HelpAndSupportLogo focused={false} />,
+            "Help and Support"
+          )}
+          {SettingOption(
+            <NotificationSettingsLogo focused={false} />,
+            "Notification Settings"
+          )}
+          {SettingOption(
+            <TripWiseLogoSmall />,
+            "About",
+            () => {
+              setAboutModalVisible(true);
+            },
+            true
+          )}
         </View>
 
         <Modal
@@ -103,9 +126,17 @@ const Account = ({ navigation }: RouterProps) => {
 };
 
 // Helper function to create a setting option with an icon
-const SettingOption = (iconName: any, title: any, action?: any) => (
-  <TouchableOpacity style={styles.settingOption} onPress={action}>
-    {/* <Icon name={iconName} size={20} color="#000" style={styles.settingIcon} /> */}
+const SettingOption = (
+  iconComponent: any,
+  title: any,
+  action?: any,
+  isLast?: any
+) => (
+  <TouchableOpacity
+    style={[styles.settingOption, isLast ? null : styles.settingOptionBorder]}
+    onPress={action}
+  >
+    <View style={styles.settingIconContainer}>{iconComponent}</View>
     <Text style={styles.settingTitle}>{title}</Text>
   </TouchableOpacity>
 );
@@ -115,9 +146,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    padding: 20,
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    gap: 20,
+    padding: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    borderRadius: 3,
   },
   profileImage: {
     width: 80,
@@ -129,29 +172,58 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 20,
     marginTop: 10,
+    fontWeight: "bold",
   },
   settings: {
-    backgroundColor: "#fff",
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    borderRadius: 3,
   },
   settingOption: {
     flexDirection: "row",
+    justifyContent: "flex-start",
     padding: 20,
     alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "#EFEFEF",
   },
-  settingIcon: {
-    marginRight: 10,
+  settingIconContainer: {
+    width: 50, // You can adjust this width as needed
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 20, // This will be the gap between the icon and the text
   },
   settingTitle: {
-    fontSize: 18,
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+    // Add flex: 1 if you want to ensure the text is aligned left and the TouchableOpacity fills the available space
+    flex: 1,
+  },
+  settingOptionBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.2)",
   },
   logoutButton: {
-    backgroundColor: "red",
-    padding: 20,
+    backgroundColor: "rgba(255, 0, 0, 0.8)",
+    padding: 10,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    borderRadius: 3,
   },
   logoutButtonText: {
     color: "#fff",
