@@ -63,7 +63,7 @@ const Account = ({ navigation }: RouterProps) => {
         <View style={styles.header}>
           {/* Profile image and name */}
           <Image
-            source={require("../../assets/logos/IMG_5573.jpg")}
+            source={{}}
             style={styles.profileImage}
           />
           {userProfile && (
