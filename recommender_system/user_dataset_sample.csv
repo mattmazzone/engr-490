@@ -1,0 +1,13 @@
+user_name,place_name,distance_travelled,time_started,duration,money_spent,time_of_year,type
+user 1,Olympic Stadium,2.5,11:30,2.5,15.0,125/365,activity
+user 2,Mont Royal,2.5,17.24,1.0,0.0,206/365,activity
+user 3,Hurley's Pub,3,21:50,0.5,13.0,54/365,pub
+user 4,Olympico,4,12:19,1.0,0.0,206/365,activity
+user 5,La Banquise,4.2,21:10,1.0,0.0,206/365,activity
+user 6,Botanical Gardens,8.6,11:20,1.0,0.0,206/365,activity
+user 7,Olympic Stadium,7.4,15:12,1.0,0.0,206/365,activity
+user 8,Mont Royal,8.1,16:27,1.0,0.0,206/365,activity
+user 9,Hurley's Pub,4.3,22,1.0,0.0,206/365,activity
+user 10,Olympico,3.2,22:13,1.0,0.0,206/365,activity
+user 11,La Banquise,6.2,23:15,1.0,0.0,206/365,activity
+user 12,Botanical Gardens,3.7,14:23,1.0,0.0,206/365,activity
