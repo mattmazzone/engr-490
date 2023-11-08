@@ -24,6 +24,13 @@ interface Time {
   minutes: number;
 }
 
+interface Meeting {
+  title: string;
+  start: Date;
+  end: Date;
+  id: number;
+  location: string;
+}
 // Trip planner
 // Step 1 - Get days in trip (Input start and end date)
 // Step 2 - For each day prompt user to enter times and location of their meetings
@@ -107,19 +114,31 @@ const Trip = ({ navigation }: RouterProps) => {
   const [meetingDate, setMeetingDate] = React.useState<Date | undefined>(
     undefined
   );
+  const [meetings, setMeetings] = React.useState<Meeting[]>([]);
 
   const addMeeting = () => {
-    console.log("Meeting Title: ", meetingTitle);
-    console.log("Meeting Location: ", meetingLocation);
-    console.log("Start Time: ", startTime);
-    console.log("End Time: ", endTime);
-    console.log("Meeting Date: ", meetingDate);
+    if (meetingDate) {
+      const newMeeting: Meeting = {
+        title: meetingTitle,
+        start: new Date(
+          meetingDate.setHours(startTime.hours, startTime.minutes)
+        ),
+        end: new Date(meetingDate.setHours(endTime.hours, endTime.minutes)),
+        id:
+          meetings.length > 0
+            ? Math.max(...meetings.map((meeting) => meeting.id)) + 1
+            : 0,
 
-    // clear meeting fields
-    setMeetingTitle("");
-    setMeetingLocation("");
-    setStartTime({ hours: 0, minutes: 0 });
-    setEndTime({ hours: 0, minutes: 0 });
+        location: meetingLocation,
+      };
+
+      setMeetings((currentMeetings) => [...currentMeetings, newMeeting]);
+      // clear meeting fields
+      setMeetingTitle("");
+      setMeetingLocation("");
+      setStartTime({ hours: 0, minutes: 0 });
+      setEndTime({ hours: 0, minutes: 0 });
+    }
   };
 
   const validRange = {
@@ -235,7 +254,7 @@ const Trip = ({ navigation }: RouterProps) => {
                 selectedValue={meetingDate}
                 style={styles.meetingDropdown}
                 onValueChange={(itemValue, itemIndex) => {
-                  setMeetingDate(itemValue);
+                  setMeetingDate(new Date(itemValue));
                 }}
               >
                 {dates.map((date) => (
@@ -249,9 +268,38 @@ const Trip = ({ navigation }: RouterProps) => {
             </>
           )}
 
-          <TouchableOpacity onPress={addMeeting} style={styles.addMeetingBtn}>
+          <TouchableOpacity
+            onPress={() => addMeeting()}
+            style={styles.addMeetingBtn}
+          >
             <Text style={styles.addMeetingBtnTxt}>Add Meeting</Text>
           </TouchableOpacity>
+        </View>
+        <View style={styles.meetingListContainer}>
+          <Text style={styles.subTitle}>Your Meetings</Text>
+          {meetings.length === 0 && (
+            <Text style={styles.subTitle}>No meetings added yet!</Text>
+          )}
+          {meetings.map((meeting) => (
+            <>
+              <View key={meeting.id}>
+                <Text>{meeting.title}</Text>
+                <Text>{meeting.start.toDateString()}</Text>
+                <Text>{meeting.start.toLocaleTimeString()}</Text>
+                <Text>{meeting.end.toLocaleTimeString()}</Text>
+                <Text>{meeting.location}</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => {
+                  setMeetings(meetings.filter((m) => m.id !== meeting.id));
+                }}
+                style={styles.addMeetingBtn}
+                key={meeting.id + "_delete"}
+              >
+                <Text style={styles.addMeetingBtnTxt}>X</Text>
+              </TouchableOpacity>
+            </>
+          ))}
         </View>
       </View>
     </BackgroundGradient>
@@ -341,5 +389,13 @@ const styles = StyleSheet.create({
     height: 25,
     marginBottom: 10,
     borderRadius: 6, // Rounded corners
+  },
+  meetingListContainer: {
+    width: "100%",
+    borderColor: "#ccc", // Subtle border
+    borderWidth: 2,
+    borderRadius: 5,
+    padding: 10,
+    marginTop: 20,
   },
 });
