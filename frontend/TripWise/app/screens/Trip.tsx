@@ -48,10 +48,34 @@ const Trip = ({ navigation }: RouterProps) => {
 
   return (
     <BackgroundGradient>
-      <View>
-        <TouchableOpacity onPress={() => setOpen(true)}>
-          <Text>Pick range</Text>
-        </TouchableOpacity>
+      <View style={styles.container}>
+        <Text style={styles.title}>Trip Planner</Text>
+        <Text style={styles.subTitle}>
+          Select the start and end date of your business trip.
+        </Text>
+        <View style={styles.dateContainer}>
+          <TouchableOpacity
+            onPress={() => setOpen(true)}
+            style={styles.pickRangeBtn}
+          >
+            {range.startDate && range.endDate ? (
+              <Text style={styles.pickRangeBtnTxt}>Edit Dates</Text>
+            ) : (
+              <Text style={styles.pickRangeBtnTxt}>Select Dates</Text>
+            )}
+          </TouchableOpacity>
+          {range.startDate && range.endDate ? (
+            <View>
+              <Text style={styles.dateRangeText}>
+                {range.startDate.toDateString()}
+              </Text>
+              <Text style={styles.dateRangeText}>
+                {range.endDate.toDateString()}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+
         <DatePickerModal
           locale="en"
           mode="range"
@@ -72,6 +96,42 @@ export default Trip;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
+    alignItems: "flex-start",
+    marginHorizontal: 40,
+    marginTop: 40,
+  },
+  dateContainer: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "white",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  subTitle: {
+    fontSize: 16,
+    color: "white",
+    marginBottom: 20,
+  },
+  pickRangeBtn: {
+    backgroundColor: "#00FF55",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 40,
+  },
+  pickRangeBtnTxt: {
+    color: "white",
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  dateRangeText: {
+    color: "white",
+    fontSize: 16,
   },
 });
