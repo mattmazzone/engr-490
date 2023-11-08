@@ -13,7 +13,6 @@ const Trip = ({ navigation }: RouterProps) => {
     <BackgroundGradient>
       <View>
         <Text>Trip</Text>
-        <Button onPress={() => navigation.navigate("Login")} title="Login" />
         <Button onPress={() => FIREBASE_AUTH.signOut()} title="Logout" />
       </View>
     </BackgroundGradient>
