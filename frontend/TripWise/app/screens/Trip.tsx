@@ -7,10 +7,10 @@ import {
   StyleSheet,
   TextInput,
 } from "react-native";
-import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import BackgroundGradient from "../../components/BackgroundGradient";
 import { DatePickerModal } from "react-native-paper-dates";
 import { TimePickerModal } from "react-native-paper-dates";
+import { Picker } from "@react-native-picker/picker";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -38,6 +38,7 @@ const Trip = ({ navigation }: RouterProps) => {
     startDate: undefined,
     endDate: undefined,
   });
+  const [dates, setDates] = React.useState<Date[]>([]);
   const [openDate, setOpenDate] = React.useState(false);
   const onDismissDate = React.useCallback(() => {
     setOpenDate(false);
@@ -50,6 +51,22 @@ const Trip = ({ navigation }: RouterProps) => {
     },
     [setOpenDate, setRangeDate]
   );
+
+  const arrayOfDates = () => {
+    if (rangeDate.startDate && rangeDate.endDate) {
+      let currentDate = new Date(rangeDate.startDate.getTime()); // Clone the date to avoid mutating the original state
+      let newDates = [];
+      while (currentDate <= rangeDate.endDate) {
+        newDates.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      setDates(newDates);
+    }
+  };
+
+  React.useEffect(() => {
+    arrayOfDates();
+  }, [rangeDate]);
 
   // Control Time
   const [openTimeStart, setOpenTimeStart] = React.useState(false);
@@ -87,12 +104,16 @@ const Trip = ({ navigation }: RouterProps) => {
   // Meeting Control
   const [meetingTitle, setMeetingTitle] = React.useState<string>("");
   const [meetingLocation, setMeetingLocation] = React.useState<string>("");
+  const [meetingDate, setMeetingDate] = React.useState<Date | undefined>(
+    undefined
+  );
 
   const addMeeting = () => {
     console.log("Meeting Title: ", meetingTitle);
     console.log("Meeting Location: ", meetingLocation);
     console.log("Start Time: ", startTime);
     console.log("End Time: ", endTime);
+    console.log("Meeting Date: ", meetingDate);
 
     // clear meeting fields
     setMeetingTitle("");
@@ -205,6 +226,28 @@ const Trip = ({ navigation }: RouterProps) => {
               )}
             </TouchableOpacity>
           </View>
+          {dates.length > 0 && (
+            <>
+              <Text style={styles.subTitle}>
+                Select the date for this meeting
+              </Text>
+              <Picker
+                selectedValue={meetingDate}
+                style={styles.meetingDropdown}
+                onValueChange={(itemValue, itemIndex) => {
+                  setMeetingDate(itemValue);
+                }}
+              >
+                {dates.map((date) => (
+                  <Picker.Item
+                    key={date.toDateString()}
+                    label={date.toDateString()}
+                    value={date.toDateString()}
+                  />
+                ))}
+              </Picker>
+            </>
+          )}
 
           <TouchableOpacity onPress={addMeeting} style={styles.addMeetingBtn}>
             <Text style={styles.addMeetingBtnTxt}>Add Meeting</Text>
@@ -292,5 +335,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",
+  },
+  meetingDropdown: {
+    width: "100%",
+    height: 25,
+    marginBottom: 10,
+    borderRadius: 6, // Rounded corners
   },
 });
