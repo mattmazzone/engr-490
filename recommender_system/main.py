@@ -1,17 +1,11 @@
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import numpy as np
-import os
-
 
 # Assumptions
-# 1. User is willing to travel the distance
-# 2. User is willing to spend money 
-# 3. Reviews don't matter
-# 4. User doesn't want to do the same thing twice
-
-# Retrieved from place details request
-# https://developers.google.com/maps/documentation/places/web-service/supported_types#table2
+# 1. User is willing to travel the distance (will deal with later)
+# 2. User is willing to spend money (will deal with later)
+# 3. Reviews don't matter (will deal with later)
 
 # User-to-item recommender engine
 
@@ -59,10 +53,10 @@ user1_places_similarity_df = pd.DataFrame(user1_places_similarity_df).transpose(
 user1_places_similarity_df.rename({0: 'similarity'}, axis=1, inplace=True)
 
 #join similarity matrix with places
-user1_places_similarity_df = pd.concat([user1_places_similarity_df, places_normalized_df], axis=1)
+user1_places_similarity_df = pd.concat([places_normalized_df, user1_places_similarity_df], axis=1)
 sorted = user1_places_similarity_df.sort_values(by="similarity", ascending=False).reset_index()
 
-displayed_columns= ["similarity", "place_name"]
+displayed_columns= ["place_name", "similarity" ]
 print(sorted[displayed_columns])
 
 # TODO: Sort and filter recommendations even further based on, reviews, distance, 
