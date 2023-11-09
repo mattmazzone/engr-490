@@ -25,7 +25,6 @@ jobs:
       # Install dependencies for frontend
       - name: Install frontend dependencies
         run: npm ci
-        working-directory: ../frontend/Tripwise
 
       # Run Mocha tests in frontend
       - name: Run Mocha tests in frontend
