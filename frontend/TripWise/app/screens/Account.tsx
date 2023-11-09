@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Modal,
+  SafeAreaView,
 } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
 import { UserProfile } from "../../types/userTypes";
@@ -59,13 +60,10 @@ const Account = ({ navigation }: RouterProps) => {
 
   return (
     <BackgroundGradient>
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           {/* Profile image and name */}
-          <Image
-            source={{}}
-            style={styles.profileImage}
-          />
+          <Image source={{}} style={styles.profileImage} />
           {userProfile && (
             <Text style={styles.profileName}>
               {`${userProfile.firstName} ${userProfile.lastName}`}
@@ -120,7 +118,7 @@ const Account = ({ navigation }: RouterProps) => {
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
-      </View>
+      </SafeAreaView>
     </BackgroundGradient>
   );
 };
