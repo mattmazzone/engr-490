@@ -10,12 +10,22 @@ import { TimePickerModal } from "react-native-paper-dates";
 import MeetingDateSelector from "./MeetingDateSelector";
 import { DateRange, Meeting, Time } from "../../types/tripTypes";
 
+interface MeetingCreatorProps {
+  rangeDate: DateRange;
+  meetings: Meeting[];
+  setMeetings: React.Dispatch<React.SetStateAction<Meeting[]>>;
+}
+
 // Helper function to check if two time ranges overlap
 const doTimesOverlap = (start1: Date, end1: Date, start2: Date, end2: Date) => {
   return start1 < end2 && start2 < end1;
 };
 
-const MeetingCreator = () => {
+const MeetingCreator = ({
+  meetings,
+  rangeDate,
+  setMeetings,
+}: MeetingCreatorProps) => {
   // Time
   const [openTimeStart, setOpenTimeStart] = React.useState(false);
   const [openTimeEnd, setOpenTimeEnd] = React.useState(false);
@@ -54,12 +64,12 @@ const MeetingCreator = () => {
   // Meeting
   const [meetingTitle, setMeetingTitle] = React.useState<string>("");
   const [meetingLocation, setMeetingLocation] = React.useState<string>("");
+  const [selectedMeetingDate, setSelectedMeetingDate] = React.useState<
+    Date | undefined
+  >(undefined);
 
-  const [meetings, setMeetings] = React.useState<Meeting[]>([]);
-  const deleteMeeting = (id: number) => {
-    setMeetings((prevMeetings) =>
-      prevMeetings.filter((meeting) => meeting.id !== id)
-    );
+  const getSelectedMeetingDate = (meetingDate: Date) => {
+    setSelectedMeetingDate(selectedMeetingDate);
   };
 
   const checkForMeetingConflict = (
@@ -86,13 +96,15 @@ const MeetingCreator = () => {
   };
 
   const addMeeting = () => {
-    if (meetingDate) {
+    if (selectedMeetingDate) {
       const newMeeting: Meeting = {
         title: meetingTitle,
         start: new Date(
-          meetingDate.setHours(startTime.hours, startTime.minutes)
+          selectedMeetingDate.setHours(startTime.hours, startTime.minutes)
         ),
-        end: new Date(meetingDate.setHours(endTime.hours, endTime.minutes)),
+        end: new Date(
+          selectedMeetingDate.setHours(endTime.hours, endTime.minutes)
+        ),
         id:
           meetings.length > 0
             ? Math.max(...meetings.map((meeting) => meeting.id)) + 1
@@ -175,7 +187,10 @@ const MeetingCreator = () => {
         </TouchableOpacity>
       </View>
 
-      <MeetingDateSelector rangeDate={rangeDate} />
+      <MeetingDateSelector
+        rangeDate={rangeDate}
+        onData={getSelectedMeetingDate}
+      />
 
       <TouchableOpacity
         onPress={() => addMeeting()}
