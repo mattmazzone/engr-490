@@ -74,7 +74,7 @@ const Home = ({ navigation }: RouterProps) => {
         </Text>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate("StartTrip")}
+          onPress={() => navigation.navigate("Trip")}
           style={styles.button}
         >
           <Text style={styles.buttonText}>Start a Trip</Text>
