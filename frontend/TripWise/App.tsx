@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { SafeAreaView } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -42,13 +43,13 @@ function BottomTabNavigation() {
           borderTopWidth: 2, // Top border width
           borderStyle: "solid", // Add solid border style
           backgroundColor: "rgba(255, 255, 255, 0.2)", // Only the background is semi-transparent
-          height: 60, // Set the height of the tab bar
+          height: 100, // Set the height of the tab bar
         },
         tabBarActiveTintColor: "grey",
         tabBarInactiveTintColor: "white",
         tabBarLabelPosition: "beside-icon",
         tabBarLabelStyle: {
-          fontSize: 14,
+          fontSize: 16,
           fontWeight: "bold",
         },
       })}
