@@ -8,9 +8,10 @@ import {
   TextInput,
 } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
-import { DatePickerModal } from "react-native-paper-dates";
+import DateRangePicker from "../../components/TripScreen/DateRangePicker";
 
 import { DateRange, Meeting, Time } from "../../types/tripTypes";
+import MeetingCreator from "../../components/TripScreen/MeetingCreator";
 import MeetingList from "../../components/TripScreen/MeetingList";
 
 interface RouterProps {
@@ -25,79 +26,33 @@ interface RouterProps {
 // Step 4 - Get confirmation from user that they want to use those time slots
 // Step 5 - Algorithm to find places to go during free time
 
-
-
 const Trip = ({ navigation }: RouterProps) => {
   // Control Date
   const [rangeDate, setRangeDate] = React.useState<DateRange>({
     startDate: undefined,
     endDate: undefined,
   });
+  const [meetings, setMeetings] = React.useState<Meeting[]>([]);
+  const deleteMeeting = (id: number) => {
+    setMeetings((prevMeetings) =>
+      prevMeetings.filter((meeting) => meeting.id !== id)
+    );
+  };
 
-  const [openDate, setOpenDate] = React.useState(false);
-  const onDismissDate = React.useCallback(() => {
-    setOpenDate(false);
-  }, [setOpenDate]);
-
-  const onConfirmDate = React.useCallback(
-    ({ startDate, endDate }: DateRange) => {
-      setOpenDate(false);
-      setRangeDate({ startDate, endDate });
-    },
-    [setOpenDate, setRangeDate]
-  );
-
-
-
-
-
-  const validRange = {
-    startDate: new Date(Date.now()),
-    endDate: undefined,
-    disabledDates: undefined,
+  const getDateRange = (dateRange: DateRange) => {
+    setRangeDate(dateRange);
   };
 
   return (
     <BackgroundGradient>
       <View style={styles.container}>
         <Text style={styles.title}>Trip Planner</Text>
-        <Text style={styles.subTitle}>
-          Select the start and end date of your business trip.
-        </Text>
-        <View style={styles.dateContainer}>
-          <TouchableOpacity
-            onPress={() => setOpenDate(true)}
-            style={styles.pickRangeBtn}
-          >
-            {rangeDate.startDate && rangeDate.endDate ? (
-              <Text style={styles.pickRangeBtnTxt}>Edit Dates</Text>
-            ) : (
-              <Text style={styles.pickRangeBtnTxt}>Select Dates</Text>
-            )}
-          </TouchableOpacity>
-          {rangeDate.startDate && rangeDate.endDate ? (
-            <View>
-              <Text style={styles.dateRangeText}>
-                {rangeDate.startDate.toDateString()}
-              </Text>
-              <Text style={styles.dateRangeText}>
-                {rangeDate.endDate.toDateString()}
-              </Text>
-            </View>
-          ) : null}
-        </View>
-
-        <DatePickerModal
-          locale="en"
-          mode="range"
-          validRange={validRange}
-          startDate={rangeDate.startDate}
-          endDate={rangeDate.endDate}
-          visible={openDate}
-          onDismiss={onDismissDate}
-          onConfirm={onConfirmDate}
+        <DateRangePicker onData={getDateRange} />
+        <MeetingCreator
+          meetings={meetings}
+          rangeDate={rangeDate}
+          setMeetings={setMeetings}
         />
-
         <MeetingList meetings={meetings} onDeleteMeeting={deleteMeeting} />
       </View>
     </BackgroundGradient>
@@ -113,12 +68,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 40,
     marginTop: 40,
   },
-  dateContainer: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-  },
+
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -130,22 +80,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "white",
     marginBottom: 20,
-  },
-  dateRangeText: {
-    color: "white",
-    fontSize: 16,
-  },
-  pickRangeBtn: {
-    backgroundColor: "#00FF55",
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 15,
-  },
-
-  pickRangeBtnTxt: {
-    color: "white",
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 16,
   },
 });

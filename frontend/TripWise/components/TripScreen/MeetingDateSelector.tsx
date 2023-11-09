@@ -5,13 +5,23 @@ import { DateRange, Meeting, Time } from "../../types/tripTypes";
 
 interface MeetingDateSelectorProps {
   rangeDate: DateRange;
+  onData: (meetingDate: Date) => void;
 }
 
-const MeetingDateSelector = ({ rangeDate }: MeetingDateSelectorProps) => {
+const MeetingDateSelector = ({
+  rangeDate,
+  onData,
+}: MeetingDateSelectorProps) => {
   const [meetingDate, setMeetingDate] = React.useState<Date | undefined>(
     undefined
   );
   const [dates, setDates] = React.useState<Date[]>([]);
+
+  useEffect(() => {
+    if (meetingDate) {
+      onData(meetingDate);
+    }
+  }, [meetingDate]);
 
   const arrayOfDates = () => {
     if (rangeDate.startDate && rangeDate.endDate) {
