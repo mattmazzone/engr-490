@@ -2,9 +2,9 @@ name: React Native Mocha Tests
 
 on:
   push:
-    branches: [ main, test-setup ]
+    branches: [main, test-setup]
   pull_request:
-    branches: [ main, test-setup ]
+    branches: [main, test-setup]
 
 jobs:
   test:
@@ -15,34 +15,29 @@ jobs:
         node-version: [14.x, 16.x]
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
 
-    # Install dependencies for frontend
-    - name: Install frontend dependencies
-      run: npm install
-      working-directory: frontend/Tripwise
+      # Install dependencies for frontend
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend/Tripwise
 
-    # Run Mocha tests in frontend
-    - name: Run Mocha tests in frontend
-      run: npm test
-      working-directory: frontend/Tripwise
+      # Run Mocha tests in frontend
+      - name: Run Mocha tests in frontend
+        run: npm test
+        working-directory: frontend/Tripwise
 
-    # Install dependencies for backend
-    - name: Install backend dependencies
-      run: npm install
-      working-directory: backend
+      # Install dependencies for backend
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
 
-    # Run Mocha tests in backend
-    - name: Run Mocha tests in backend
-      run: npm test
-      working-directory: backend
-
-    # Assuming you have a specific test command for React Native in the frontend
-    - name: Run tests in the React Native environment
-      run: npm run test:mocha
-      working-directory: frontend/Tripwise
+      # Run Mocha tests in backend
+      - name: Run Mocha tests in backend
+        run: npm test
+        working-directory: backend
