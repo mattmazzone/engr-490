@@ -40,30 +40,31 @@ places_normalized_df = places_df.apply(normalize, axis=1)
 # fetched from our database
 historical_user_df = pd.read_csv("historical_user_dataset_sample.csv")
 
-
-user1_df = historical_user_df[historical_user_df["user_name"] == "user 1"]
-user1_places_df = pd.merge(user1_df, places_df, on="place_name")
+user_places_df = pd.merge(historical_user_df, places_df, on="place_name")
 
 # Remove the place_name column since its useless now
-user1_summed = user1_places_df.drop(["place_name"], axis=1).groupby("user_name").sum().reset_index()
+users_summed = user_places_df.drop(["place_name"], axis=1).groupby("user_name").sum().reset_index()
 # Normalize user vector
-user1_sum_normalized = user1_summed.apply(normalize, axis=1)
-
+users_sum_normalized = users_summed.apply(normalize, axis=1)
+print(users_summed)
 # Drop useless columns for calculations
-user1_sum_normalized_copy = user1_sum_normalized.drop(["user_name"], axis=1)
+users_sum_normalized_copy = users_sum_normalized.drop(["user_name"], axis=1)
 places_normalized_df_copy = places_normalized_df.drop(["place_name"], axis=1)
 
 # Compute similarity matrix for each place
-user1_places_similarity_df = cosine_similarity(user1_sum_normalized_copy, places_normalized_df_copy)
-user1_places_similarity_df = pd.DataFrame(user1_places_similarity_df).transpose()
-user1_places_similarity_df.rename({0: 'similarity'}, axis=1, inplace=True)
+users_places_similarity_df = cosine_similarity(users_sum_normalized_copy, places_normalized_df_copy)
+users_places_similarity_df = pd.DataFrame(users_places_similarity_df).transpose()
+
+num_users = len(users_places_similarity_df.columns)
 
 # join similarity matrix with places
-user1_places_similarity_df = pd.concat([places_normalized_df, user1_places_similarity_df], axis=1)
-sortedPlaces = user1_places_similarity_df.sort_values(by="similarity", ascending=False).reset_index()
+users_places_similarity_df = pd.concat([places_normalized_df, users_places_similarity_df], axis=1)
+for i in range(0, num_users):
+    sortedPlaces = users_places_similarity_df.sort_values(by=[i], ascending=False).reset_index()
+    sortedPlaces.rename({i : f'Similarity user {i + 1}'}, axis=1, inplace=True)
+    print(sortedPlaces[["place_name", f'Similarity user {i + 1}']])
+    print()
 
-displayed_columns = ["place_name", "similarity"]
-print(sortedPlaces[displayed_columns])
 
 # TODO: Sort and filter recommendations even further based on, reviews, distance, 
 # money spent or activity type
