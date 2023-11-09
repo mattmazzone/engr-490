@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
-import { DatePickerModal } from "react-native-paper-dates";
+import {
+  DatePickerModal,
+  registerTranslation,
+  en,
+} from "react-native-paper-dates";
 import { DateRange, Meeting, Time } from "../../types/tripTypes";
+
+registerTranslation("en", en);
 
 interface DateRangePickerProps {
   onData: (dateRange: DateRange) => void;

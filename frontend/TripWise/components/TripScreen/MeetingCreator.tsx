@@ -68,7 +68,7 @@ const MeetingCreator = ({
     Date | undefined
   >(undefined);
 
-  const getSelectedMeetingDate = (meetingDate: Date) => {
+  const getSelectedMeetingDate = (selectedMeetingDate: Date) => {
     setSelectedMeetingDate(selectedMeetingDate);
   };
 
@@ -125,6 +125,8 @@ const MeetingCreator = ({
       setMeetingLocation("");
       setStartTime({ hours: 0, minutes: 0 });
       setEndTime({ hours: 0, minutes: 0 });
+    } else {
+      alert("Please select a date for the meeting!");
     }
   };
 
@@ -219,7 +221,7 @@ const styles = StyleSheet.create({
   },
   meetingTitleInput: {
     marginBottom: 10,
-    height: 25, // Adjusted height
+    height: 35, // Adjusted height
     borderRadius: 6, // Rounded corners
     padding: 10,
     backgroundColor: "#fff",
