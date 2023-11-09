@@ -16,7 +16,11 @@ const MeetingList = ({ meetings, onDeleteMeeting }: MeetingListItemProps) => {
         <Text style={styles.smallerSubTitle}>No meetings added yet!</Text>
       )}
       {meetings.map((meeting) => (
-        <MeetingListItem meeting={meeting} onDeleteMeeting={onDeleteMeeting} />
+        <MeetingListItem
+          key={meeting.id}
+          meeting={meeting}
+          onDeleteMeeting={onDeleteMeeting}
+        />
       ))}
     </View>
   );
