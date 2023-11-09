@@ -7,6 +7,7 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
+  SafeAreaView,
 } from "react-native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 
@@ -49,7 +50,7 @@ const testGoogleAPI = async () => {
 
 const About = ({ closeModal, navigation }: any) => {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text>About Modal</Text>
       <TouchableOpacity onPress={() => testGoogleAPI()} style={styles.button}>
         <Text style={styles.buttonText}>Test Google API</Text>
@@ -68,7 +69,7 @@ const About = ({ closeModal, navigation }: any) => {
       <TouchableOpacity onPress={closeModal} style={styles.button}>
         <Text style={styles.buttonText}>Close Modal</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 
