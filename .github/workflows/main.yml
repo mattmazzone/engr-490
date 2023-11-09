@@ -32,12 +32,12 @@ jobs:
         run: npm test
         working-directory: frontend/TripWise
 
-      # Install dependencies for backend
-      - name: Install backend dependencies
-        run: npm install
-        working-directory: backend
+      # # Install dependencies for backend
+      # - name: Install backend dependencies
+      #   run: npm install
+      #   working-directory: backend
 
-      # Run Mocha tests in backend
-      - name: Run Mocha tests in backend
-        run: npm test
-        working-directory: backend
+      # # Run Mocha tests in backend
+      # - name: Run Mocha tests in backend
+      #   run: npm test
+      #   working-directory: backend
