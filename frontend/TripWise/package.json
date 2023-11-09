@@ -7,7 +7,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "mocha"
+    "test": "mocha 'test/**/*.tsx'"
   },
   "dependencies": {
     "@expo/webpack-config": "^19.0.0",
@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@testing-library/react-native": "^12.3.2",
     "@types/chai": "^4.3.10",
     "@types/mocha": "^10.0.4",
     "@types/react": "~18.2.14",

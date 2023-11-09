@@ -9,6 +9,7 @@ import {
 import BackgroundGradient from "../../components/BackgroundGradient";
 import { UserProfile } from "../../types/userTypes";
 import * as UserService from "../../services/userServices";
+import { arraysEqual } from "../../util/arraysEqual";
 
 const interestsArray = [
   "Restaurants",
@@ -88,13 +89,7 @@ const SelectInterests = () => {
     }
   };
 
-  // Function to compare arrays regardless of order
-  const arraysEqual = (a: string[], b: string[]) => {
-    if (a.length !== b.length) return false;
-    const sortedA = [...a].sort();
-    const sortedB = [...b].sort();
-    return sortedA.every((value, index) => value === sortedB[index]);
-  };
+
 
   // Check if the selected interests are different from the user profile's interests
   const hasChangedInterests = () => {
