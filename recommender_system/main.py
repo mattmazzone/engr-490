@@ -47,6 +47,7 @@ users_summed = user_places_df.drop(["place_name"], axis=1).groupby("user_name").
 # Normalize user vector
 users_sum_normalized = users_summed.apply(normalize, axis=1)
 print(users_summed)
+print()
 # Drop useless columns for calculations
 users_sum_normalized_copy = users_sum_normalized.drop(["user_name"], axis=1)
 places_normalized_df_copy = places_normalized_df.drop(["place_name"], axis=1)
