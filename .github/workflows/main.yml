@@ -22,17 +22,27 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Install dependencies
+    # Install dependencies for frontend
+    - name: Install frontend dependencies
       run: npm install
+      working-directory: frontend/Tripwise
 
-    - name: Run Mocha tests
+    # Run Mocha tests in frontend
+    - name: Run Mocha tests in frontend
       run: npm test
+      working-directory: frontend/Tripwise
 
-    - name: Run React Native environment setup
-      run: |
-        npm install -g react-native-cli
-        npm install
+    # Install dependencies for backend
+    - name: Install backend dependencies
+      run: npm install
+      working-directory: backend
 
+    # Run Mocha tests in backend
+    - name: Run Mocha tests in backend
+      run: npm test
+      working-directory: backend
+
+    # Assuming you have a specific test command for React Native in the frontend
     - name: Run tests in the React Native environment
       run: npm run test:mocha
-
+      working-directory: frontend/Tripwise
