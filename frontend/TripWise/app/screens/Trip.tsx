@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  SafeAreaView,
 } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
 import DateRangePicker from "../../components/TripScreen/DateRangePicker";
@@ -45,16 +46,22 @@ const Trip = ({ navigation }: RouterProps) => {
 
   return (
     <BackgroundGradient>
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <Text style={styles.title}>Trip Planner</Text>
         <DateRangePicker onData={getDateRange} />
-        <MeetingCreator
-          meetings={meetings}
-          rangeDate={rangeDate}
-          setMeetings={setMeetings}
-        />
-        <MeetingList meetings={meetings} onDeleteMeeting={deleteMeeting} />
-      </View>
+        {rangeDate.startDate && rangeDate.endDate ? (
+          <>
+            <MeetingCreator
+              meetings={meetings}
+              rangeDate={rangeDate}
+              setMeetings={setMeetings}
+            />
+            <MeetingList meetings={meetings} onDeleteMeeting={deleteMeeting} />
+          </>
+        ) : (
+          <></>
+        )}
+      </SafeAreaView>
     </BackgroundGradient>
   );
 };

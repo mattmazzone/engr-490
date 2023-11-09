@@ -40,7 +40,7 @@ const DateRangePicker = ({ onData }: DateRangePickerProps) => {
   return (
     <>
       <Text style={styles.subTitle}>
-        Select the start and end date of your business trip.
+        Start by selecting the dates of your trip
       </Text>
       <View style={styles.dateContainer}>
         <TouchableOpacity
