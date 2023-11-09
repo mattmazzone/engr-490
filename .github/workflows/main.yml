@@ -25,24 +25,24 @@ jobs:
     # Install dependencies for frontend
     - name: Install frontend dependencies
       run: npm install
-      working-directory: frontend/Tripwise
+      working-directory: ../../frontend/Tripwise
 
     # Run Mocha tests in frontend
     - name: Run Mocha tests in frontend
       run: npm test
-      working-directory: frontend/Tripwise
+      working-directory: ../../frontend/Tripwise
 
     # Install dependencies for backend
     - name: Install backend dependencies
       run: npm install
-      working-directory: backend
+      working-directory: ../../backend
 
     # Run Mocha tests in backend
     - name: Run Mocha tests in backend
       run: npm test
-      working-directory: backend
+      working-directory: ../../backend
 
     # Assuming you have a specific test command for React Native in the frontend
     - name: Run tests in the React Native environment
       run: npm run test:mocha
-      working-directory: frontend/Tripwise
+      working-directory: ../../frontend/Tripwise
