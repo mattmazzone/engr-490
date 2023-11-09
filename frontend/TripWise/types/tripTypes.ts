@@ -11,6 +11,6 @@ export type Meeting = {
   title: string;
   start: Date;
   end: Date;
-  id: string;
+  id: number;
   location: string;
 };

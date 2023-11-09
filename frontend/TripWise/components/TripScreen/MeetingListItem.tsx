@@ -4,7 +4,7 @@ import { Meeting } from "../../types/tripTypes"; // Assuming the types are expor
 
 interface MeetingListItemProps {
   meeting: Meeting;
-  onDeleteMeeting: (id: string) => void;
+  onDeleteMeeting: (id: number) => void;
 }
 
 const MeetingListItem = ({

@@ -5,7 +5,7 @@ import MeetingListItem from "./MeetingListItem";
 
 interface MeetingListItemProps {
   meetings: Meeting[];
-  onDeleteMeeting: (id: string) => void;
+  onDeleteMeeting: (id: number) => void;
 }
 
 const MeetingList = ({ meetings, onDeleteMeeting }: MeetingListItemProps) => {
