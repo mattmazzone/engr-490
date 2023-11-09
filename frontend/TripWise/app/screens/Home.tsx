@@ -1,7 +1,13 @@
 import { NavigationProp } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
-import { Text, View, Button, StyleSheet, TouchableOpacity } from "react-native";
-import { FIREBASE_AUTH } from "../../FirebaseConfig";
+import {
+  Text,
+  View,
+  Button,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
 import { UserProfile } from "../../types/userTypes";
 import * as UserService from "../../services/userServices";
@@ -61,7 +67,7 @@ const Home = ({ navigation }: RouterProps) => {
 
   return (
     <BackgroundGradient>
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <Text style={styles.title}>No Ongoing Trips!</Text>
         <Text style={styles.subTitle}>
           Click below to start planning a trip.
@@ -75,7 +81,7 @@ const Home = ({ navigation }: RouterProps) => {
         </TouchableOpacity>
         <Text style={styles.title}>Review your past Trips</Text>
         <View>{/* Map past trips to TSX here */}</View>
-      </View>
+      </SafeAreaView>
     </BackgroundGradient>
   );
 };
