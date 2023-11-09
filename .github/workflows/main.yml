@@ -1,0 +1,38 @@
+name: React Native Mocha Tests
+
+on:
+  push:
+    branches: [ main, test-setup ]
+  pull_request:
+    branches: [ main, test-setup ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run Mocha tests
+      run: npm test
+
+    - name: Run React Native environment setup
+      run: |
+        npm install -g react-native-cli
+        npm install
+
+    - name: Run tests in the React Native environment
+      run: npm run test:mocha
+
