@@ -31,10 +31,8 @@ def normalize(row: pd.Series) -> pd.Series:
         return row
     return row
 
-
 # Normalize place vectors
 places_normalized_df = places_df.apply(normalize, axis=1)
-
 
 # Get user vectors
 # fetched from our database
@@ -65,7 +63,6 @@ for i in range(0, num_users):
     sortedPlaces.rename({i : f'Similarity user {i + 1}'}, axis=1, inplace=True)
     print(sortedPlaces[["place_name", f'Similarity user {i + 1}']])
     print()
-
 
 # TODO: Sort and filter recommendations even further based on, reviews, distance, 
 # money spent or activity type
