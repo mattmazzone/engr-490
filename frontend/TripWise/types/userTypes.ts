@@ -1,3 +1,5 @@
+import { Meeting } from "./tripTypes"
+
 export type UserProfile = {
   uid: string;
   firstName: string;
@@ -5,6 +7,7 @@ export type UserProfile = {
   interests: string[];
   ongoingTrip: string; // trip id
   pastTrips: string[]; // trip ids
+  currentMeetings: Meeting[];
   // ... other user profile properties
 };
 
