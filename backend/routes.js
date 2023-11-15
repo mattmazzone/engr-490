@@ -46,6 +46,27 @@ router.put("/interests/:uid", authenticate, async (req, res) => {
   }
 });
 
+// Route to create a new trip
+router.post("/create_trip/:uid", authenticate, async (req, res) => {
+  const uid = req.params.uid;
+  const tripData = req.body;
+  
+  console.log(tripData);
+  try {
+    const tripRef = await db.collection("trips").add(tripData);
+    const tripId = tripRef.id;
+
+    // Add trip to user currentTrip field
+    await db.collection("users").doc(uid).update({ currentTrip: tripId });
+
+    const trip = await tripRef.get();
+    return res.status(200).json(trip.data());
+  } catch (error) {
+    console.error("Error creating trip", error);
+    res.status(500).send(error.message);
+  }
+});
+
 // Google maps Nearby Search API endpoint
 router.get("/places/nearby", authenticate, async (req, res) => {
   let { includedTypes, maxResultCount, latitude, longitude, radius } =
@@ -94,7 +115,6 @@ router.get("/places/nearby", authenticate, async (req, res) => {
     );
 
     return res.status(200).json(response.data);
-    
   } catch (error) {
     console.error("Error getting nearby places", error);
     if (error.response) {
@@ -116,4 +136,3 @@ router.get("/places/nearby", authenticate, async (req, res) => {
 
 // Export the router
 module.exports = router;
-

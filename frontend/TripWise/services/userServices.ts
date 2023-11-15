@@ -2,7 +2,7 @@
 import { FIREBASE_AUTH } from "../FirebaseConfig";
 import { UserProfile } from "../types/userTypes";
 
-import { Meeting } from "../types/tripTypes"
+import { Meeting } from "../types/tripTypes";
 
 // Base API URL
 const BASE_API_URL = "http://localhost:3000/api";
@@ -63,27 +63,56 @@ export const updateUserInterests = async (
 
 export const updateTripMeetings = async (
   tripId: string,
-  meetings: Meeting[],
-  ): Promise<void> => {
-    try {
-      if (FIREBASE_AUTH.currentUser) { //may have to change to update meetings for specific trip and not just user
-        const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
-        const response = await fetch(
-          `http://localhost:3000/api/interests/${FIREBASE_AUTH.currentUser.uid}`,
-          {
-            headers: {
-              Authorization: idToken,
-              "Content-Type": "application/json",
-            },
-            method: "PUT",
-            body: JSON.stringify({ meetings }),
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Failed to update trip meetings.");
+  meetings: Meeting[]
+): Promise<void> => {
+  try {
+    if (FIREBASE_AUTH.currentUser) {
+      //may have to change to update meetings for specific trip and not just user
+      const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+      const response = await fetch(
+        `http://localhost:3000/api/edit_trip/${FIREBASE_AUTH.currentUser.uid}`,
+        {
+          headers: {
+            Authorization: idToken,
+            "Content-Type": "application/json",
+          },
+          method: "PUT",
+          body: JSON.stringify({ meetings }),
         }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update trip meetings.");
       }
-    } catch (error) {
-      console.error("Error updating trip meetings:", error);
     }
-  };
+  } catch (error) {
+    console.error("Error updating trip meetings:", error);
+  }
+};
+
+export const createTrip = async (
+  tripStart: Date | undefined,
+  tripEnd: Date | undefined,
+  tripMeetings: Meeting[] | undefined
+): Promise<void> => {
+  try {
+    if (FIREBASE_AUTH.currentUser) {
+      const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+      const response = await fetch(
+        `http://localhost:3000/api/create_trip/${FIREBASE_AUTH.currentUser.uid}`,
+        {
+          headers: {
+            Authorization: idToken,
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({ tripStart, tripEnd, tripMeetings }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to create trip.");
+      }
+    }
+  } catch (error) {
+    console.error("Error creating trip:", error);
+  }
+};
