@@ -8,6 +8,7 @@ import {
   TextInput,
   SafeAreaView,
   ScrollView,
+  Modal,
 } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
 import DateRangePicker from "../../components/TripScreen/DateRangePicker";
@@ -17,6 +18,8 @@ import MeetingCreator from "../../components/TripScreen/MeetingCreator";
 import MeetingList from "../../components/TripScreen/MeetingList";
 
 import { createTrip } from "../../services/userServices";
+
+import { Calendar } from 'react-native-big-calendar';
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -43,6 +46,8 @@ const Trip = ({ navigation }: RouterProps) => {
     );
   };
 
+  const [confirmTripModalVisible, setConfirmTripModalVisible] = useState(false);
+
   const getDateRange = (dateRange: DateRange) => {
     setRangeDate(dateRange);
   };
@@ -54,14 +59,41 @@ const Trip = ({ navigation }: RouterProps) => {
       return;
     }
 
-    createTrip(rangeDate.startDate, rangeDate.endDate, meetings);
+    setConfirmTripModalVisible(true);
+
+    //createTrip(rangeDate.startDate, rangeDate.endDate, meetings); //TODO: uncomment and add somewhere else, only for testing now
   };
+
+  const calendarEvents = meetings.map((meeting) => ({
+    title: meeting.title,
+    start: meeting.start,
+    end: meeting.end,
+    id: meeting.id,
+    location: meeting.location,
+  }));
+
+
+  //Confirm trip Modal
+  const calendarConfirm = ({ closeModal, navigation }: any) => {
+    return (
+      <SafeAreaView style={styles.modalContent}>
+        <View style={styles.calendarContainer}>
+          <Calendar events={calendarEvents} height={600} />
+        </View>
+          <Text>Calendar Confirm Modal</Text>
+          <TouchableOpacity onPress={() => closeModal()} style={styles.button}>
+            <Text style={styles.buttonText}>Close Modal</Text>
+          </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <BackgroundGradient>
       <SafeAreaView style={styles.container}>
         <ScrollView style={styles.scrollView}>
           <Text style={styles.title}>Trip Planner</Text>
+          
           <DateRangePicker onData={getDateRange} />
           {rangeDate.startDate && rangeDate.endDate ? (
             <>
@@ -79,7 +111,26 @@ const Trip = ({ navigation }: RouterProps) => {
           ) : (
             <></>
           )}
+          <Modal
+            animationType="slide"
+            transparent={false}
+            visible={confirmTripModalVisible}
+            onRequestClose={() => {
+              setConfirmTripModalVisible(!confirmTripModalVisible);
+            }}
+          >
+            {calendarConfirm({
+              closeModal: () => setConfirmTripModalVisible(false),
+              navigation: navigation // Assuming you have the navigation prop available
+          })}
+          
+        </Modal>
+
           <TouchableOpacity
+            onPressIn={() => {
+              //add modal
+              createTripHandler(); //maybe delete and add to modal
+            }}
             onPress={createTripHandler}
             style={styles.button}
             disabled={!rangeDate.startDate || !rangeDate.endDate}
@@ -129,5 +180,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#fff",
     fontWeight: "bold",
+  },
+  modalContent: {
+    flex: 1, // This will ensure the content uses the full available space
+    justifyContent: 'center', // Centers content vertically in the container
+    alignItems: 'center', // Centers content horizontally in the container
+    marginTop: 22, // You can adjust this value as needed
+  },
+  calendarContainer: {
+    flex: 1, // This will allow the calendar to expand
+    width: '100%', // Make sure the calendar takes the full width
+    // You might not need marginTop here, or adjust as needed for your layout
   },
 });
