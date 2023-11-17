@@ -61,8 +61,9 @@ const Trip = ({ navigation }: RouterProps) => {
 
     setConfirmTripModalVisible(true);
 
-    //createTrip(rangeDate.startDate, rangeDate.endDate, meetings); //TODO: uncomment and add somewhere else, only for testing now
-  };
+    createTrip(rangeDate.startDate, rangeDate.endDate, meetings);
+
+  }
 
   const calendarEvents = meetings.map((meeting) => ({
     title: meeting.title,
@@ -74,16 +75,20 @@ const Trip = ({ navigation }: RouterProps) => {
 
 
   //Confirm trip Modal
-  const calendarConfirm = ({ closeModal, navigation }: any) => {
+  const calendarConfirm = ({ closeModal, createTripHandler }: any) => {
     return (
       <SafeAreaView style={styles.modalContent}>
         <View style={styles.calendarContainer}>
           <Calendar events={calendarEvents} height={600} />
         </View>
-          <Text>Calendar Confirm Modal</Text>
-          <TouchableOpacity onPress={() => closeModal()} style={styles.button}>
+        <View style={styles.buttonCalendarContainter}>
+          <TouchableOpacity onPress={() => closeModal()} style={[styles.button, {marginRight: 10}]}>
             <Text style={styles.buttonText}>Close Modal</Text>
           </TouchableOpacity>
+          <TouchableOpacity onPress={createTripHandler} style={[styles.button, {marginLeft: 10}]}>
+            <Text style={styles.buttonText}>Confirm Trip</Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     );
   }
@@ -121,7 +126,7 @@ const Trip = ({ navigation }: RouterProps) => {
           >
             {calendarConfirm({
               closeModal: () => setConfirmTripModalVisible(false),
-              navigation: navigation // Assuming you have the navigation prop available
+              createTripHandler: createTripHandler,
           })}
           
         </Modal>
@@ -175,6 +180,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: "blue",
     marginTop: 20,
+    marginBottom: 10,
   },
   buttonText: {
     textAlign: "center",
@@ -182,14 +188,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   modalContent: {
-    flex: 1, // This will ensure the content uses the full available space
-    justifyContent: 'center', // Centers content vertically in the container
-    alignItems: 'center', // Centers content horizontally in the container
-    marginTop: 22, // You can adjust this value as needed
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
   },
   calendarContainer: {
-    flex: 1, // This will allow the calendar to expand
-    width: '100%', // Make sure the calendar takes the full width
-    // You might not need marginTop here, or adjust as needed for your layout
+    flex: 1,
+    width: '100%',
   },
+  buttonCalendarContainter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  }
 });
