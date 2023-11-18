@@ -79,7 +79,9 @@ const Trip = ({ navigation }: RouterProps) => {
     return (
       <SafeAreaView style={styles.modalContent}>
         <View style={styles.calendarContainer}>
-          <Calendar events={calendarEvents} height={600} />
+          { rangeDate.startDate && rangeDate.endDate &&
+            <Calendar events={calendarEvents} date={new Date(rangeDate.startDate)} height={600} />
+          }
         </View>
         <View style={styles.buttonCalendarContainter}>
           <TouchableOpacity onPress={() => closeModal()} style={[styles.button, {marginRight: 10}]}>
