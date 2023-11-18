@@ -133,10 +133,8 @@ const Trip = ({ navigation }: RouterProps) => {
 
           <TouchableOpacity
             onPressIn={() => {
-              //add modal
-              createTripHandler(); //maybe delete and add to modal
-            }}
-            onPress={createTripHandler}
+              setConfirmTripModalVisible(true)
+            }} 
             style={styles.button}
             disabled={!rangeDate.startDate || !rangeDate.endDate}
           >
