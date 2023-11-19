@@ -123,14 +123,11 @@ const Trip = ({ navigation }: RouterProps) => {
       },
       gray: {
         "100": "#333",
-        "200": "#666",
+        "200": "transparent",
         "300": "#888",
-        "500": "#aaa",
+        "500": "#000",
         "800": "#ccc",
       },
-    },
-    gridLine: {
-      borderColor: "ffffff",
     },
   };
 
