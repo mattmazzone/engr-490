@@ -47,6 +47,7 @@ const Trip = ({ navigation }: RouterProps) => {
   };
 
   const [confirmTripModalVisible, setConfirmTripModalVisible] = useState(false);
+  const [showCalendarView, setShowCalendarView] = useState(false);
 
   const getDateRange = (dateRange: DateRange) => {
     setRangeDate(dateRange);
@@ -63,12 +64,13 @@ const Trip = ({ navigation }: RouterProps) => {
 
     createTrip(rangeDate.startDate, rangeDate.endDate, meetings);
 
+    setShowCalendarView(true);
   }
 
   const calendarEvents = meetings.map((meeting) => ({
     title: meeting.title,
-    start: meeting.start,
-    end: meeting.end,
+    start: new Date(meeting.start),
+    end: new Date(meeting.end),
     id: meeting.id,
     location: meeting.location,
   }));
@@ -95,6 +97,24 @@ const Trip = ({ navigation }: RouterProps) => {
     );
   }
 
+  if (showCalendarView) {
+    return (
+      <BackgroundGradient>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.calendarContainer}>
+            { rangeDate.startDate && rangeDate.endDate &&
+              <Calendar 
+              events={calendarEvents}
+              date={new Date(rangeDate.startDate)}
+              height={600}
+              />
+            }
+          </View>
+        </SafeAreaView>
+      </BackgroundGradient>
+    )
+  }
+
   return (
     <BackgroundGradient>
       <SafeAreaView style={styles.container}>
@@ -114,6 +134,15 @@ const Trip = ({ navigation }: RouterProps) => {
                 meetings={meetings}
                 onDeleteMeeting={deleteMeeting}
               />
+              <TouchableOpacity
+                onPressIn={() => {
+                  setConfirmTripModalVisible(true)
+                }} 
+                style={styles.button}
+                disabled={!rangeDate.startDate || !rangeDate.endDate}
+              >
+                <Text style={styles.buttonText}>Create Trip</Text>
+              </TouchableOpacity>
             </>
           ) : (
             <></>
@@ -133,15 +162,7 @@ const Trip = ({ navigation }: RouterProps) => {
           
         </Modal>
 
-          <TouchableOpacity
-            onPressIn={() => {
-              setConfirmTripModalVisible(true)
-            }} 
-            style={styles.button}
-            disabled={!rangeDate.startDate || !rangeDate.endDate}
-          >
-            <Text style={styles.buttonText}>Create Trip</Text>
-          </TouchableOpacity>
+          
         </ScrollView>
       </SafeAreaView>
     </BackgroundGradient>
@@ -200,5 +221,5 @@ const styles = StyleSheet.create({
   buttonCalendarContainter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  }
+  },
 });
