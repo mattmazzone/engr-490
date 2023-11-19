@@ -47,18 +47,17 @@ const Trip = ({ navigation }: RouterProps) => {
   };
 
   const [confirmTripModalVisible, setConfirmTripModalVisible] = useState(false);
-  const [showCalendarView, setShowCalendarView] = useState(false);
+
   const [isFetching, setIsFetching] = useState<boolean>(true);
-  const [currentTrip, setCurrentTrip] = useState(null) as any;
+  const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
 
   useEffect(() => {
     const initializeCurrentTrip = async () => {
       try {
         const currentTrip = await fetchCurrentTrip();
+        console.log("currentTrip meetinfs", currentTrip.tripMeetings);
+        console.log("trip start", currentTrip.tripStart);
         setCurrentTrip(currentTrip);
-        console.log("currentTrip", currentTrip);
-        console.log("currentTrip.tripMeetings", currentTrip.trip.tripMeetings);
-        setMeetings(currentTrip.trip.tripMeetings);
       } catch (error) {
         console.error("Error fetching user profile:", error);
       } finally {
@@ -84,7 +83,12 @@ const Trip = ({ navigation }: RouterProps) => {
 
     createTrip(rangeDate.startDate, rangeDate.endDate, meetings);
 
-    setShowCalendarView(true);
+    setCurrentTrip({
+      id: "myTrip",
+      tripStart: rangeDate.startDate,
+      tripEnd: rangeDate.endDate,
+      tripMeetings: meetings,
+    });
   };
 
   const calendarEvents = meetings.map((meeting) => ({
@@ -142,27 +146,16 @@ const Trip = ({ navigation }: RouterProps) => {
       <BackgroundGradient>
         <SafeAreaView style={styles.container}>
           <View style={styles.calendarContainer}>
-            <Calendar
-              events={calendarEvents}
-              date={new Date(currentTrip.trip.tripStart)}
-              height={600}
-              mode="day"
-            />
-          </View>
-        </SafeAreaView>
-      </BackgroundGradient>
-    );
-  }
-
-  if (showCalendarView) {
-    return (
-      <BackgroundGradient>
-        <SafeAreaView style={styles.container}>
-          <View style={styles.calendarContainer}>
-            {rangeDate.startDate && rangeDate.endDate && (
+            {currentTrip.tripStart && currentTrip.tripEnd && (
               <Calendar
-                events={calendarEvents}
-                date={new Date(rangeDate.startDate)}
+                events={currentTrip.tripMeetings.map((meeting) => ({
+                  title: meeting.title,
+                  start: new Date(meeting.start),
+                  end: new Date(meeting.end),
+                  id: meeting.id,
+                  location: meeting.location,
+                }))}
+                date={new Date(currentTrip.tripStart)}
                 height={600}
                 mode="day"
               />
