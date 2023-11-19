@@ -84,8 +84,10 @@ const Trip = ({ navigation }: RouterProps) => {
 
     setConfirmTripModalVisible(true);
 
+    // API call to create trip
     createTrip(rangeDate.startDate, rangeDate.endDate, meetings);
 
+    // Set state to created trip
     setCurrentTrip({
       id: "myTrip",
       tripStart: rangeDate.startDate,
@@ -113,10 +115,29 @@ const Trip = ({ navigation }: RouterProps) => {
     );
   }
 
+  const calendartheme = {
+    palette: {
+      primary: {
+        main: "#6185d0",
+        contrastText: "#000",
+      },
+      gray: {
+        "100": "#333",
+        "200": "#666",
+        "300": "#888",
+        "500": "#aaa",
+        "800": "#ccc",
+      },
+    },
+    gridLine: {
+      borderColor: "ffffff",
+    },
+  };
+
   if (currentTrip) {
     return (
       <BackgroundGradient>
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.currentTripContainer}>
           <View style={styles.calendarContainer}>
             {currentTrip.tripStart && currentTrip.tripEnd && (
               <Calendar
@@ -129,7 +150,8 @@ const Trip = ({ navigation }: RouterProps) => {
                 }))}
                 date={new Date(currentTrip.tripStart)}
                 height={600}
-                mode="day"
+                mode="3days"
+                theme={calendartheme}
               />
             )}
           </View>
@@ -199,12 +221,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 40,
     marginTop: 40,
   },
-
   scrollView: {
     width: "100%",
     paddingBottom: 110, //padding so meetings stop at nav bar
   },
-
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -229,18 +249,16 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
-  modalContent: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22,
-  },
   calendarContainer: {
     flex: 1,
     width: "100%",
   },
-  buttonCalendarContainter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+
+  currentTripContainer: {
+    flex: 1,
+    alignItems: "flex-start",
+    marginHorizontal: 10,
+    paddingBottom: 110, //padding so meetings stop at nav bar
+    marginTop: 40,
   },
 });
