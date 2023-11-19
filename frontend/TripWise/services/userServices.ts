@@ -61,34 +61,6 @@ export const updateUserInterests = async (
   }
 };
 
-export const updateTripMeetings = async (
-  tripId: string,
-  meetings: Meeting[]
-): Promise<void> => {
-  try {
-    if (FIREBASE_AUTH.currentUser) {
-      //may have to change to update meetings for specific trip and not just user
-      const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
-      const response = await fetch(
-        `http://localhost:3000/api/edit_trip/${FIREBASE_AUTH.currentUser.uid}`,
-        {
-          headers: {
-            Authorization: idToken,
-            "Content-Type": "application/json",
-          },
-          method: "PUT",
-          body: JSON.stringify({ meetings }),
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Failed to update trip meetings.");
-      }
-    }
-  } catch (error) {
-    console.error("Error updating trip meetings:", error);
-  }
-};
-
 export const createTrip = async (
   tripStart: Date | undefined,
   tripEnd: Date | undefined,
@@ -114,5 +86,28 @@ export const createTrip = async (
     }
   } catch (error) {
     console.error("Error creating trip:", error);
+  }
+};
+
+export const fetchCurrentTrip = async (): Promise<any> => {
+  try {
+    if (FIREBASE_AUTH.currentUser) {
+      const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+      const response = await fetch(
+        `http://localhost:3000/api/current_trip/${FIREBASE_AUTH.currentUser.uid}`,
+        {
+          headers: {
+            Authorization: idToken,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch current trip.");
+      }
+      const data = await response.json();
+      return data;
+    }
+  } catch (error) {
+    console.error("Error fetching current trip:", error);
   }
 };
