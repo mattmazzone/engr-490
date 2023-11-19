@@ -13,6 +13,8 @@ CORS(app)  # Enable CORS for all routes
 cred = credentials.Certificate('tripwise-sdk-key.json')
 fb_app = initialize_app(cred)
 
+
+# Authentication middleware
 def authenticate(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -28,19 +30,11 @@ def authenticate(f):
             return make_response(jsonify({"error": "You are not authorized"}), 401)
     return decorated_function
 
-# Authentication middleware
-def autheticate(id_token):
-    decoded_token = auth.verify_id_token(id_token)
-    return decoded_token['uid']
-
 # Profile route
 @app.route('/api/profile/<userId>', methods=['GET'])
+@authenticate
 def profile(userId):
-    try:
-        id_token = request.headers.get("Authorization")
-        # Will throw an exception if the token isn't valid
-        autheticate(id_token)
-        
+    try:       
         # Retreive user info
         db = firestore.client()
         doc = db.collection("users").document(userId).get()
@@ -53,6 +47,26 @@ def profile(userId):
     except Exception as e:
         print(e)
         return make_response(jsonify({"status": 500, "msg": e.__doc__})), 500
+
+
+# Route to update user interest array
+@app.route("/api/interests/<userId>", methods=["PUT"])
+@authenticate
+def update_interests(userId):
+    interests = request.json.get("interests")
+    try:
+        db = firestore.client()
+        # Get a reference to the user's document in the "users" collection
+        user_ref = db.collection("users").document(userId)
+        
+        # Update the "interests" field of the user's document
+        user_ref.update({"interests": interests})
+        
+        return make_response(jsonify({"status": 200, "msg": "Interests updated successfully"})), 200
+    except Exception as e:
+        print(e)
+        return make_response(jsonify({"status": 500, "msg": "Test{e.__doc__}"})), 500
+
 
 # Route to get nearby places using Google Maps API
 @app.route("/api/places/nearby/", methods=["GET"])
