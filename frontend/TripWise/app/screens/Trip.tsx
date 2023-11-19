@@ -13,11 +13,11 @@ import {
 import BackgroundGradient from "../../components/BackgroundGradient";
 import DateRangePicker from "../../components/TripScreen/DateRangePicker";
 
-import { DateRange, Meeting, Time } from "../../types/tripTypes";
+import { DateRange, Meeting, TripType } from "../../types/tripTypes";
 import MeetingCreator from "../../components/TripScreen/MeetingCreator";
 import MeetingList from "../../components/TripScreen/MeetingList";
 
-import { createTrip } from "../../services/userServices";
+import { createTrip, fetchCurrentTrip } from "../../services/userServices";
 
 import { Calendar } from "react-native-big-calendar";
 
@@ -48,6 +48,26 @@ const Trip = ({ navigation }: RouterProps) => {
 
   const [confirmTripModalVisible, setConfirmTripModalVisible] = useState(false);
   const [showCalendarView, setShowCalendarView] = useState(false);
+  const [isFetching, setIsFetching] = useState<boolean>(true);
+  const [currentTrip, setCurrentTrip] = useState(null) as any;
+
+  useEffect(() => {
+    const initializeCurrentTrip = async () => {
+      try {
+        const currentTrip = await fetchCurrentTrip();
+        setCurrentTrip(currentTrip);
+        console.log("currentTrip", currentTrip);
+        console.log("currentTrip.tripMeetings", currentTrip.trip.tripMeetings);
+        setMeetings(currentTrip.trip.tripMeetings);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    initializeCurrentTrip();
+  }, []);
 
   const getDateRange = (dateRange: DateRange) => {
     setRangeDate(dateRange);
@@ -105,6 +125,34 @@ const Trip = ({ navigation }: RouterProps) => {
       </SafeAreaView>
     );
   };
+
+  if (isFetching) {
+    return (
+      <BackgroundGradient>
+        <SafeAreaView style={styles.container}>
+          <Text style={styles.title}>Trip Planner</Text>
+          <Text style={styles.subTitle}>Loading...</Text>
+        </SafeAreaView>
+      </BackgroundGradient>
+    );
+  }
+
+  if (currentTrip) {
+    return (
+      <BackgroundGradient>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.calendarContainer}>
+            <Calendar
+              events={calendarEvents}
+              date={new Date(currentTrip.trip.tripStart)}
+              height={600}
+              mode="day"
+            />
+          </View>
+        </SafeAreaView>
+      </BackgroundGradient>
+    );
+  }
 
   if (showCalendarView) {
     return (

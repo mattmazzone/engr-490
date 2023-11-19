@@ -14,3 +14,10 @@ export type Meeting = {
   id: number;
   location: string;
 };
+
+export type TripType = {
+  id: string;
+  tripStart: Date;
+  tripEnd: Date;
+  tripMeetings: Meeting[];
+};

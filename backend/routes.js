@@ -50,7 +50,7 @@ router.put("/interests/:uid", authenticate, async (req, res) => {
 router.post("/create_trip/:uid", authenticate, async (req, res) => {
   const uid = req.params.uid;
   const tripData = req.body;
-  
+
   console.log(tripData);
   try {
     const tripRef = await db.collection("trips").add(tripData);
@@ -66,6 +66,38 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+
+// Route to to check if user has an active trip and return trip data
+router.get("/current_trip/:uid", authenticate, async (req, res) => {
+  const uid = req.params.uid;
+  try {
+    const user = await db.collection("users").doc(uid).get();
+    const userData = user.data();
+    if (userData.currentTrip === "") {
+      return res.status(200).json({ hasActiveTrip: false });
+    }
+    const trip = await db.collection("trips").doc(userData.currentTrip).get();
+    return res.status(200).json({ trip: trip.data() });
+  } catch (error) {
+    console.error("Error getting active trip", error);
+    res.status(500).send(error.message);
+  }
+});
+
+// Route to get trip data
+// router.get("/trip/:tripId", authenticate, async (req, res) => {
+//   const tripId = req.params.tripId;
+//   try {
+//     const trip = await db.collection("trips").doc(tripId).get();
+//     if (!trip.exists) {
+//       return res.status(404).send("Trip not found");
+//     }
+//     return res.status(200).json(trip.data());
+//   } catch (error) {
+//     console.error("Error getting trip data", error);
+//     res.status(500).send(error.message);
+//   }
+// });
 
 // Google maps Nearby Search API endpoint
 router.get("/places/nearby", authenticate, async (req, res) => {
