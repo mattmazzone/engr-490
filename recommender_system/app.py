@@ -37,12 +37,12 @@ def autheticate(id_token):
 @app.route('/api/profile/<userId>', methods=['GET'])
 def profile(userId):
     try:
-        db = firestore.client()
         id_token = request.headers.get("Authorization")
         # Will throw an exception if the token isn't valid
         autheticate(id_token)
         
         # Retreive user info
+        db = firestore.client()
         doc = db.collection("users").document(userId).get()
         if not doc.exists:
             return make_response(jsonify({"status": 404, "msg": "User not found" })), 404
