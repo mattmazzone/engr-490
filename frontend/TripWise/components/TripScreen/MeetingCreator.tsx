@@ -167,9 +167,9 @@ const MeetingCreator = ({
           onPress={() => setOpenTimeStart(true)}
           style={styles.pickRangeBtn}
         >
-          {startTime.hours && startTime.minutes ? (
+          {startTime.hours && startTime.minutes != undefined ? (
             <Text style={styles.pickRangeBtnTxt}>
-              {startTime.hours}:{startTime.minutes}
+              {startTime.hours}:{String(startTime.minutes).padStart(2, "0")} 
             </Text>
           ) : (
             <Text style={styles.pickRangeBtnTxt}>Start time</Text>
@@ -179,9 +179,9 @@ const MeetingCreator = ({
           onPress={() => setOpenTimeEnd(true)}
           style={styles.pickRangeBtn}
         >
-          {endTime.hours && endTime.minutes ? (
+          {endTime.hours && endTime.minutes != null ? (
             <Text style={styles.pickRangeBtnTxt}>
-              {endTime.hours}:{endTime.minutes}
+              {endTime.hours}:{String(endTime.minutes).padStart(2, "0")}
             </Text>
           ) : (
             <Text style={styles.pickRangeBtnTxt}>End time</Text>
