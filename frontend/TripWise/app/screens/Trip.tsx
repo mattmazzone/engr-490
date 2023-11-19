@@ -19,7 +19,7 @@ import MeetingList from "../../components/TripScreen/MeetingList";
 
 import { createTrip } from "../../services/userServices";
 
-import { Calendar } from 'react-native-big-calendar';
+import { Calendar } from "react-native-big-calendar";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -65,7 +65,7 @@ const Trip = ({ navigation }: RouterProps) => {
     createTrip(rangeDate.startDate, rangeDate.endDate, meetings);
 
     setShowCalendarView(true);
-  }
+  };
 
   const calendarEvents = meetings.map((meeting) => ({
     title: meeting.title,
@@ -75,44 +75,54 @@ const Trip = ({ navigation }: RouterProps) => {
     location: meeting.location,
   }));
 
-
   //Confirm trip Modal
   const calendarConfirm = ({ closeModal, createTripHandler }: any) => {
     return (
       <SafeAreaView style={styles.modalContent}>
         <View style={styles.calendarContainer}>
-          { rangeDate.startDate && rangeDate.endDate &&
-            <Calendar events={calendarEvents} date={new Date(rangeDate.startDate)} height={600} />
-          }
+          {rangeDate.startDate && rangeDate.endDate && (
+            <Calendar
+              events={calendarEvents}
+              date={new Date(rangeDate.startDate)}
+              height={600}
+            />
+          )}
         </View>
         <View style={styles.buttonCalendarContainter}>
-          <TouchableOpacity onPress={() => closeModal()} style={[styles.button, {marginRight: 10}]}>
-            <Text style={styles.buttonText}>Close Modal</Text>
+          <TouchableOpacity
+            onPress={() => closeModal()}
+            style={[styles.button, { marginRight: 10 }]}
+          >
+            <Text style={styles.buttonText}>Go back</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={createTripHandler} style={[styles.button, {marginLeft: 10}]}>
+          <TouchableOpacity
+            onPress={createTripHandler}
+            style={[styles.button, { marginLeft: 10 }]}
+          >
             <Text style={styles.buttonText}>Confirm Trip</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
-  }
+  };
 
   if (showCalendarView) {
     return (
       <BackgroundGradient>
         <SafeAreaView style={styles.container}>
           <View style={styles.calendarContainer}>
-            { rangeDate.startDate && rangeDate.endDate &&
-              <Calendar 
-              events={calendarEvents}
-              date={new Date(rangeDate.startDate)}
-              height={600}
+            {rangeDate.startDate && rangeDate.endDate && (
+              <Calendar
+                events={calendarEvents}
+                date={new Date(rangeDate.startDate)}
+                height={600}
+                mode="day"
               />
-            }
+            )}
           </View>
         </SafeAreaView>
       </BackgroundGradient>
-    )
+    );
   }
 
   return (
@@ -120,7 +130,7 @@ const Trip = ({ navigation }: RouterProps) => {
       <SafeAreaView style={styles.container}>
         <ScrollView style={styles.scrollView}>
           <Text style={styles.title}>Trip Planner</Text>
-          
+
           <DateRangePicker onData={getDateRange} />
           {rangeDate.startDate && rangeDate.endDate ? (
             <>
@@ -136,8 +146,8 @@ const Trip = ({ navigation }: RouterProps) => {
               />
               <TouchableOpacity
                 onPressIn={() => {
-                  setConfirmTripModalVisible(true)
-                }} 
+                  setConfirmTripModalVisible(true);
+                }}
                 style={styles.button}
                 disabled={!rangeDate.startDate || !rangeDate.endDate}
               >
@@ -158,11 +168,8 @@ const Trip = ({ navigation }: RouterProps) => {
             {calendarConfirm({
               closeModal: () => setConfirmTripModalVisible(false),
               createTripHandler: createTripHandler,
-          })}
-          
-        </Modal>
-
-          
+            })}
+          </Modal>
         </ScrollView>
       </SafeAreaView>
     </BackgroundGradient>
@@ -210,16 +217,16 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 22,
   },
   calendarContainer: {
     flex: 1,
-    width: '100%',
+    width: "100%",
   },
   buttonCalendarContainter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });
