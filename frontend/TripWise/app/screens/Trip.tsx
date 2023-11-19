@@ -20,6 +20,7 @@ import MeetingList from "../../components/TripScreen/MeetingList";
 import { createTrip, fetchCurrentTrip } from "../../services/userServices";
 
 import { Calendar } from "react-native-big-calendar";
+import CalendarConfirmModal from "../../components/TripScreen/CalendarConfimModal";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -55,9 +56,11 @@ const Trip = ({ navigation }: RouterProps) => {
     const initializeCurrentTrip = async () => {
       try {
         const currentTrip = await fetchCurrentTrip();
-        console.log("currentTrip meetinfs", currentTrip.tripMeetings);
-        console.log("trip start", currentTrip.tripStart);
-        setCurrentTrip(currentTrip);
+
+        if (currentTrip.hasActiveTrip === false) {
+        } else {
+          setCurrentTrip(currentTrip);
+        }
       } catch (error) {
         console.error("Error fetching user profile:", error);
       } finally {
@@ -98,37 +101,6 @@ const Trip = ({ navigation }: RouterProps) => {
     id: meeting.id,
     location: meeting.location,
   }));
-
-  //Confirm trip Modal
-  const calendarConfirm = ({ closeModal, createTripHandler }: any) => {
-    return (
-      <SafeAreaView style={styles.modalContent}>
-        <View style={styles.calendarContainer}>
-          {rangeDate.startDate && rangeDate.endDate && (
-            <Calendar
-              events={calendarEvents}
-              date={new Date(rangeDate.startDate)}
-              height={600}
-            />
-          )}
-        </View>
-        <View style={styles.buttonCalendarContainter}>
-          <TouchableOpacity
-            onPress={() => closeModal()}
-            style={[styles.button, { marginRight: 10 }]}
-          >
-            <Text style={styles.buttonText}>Go back</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={createTripHandler}
-            style={[styles.button, { marginLeft: 10 }]}
-          >
-            <Text style={styles.buttonText}>Confirm Trip</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  };
 
   if (isFetching) {
     return (
@@ -179,7 +151,6 @@ const Trip = ({ navigation }: RouterProps) => {
                 meetings={meetings}
                 rangeDate={rangeDate}
                 setMeetings={setMeetings}
-                //have to save meeting here
               />
               <MeetingList
                 meetings={meetings}
@@ -206,9 +177,11 @@ const Trip = ({ navigation }: RouterProps) => {
               setConfirmTripModalVisible(!confirmTripModalVisible);
             }}
           >
-            {calendarConfirm({
+            {CalendarConfirmModal({
               closeModal: () => setConfirmTripModalVisible(false),
               createTripHandler: createTripHandler,
+              rangeDate: rangeDate,
+              calendarEvents: calendarEvents,
             })}
           </Modal>
         </ScrollView>
