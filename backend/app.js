@@ -12,13 +12,17 @@ admin.initializeApp({
 });
 
 // Import routes
-const routes = require("./routes");
+const tripRoutes = require("./routes/trips");
+const userRoutes = require("./routes/users");
+const placesRoutes = require("./routes/places");
 
 app.use(cors());
 app.use(express.json());
 
 // Use the routes
-app.use("/api", routes); // This prefixes all your routes defined in routes.js with '/api'
+app.use("/api", tripRoutes);
+app.use("/api", userRoutes);
+app.use("/api", placesRoutes);
 
 // Start the server
 const port = 3000;
