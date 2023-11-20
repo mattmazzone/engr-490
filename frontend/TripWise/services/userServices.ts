@@ -61,31 +61,52 @@ export const updateUserInterests = async (
   }
 };
 
+interface FreeSlot {
+  start: string;
+  end: string;
+}
+interface TripData {
+  tripStart: string;
+  tripEnd: string;
+  tripMeetings: Meeting[];
+  freeSlots: FreeSlot[];
+}
+interface TripDataResponse {
+  trip: TripData;
+  freeSlots: FreeSlot[];
+}
+
 export const createTrip = async (
   tripStart: Date | undefined,
   tripEnd: Date | undefined,
   tripMeetings: Meeting[] | undefined
-): Promise<void> => {
+): Promise<TripDataResponse | undefined> => {
+  if (!FIREBASE_AUTH.currentUser) {
+    console.error("No current user found");
+    return undefined; // Explicitly returning undefined
+  }
   try {
-    if (FIREBASE_AUTH.currentUser) {
-      const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
-      const response = await fetch(
-        `http://localhost:3000/api/create_trip/${FIREBASE_AUTH.currentUser.uid}`,
-        {
-          headers: {
-            Authorization: idToken,
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify({ tripStart, tripEnd, tripMeetings }),
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Failed to create trip.");
+    const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+    const response = await fetch(
+      `http://localhost:3000/api/create_trip/${FIREBASE_AUTH.currentUser.uid}`,
+      {
+        headers: {
+          Authorization: idToken,
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({ tripStart, tripEnd, tripMeetings }),
       }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to create trip.");
     }
+
+    return await response.json();
   } catch (error) {
     console.error("Error creating trip:", error);
+    return undefined; // Handling the error case by returning undefined
   }
 };
 

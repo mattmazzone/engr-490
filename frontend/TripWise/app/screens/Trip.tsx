@@ -55,14 +55,15 @@ const Trip = ({ navigation }: RouterProps) => {
   useEffect(() => {
     const initializeCurrentTrip = async () => {
       try {
-        const currentTrip = await fetchCurrentTrip();
+        const response = await fetchCurrentTrip();
 
-        if (currentTrip.hasActiveTrip === false) {
+        if (response.hasActiveTrip === false) {
+          setCurrentTrip(null);
         } else {
-          setCurrentTrip(currentTrip);
+          setCurrentTrip(response.trip);
         }
       } catch (error) {
-        console.error("Error fetching user profile:", error);
+        console.error("Error fetching current trip:", error);
       } finally {
         setIsFetching(false);
       }
@@ -75,7 +76,7 @@ const Trip = ({ navigation }: RouterProps) => {
     setRangeDate(dateRange);
   };
 
-  const createTripHandler = () => {
+  const createTripHandler = async () => {
     // Error checking
     if (!rangeDate.startDate || !rangeDate.endDate) {
       alert("Please select a date range");
@@ -85,15 +86,18 @@ const Trip = ({ navigation }: RouterProps) => {
     setConfirmTripModalVisible(true);
 
     // API call to create trip
-    createTrip(rangeDate.startDate, rangeDate.endDate, meetings);
+    const createTripResponse = await createTrip(
+      rangeDate.startDate,
+      rangeDate.endDate,
+      meetings
+    );
+
+    if (createTripResponse) {
+      const {trip, freeTimeSlots} = createTripResponse;
+    }
 
     // Set state to created trip
-    setCurrentTrip({
-      id: "myTrip",
-      tripStart: rangeDate.startDate,
-      tripEnd: rangeDate.endDate,
-      tripMeetings: meetings,
-    });
+    setCurrentTrip(trip);
   };
 
   const calendarEvents = meetings.map((meeting) => ({
