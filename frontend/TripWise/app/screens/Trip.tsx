@@ -92,12 +92,12 @@ const Trip = ({ navigation }: RouterProps) => {
       meetings
     );
 
-    if (createTripResponse) {
-      const {trip, freeTimeSlots} = createTripResponse;
-    }
+    // if (createTripResponse) {
+    //   const {trip, freeTimeSlots} = createTripResponse;
+    // }
 
-    // Set state to created trip
-    setCurrentTrip(trip);
+    // // Set state to created trip
+    // setCurrentTrip(trip);
   };
 
   const calendarEvents = meetings.map((meeting) => ({
