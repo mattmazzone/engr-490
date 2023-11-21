@@ -5,7 +5,7 @@ import {
   Auth,
   getAuth,
   initializeAuth,
-  getReactNativePersistence,
+  
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { Platform } from "react-native";
@@ -33,11 +33,7 @@ let FIREBASE_AUTH: Auth;
 
 if (Platform.OS === "web") {
   FIREBASE_AUTH = getAuth(FIREBASE_APP);
-} else {
-  FIREBASE_AUTH = initializeAuth(FIREBASE_APP, {
-    persistence: getReactNativePersistence(ReactNativeAsyncStorage),
-  });
-}
+} 
 
 if (Platform.OS === "web") {
   isSupported().then((isSupported) => {

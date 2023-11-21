@@ -7,6 +7,33 @@ import { Meeting } from "../types/tripTypes";
 // Base API URL
 const BASE_API_URL = "http://localhost:3000/api";
 
+// Function to create a new user
+export const createUser = async (
+  uid: string,
+  firstName: string,
+  lastName: string
+): Promise<void> => {
+  try {
+    if (FIREBASE_AUTH.currentUser) {
+      const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+      const response = await fetch(`${BASE_API_URL}/signup`, {
+        headers: {
+          Authorization: idToken,
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({ uid, firstName, lastName }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to create user.");
+      }
+    }
+  } catch (error) {
+    console.error("Error creating user:", error);
+    throw error;
+  }
+};
+
 // Function to fetch user profile
 export const fetchUserProfile = async (): Promise<UserProfile | null> => {
   try {

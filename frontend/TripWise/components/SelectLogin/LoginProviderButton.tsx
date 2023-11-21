@@ -7,6 +7,39 @@ import {
   ImageSourcePropType,
 } from "react-native";
 import { NavigationProp } from "@react-navigation/native";
+import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import * as UserService from "../../services/userServices";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+const auth = FIREBASE_AUTH;
+
+const handleGoogleSignUp = async () => {
+  try {
+    const provider = new GoogleAuthProvider();
+    const response = await signInWithPopup(auth, provider);
+
+    const credential = GoogleAuthProvider.credentialFromResult(response);
+    if (credential === null) {
+      throw new Error("Google Auth Provider Credential is null");
+    }
+    const token = credential.accessToken;
+    const user = response.user;
+    console.log(user);
+
+    if (user.displayName) {
+      UserService.createUser(
+        user.uid,
+        user.displayName.split(" ")[0],
+        user.displayName.split(" ")[1]
+      );
+    }
+
+    if (user.displayName === null) {
+      throw new Error("User is null");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 interface ProviderDetails {
   title: string;
@@ -35,7 +68,7 @@ const providerMap: Record<string, ProviderDetails> = {
     title: "Continue with Google",
     logo: require("../../assets/logos/google.png"),
     onPress: () => {
-      alert("Google");
+      handleGoogleSignUp();
     },
     bgColor: "#DB4437",
     textColor: "#FFFFFF",
@@ -79,11 +112,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 10,
-    paddingLeft: 30
+    paddingLeft: 30,
   },
   buttonText: {
     fontSize: 18,
-    marginRight: 30 // add some space between text and logo
+    marginRight: 30, // add some space between text and logo
   },
   logo: {
     width: 25,
