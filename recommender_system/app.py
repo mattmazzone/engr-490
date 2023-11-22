@@ -33,9 +33,18 @@ def authenticate(f):
 @authenticate
 def recommend_cold_start():
     # Get nearby places and user interests array from POST body
+    content_type = request.headers.get('Content-Type')
+    if (content_type != 'application/json'):
+        return make_response(jsonify({"error": "Content type not application/json"}), 500)
+    
+    request_body = request.json
+    nearby_places = request_body["nearbyPlaces"]["results"]
+    user_interests = request_body["userInterests"]
 
     # Filter out nearby places that don't match user intestests
-
+    filtered_places = {}
+    for place in nearby_places.items():
+        pass
     # Return filtered list
     return 
 
