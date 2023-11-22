@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
+import { GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
 
 // Get user provider from firebase
 const getUserProvider = () => {
@@ -29,6 +29,30 @@ const getUserProvider = () => {
   }
 };
 
+const getCalendarEvents = async (provider: string) => {
+  console.log(provider);
+  if (provider === "Google") {
+    const auth = FIREBASE_AUTH;
+    const user = auth.currentUser;
+    const startDate = new Date(); // for example, today
+    const endDate = new Date(); // set this to your desired end date
+    const accessToken =
+      "ya29.a0AfB_byDb-YwgGolNsNlkvHX1Et4DqDmMFTGrYhZUfZJ_-XuaXDxz-ttoIDMs46R9QhKs_CBb-onj0eQJ7YOxpo48JgNrTyz-itjh-xHMfuS-1Z5h5sUM8a6D-phQmJalunhfFwftEr-bFoHpLg5tbZDZYO0RJ_hjPAaCgYKATYSAQ4SFQHGX2MiTYoNqQjmveqZfeuydZSqug0169";
+    const response = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2023-11-20T00:00:00Z&timeMax=2023-11-24T00:00:00Z`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    const data = await response.json();
+    console.log(data);
+  } else if (provider === "Apple") {
+  }
+};
+
 const promptUserToUseProvider = () => {
   const provider = getUserProvider();
 
@@ -39,7 +63,10 @@ const promptUserToUseProvider = () => {
           Import your meetings from {provider} calendar?
         </Text>
         <View style={styles.buttonContainer}>
-          <Pressable style={styles.buttonYes}>
+          <Pressable
+            style={styles.buttonYes}
+            onPress={() => getCalendarEvents(provider)}
+          >
             <Text style={styles.buttonText}>Yes</Text>
           </Pressable>
           <Pressable style={styles.buttonNo}>
