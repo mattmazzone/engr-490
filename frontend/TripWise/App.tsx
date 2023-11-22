@@ -129,8 +129,10 @@ export default function App() {
   }, []);
 
   return (
-    <NavigationContainer>
-      <RootNavigator user={user} />
-    </NavigationContainer>
+    
+      <NavigationContainer>
+        <RootNavigator user={user} />
+      </NavigationContainer>
+    
   );
 }

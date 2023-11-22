@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, Platform } from "react-native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import { GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Get user provider from firebase
 const getUserProvider = () => {
@@ -36,9 +37,19 @@ const getCalendarEvents = async (provider: string) => {
     const user = auth.currentUser;
     const startDate = new Date(); // for example, today
     const endDate = new Date(); // set this to your desired end date
-    const accessToken =
-      "ya29.a0AfB_byDb-YwgGolNsNlkvHX1Et4DqDmMFTGrYhZUfZJ_-XuaXDxz-ttoIDMs46R9QhKs_CBb-onj0eQJ7YOxpo48JgNrTyz-itjh-xHMfuS-1Z5h5sUM8a6D-phQmJalunhfFwftEr-bFoHpLg5tbZDZYO0RJ_hjPAaCgYKATYSAQ4SFQHGX2MiTYoNqQjmveqZfeuydZSqug0169";
-    const response = await fetch(
+
+
+    // Get access token from storage (web) or async storage (mobile)
+    let accessToken = "";
+    if (Platform.OS === "web") {
+      // use session storage
+      accessToken = sessionStorage.getItem("googleAccessToken") || "";
+    } else{
+      // use async storage for mobile
+      accessToken = await AsyncStorage.getItem("googleAccessToken") || "";
+    }
+    
+      const response = await fetch(
       `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2023-11-20T00:00:00Z&timeMax=2023-11-24T00:00:00Z`,
       {
         method: "GET",
