@@ -22,7 +22,12 @@ const handleGoogleSignUp = async () => {
     if (credential === null) {
       throw new Error("Google Auth Provider Credential is null");
     }
+
+
+    // USE THIS TOKEN!
+    // TODO: AUTH CONTEXT TO STORE TOKEN
     const token = credential.accessToken;
+    console.log(token);
     const user = response.user;
     console.log(user);
 
