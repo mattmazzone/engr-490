@@ -5,12 +5,14 @@ import {
   Image,
   StyleSheet,
   ImageSourcePropType,
+  Platform,
 } from "react-native";
 import { NavigationProp } from "@react-navigation/native";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 import * as UserService from "../../services/userServices";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 const auth = FIREBASE_AUTH;
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const handleGoogleSignUp = async () => {
   try {
@@ -23,11 +25,25 @@ const handleGoogleSignUp = async () => {
       throw new Error("Google Auth Provider Credential is null");
     }
 
-
     // USE THIS TOKEN!
     // TODO: AUTH CONTEXT TO STORE TOKEN
-    const token = credential.accessToken;
-    console.log(token);
+
+    if (Platform.OS === "web") {
+      // use session storage
+      if (credential.accessToken === undefined) {
+        throw new Error("Google Auth Provider Credential Access Token is null");
+      }
+      // TODO: ENCRYPT TOKEN
+      sessionStorage.setItem("googleAccessToken", credential.accessToken);
+    } else {
+      // use async storage for mobile
+      if (credential.accessToken === undefined) {
+        throw new Error("Google Auth Provider Credential Access Token is null");
+      }
+      // TODO: ENCRYPT TOKEN
+      await AsyncStorage.setItem("googleAccessToken", credential.accessToken);
+    }
+
     const user = response.user;
     console.log(user);
 
