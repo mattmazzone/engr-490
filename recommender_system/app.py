@@ -13,7 +13,6 @@ CORS(app)  # Enable CORS for all routes
 cred = credentials.Certificate('tripwise-sdk-key.json')
 fb_app = initialize_app(cred)
 
-
 # Authentication middleware
 def authenticate(f):
     @wraps(f)
@@ -30,91 +29,37 @@ def authenticate(f):
             return make_response(jsonify({"error": "You are not authorized"}), 401)
     return decorated_function
 
-# Profile route
-@app.route('/api/profile/<userId>', methods=['GET'])
+@app.route('/api/recommend-cold-start', method=['POST'])
 @authenticate
-def profile(userId):
-    try:       
-        # Retreive user info
-        db = firestore.client()
-        doc = db.collection("users").document(userId).get()
-        if not doc.exists:
-            return make_response(jsonify({"status": 404, "msg": "User not found" })), 404
-        userData = doc.to_dict()
-        print(userData)
+def recommend_cold_start():
+    # Get nearby places and user interests array from POST body
 
-        return make_response(jsonify(userData)), 200
-    except Exception as e:
-        print(e)
-        return make_response(jsonify({"status": 500, "msg": e.__doc__})), 500
+    # Filter out nearby places that don't match user intestests
+
+    # Return filtered list
+    return 
 
 
-# Route to update user interest array
-@app.route("/api/interests/<userId>", methods=["PUT"])
+@app.route('/api/recommend', methods=['POST'])
 @authenticate
-def update_interests(userId):
-    interests = request.json.get("interests")
-    try:
-        db = firestore.client()
-        # Get a reference to the user's document in the "users" collection
-        user_ref = db.collection("users").document(userId)
-        
-        # Update the "interests" field of the user's document
-        user_ref.update({"interests": interests})
-        
-        return make_response(jsonify({"status": 200, "msg": "Interests updated successfully"})), 200
-    except Exception as e:
-        print(e)
-        return make_response(jsonify({"status": 500, "msg": "Test{e.__doc__}"})), 500
+def recommend():
+    # Get nearby places from POST body
 
+    # Get user vector from database
 
-# Route to get nearby places using Google Maps API
-@app.route("/api/places/nearby/", methods=["GET"])
-@authenticate
-def get_nearby_places():
-    included_types = request.args.get("includedTypes", "[restaurant]")
-    max_result_count = int(request.args.get("maxResultCount", 10))
-    latitude = float(request.args.get("latitude", 0.0))
-    longitude = float(request.args.get("longitude", 0.0))
-    radius = int(request.args.get("radius", 1000))
-    try:
-        included_types = json.loads(included_types)
-        print(included_types)
-    except json.JSONDecodeError:
-        if isinstance(included_types, str):
-            included_types = included_types.split(",")
-        else:
-            included_types = []
+    # join user and places on place_id 
 
-    payload = {
-        "includedTypes": included_types,
-        "maxResultCount": max_result_count,
-        "locationRestriction": {
-            "circle": {
-                "center": {
-                    "latitude": latitude,
-                    "longitude": longitude
-                },
-                "radius": radius
-            }
-        }
-    }
+    # Sum all the columns of the newly created user-place table
 
-    try:
-        response = requests.post(
-            "https://places.googleapis.com/v1/places:searchNearby",
-            json=payload,
-            headers={
-                "Content-Type": "application/json",
-                "X-Goog-Api-Key": os.getenv("GOOGLE_MAPS_API_KEY"),
-                "X-Goog-FieldMask": "places.displayName"
-            }
-        )
-        return make_response(jsonify(response.json())), 200
-    except Exception as e:
-        # Error logging and handling
-        print(f"Error getting nearby places: {e}")
-        return make_response(jsonify({"error": str(e)})), 500
+    # Normalize the user-place table
+
+    # Normalize the places table
+
+    # Get cosine similarity between normalized places table and the normalized user-place table
+
+    # Return the similarity table
+    return 
+
 
 # Start the server
 if __name__ == '__main__':
