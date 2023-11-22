@@ -56,15 +56,33 @@ def recommend_cold_start():
         return make_response(jsonify({"error": "Content type not application/json"}), 500)
     
     request_body = request.json
+    # Array
     nearby_places = request_body["nearbyPlaces"]["results"]
+    # Array
     user_interests = request_body["userInterests"]
 
     # Filter out nearby places that don't match user intestests
-    filtered_places = {}
-    for place in nearby_places.items():
-        pass
+    relevant_interests = []
+    for category in user_interests:
+        if category in interests_dict:
+            # Concat the two lists together
+            relevant_interests += interests_dict[category]
+    
+    # The key = number of matching interests, values = array of place_ids with that number of 
+    # matching interests
+    filtered_place_ids = {}
+    for place_info in nearby_places:
+        types = place_info["types"]
+        # Figure out which categories the place falls under
+        matching_interests = list(set(relevant_interests) & set(types))
+        num_matching_interests = len(matching_interests)
+        if (num_matching_interests in filtered_place_ids):
+            filtered_place_ids[num_matching_interests].append(place_info["place_id"])
+        else:
+            filtered_place_ids[num_matching_interests] = [place_info["place_id"]]
+
     # Return filtered list
-    return 
+    return filtered_place_ids
 
 
 @app.route('/api/recommend', methods=['POST'])
@@ -90,4 +108,4 @@ def recommend():
 
 # Start the server
 if __name__ == '__main__':
-    app.run(port=3000, debug=True)
+    app.run(port=4000, debug=True)
