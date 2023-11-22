@@ -13,9 +13,9 @@ import LoginScreenButton from "../../components/LoginScreenButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 import BackButton from "../../components/BackButton";
-import { doc, setDoc } from "firebase/firestore"; // Import doc and setDoc
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import BackgroundGradient from "../../components/BackgroundGradient";
+import * as UserService from "../../services/userServices";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -58,15 +58,7 @@ const SignUp = ({ navigation }: RouterProps) => {
       const user = response.user;
 
       if (user) {
-        // Get a reference to the Firestore document for the new user
-        const userDocRef = doc(FIREBASE_DB, "users", user.uid);
-
-        // Set the additional user data
-        await setDoc(userDocRef, {
-          uid: user.uid,
-          firstName: firstName,
-          lastName: lastName,
-        });
+        UserService.createUser(user.uid, firstName, lastName);
       }
     } catch (error) {
       console.error("Error signing up:", error);
@@ -75,10 +67,9 @@ const SignUp = ({ navigation }: RouterProps) => {
 
   return (
     <>
-    <BackgroundGradient>
-      {mobileRenderContent(
-        <>
-          
+      <BackgroundGradient>
+        {mobileRenderContent(
+          <>
             <View>
               <BackButton />
             </View>
@@ -114,12 +105,10 @@ const SignUp = ({ navigation }: RouterProps) => {
                 onPress={() => navigation.navigate("Login")}
               ></LoginScreenButton>
             </View>
-          
-        </>
-      )}
+          </>
+        )}
       </BackgroundGradient>
     </>
-    
   );
 };
 
