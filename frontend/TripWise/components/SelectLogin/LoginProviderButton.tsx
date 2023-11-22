@@ -15,6 +15,7 @@ const auth = FIREBASE_AUTH;
 const handleGoogleSignUp = async () => {
   try {
     const provider = new GoogleAuthProvider();
+    provider.addScope("https://www.googleapis.com/auth/calendar");
     const response = await signInWithPopup(auth, provider);
 
     const credential = GoogleAuthProvider.credentialFromResult(response);
