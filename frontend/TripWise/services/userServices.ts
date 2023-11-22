@@ -159,3 +159,8 @@ export const fetchCurrentTrip = async (): Promise<any> => {
     console.error("Error fetching current trip:", error);
   }
 };
+
+export const getGoogleCalendarEvents = async (): Promise<any> => {
+
+
+};

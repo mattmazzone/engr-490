@@ -16,6 +16,7 @@ import DateRangePicker from "../../components/TripScreen/DateRangePicker";
 import { DateRange, Meeting, TripType } from "../../types/tripTypes";
 import MeetingCreator from "../../components/TripScreen/MeetingCreator";
 import MeetingList from "../../components/TripScreen/MeetingList";
+import ImportEventsFromProvider from "../../components/TripScreen/ImportEventsFromProvider";
 
 import { createTrip, fetchCurrentTrip } from "../../services/userServices";
 
@@ -168,6 +169,9 @@ const Trip = ({ navigation }: RouterProps) => {
           <Text style={styles.title}>Trip Planner</Text>
 
           <DateRangePicker onData={getDateRange} />
+
+          <ImportEventsFromProvider />
+
           {rangeDate.startDate && rangeDate.endDate ? (
             <>
               <MeetingCreator
@@ -230,7 +234,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "white",
-    textAlign: "center",
+    textAlign: "left",
     marginBottom: 20,
   },
   subTitle: {
