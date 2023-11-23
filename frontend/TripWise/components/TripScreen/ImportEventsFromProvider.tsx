@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet, Platform } from "react-native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
-import { GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { DateRange } from "../../types/tripTypes";
+
+interface ImportEventsFromProviderProps {
+  dateRange: DateRange;
+  onButtonClick: (importEvents: boolean) => void;
+}
 
 // Get user provider from firebase
 const getUserProvider = () => {
@@ -30,27 +35,25 @@ const getUserProvider = () => {
   }
 };
 
-const getCalendarEvents = async (provider: string) => {
+const getCalendarEvents = async (provider: string, dateRange: DateRange) => {
   console.log(provider);
   if (provider === "Google") {
-    const auth = FIREBASE_AUTH;
-    const user = auth.currentUser;
-    const startDate = new Date(); // for example, today
-    const endDate = new Date(); // set this to your desired end date
-
+    const startDate = dateRange.startDate?.toISOString(); // for example, today
+    const endDate = dateRange.endDate?.toISOString(); // set this to your desired end date
 
     // Get access token from storage (web) or async storage (mobile)
     let accessToken = "";
     if (Platform.OS === "web") {
       // use session storage
       accessToken = sessionStorage.getItem("googleAccessToken") || "";
-    } else{
+    } else {
       // use async storage for mobile
-      accessToken = await AsyncStorage.getItem("googleAccessToken") || "";
+      accessToken = (await AsyncStorage.getItem("googleAccessToken")) || "";
     }
-    
-      const response = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=2023-11-20T00:00:00Z&timeMax=2023-11-24T00:00:00Z`,
+
+    console.log(accessToken);
+    const response = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${startDate}&timeMax=${endDate}`,
       {
         method: "GET",
         headers: {
@@ -61,10 +64,14 @@ const getCalendarEvents = async (provider: string) => {
     const data = await response.json();
     console.log(data);
   } else if (provider === "Apple") {
+    // Apple Calendar API
   }
 };
 
-const promptUserToUseProvider = () => {
+const promptUserToUseProvider = (
+  dateRange: DateRange,
+  onButtonClick: (importEvents: boolean) => void
+) => {
   const provider = getUserProvider();
 
   return (
@@ -76,11 +83,17 @@ const promptUserToUseProvider = () => {
         <View style={styles.buttonContainer}>
           <Pressable
             style={styles.buttonYes}
-            onPress={() => getCalendarEvents(provider)}
+            onPress={() => {
+              getCalendarEvents(provider, dateRange);
+              onButtonClick(true);
+            }}
           >
             <Text style={styles.buttonText}>Yes</Text>
           </Pressable>
-          <Pressable style={styles.buttonNo}>
+          <Pressable
+            style={styles.buttonNo}
+            onPress={() => onButtonClick(false)}
+          >
             <Text style={styles.buttonText}>No</Text>
           </Pressable>
         </View>
@@ -89,8 +102,11 @@ const promptUserToUseProvider = () => {
   );
 };
 
-const ImportEventsFromProvider = () => {
-  return <View>{promptUserToUseProvider()}</View>;
+const ImportEventsFromProvider = ({
+  dateRange,
+  onButtonClick,
+}: ImportEventsFromProviderProps) => {
+  return <View>{promptUserToUseProvider(dateRange, onButtonClick)}</View>;
 };
 
 export default ImportEventsFromProvider;
