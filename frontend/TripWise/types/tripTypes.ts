@@ -12,6 +12,7 @@ export type Meeting = {
   start: Date;
   end: Date;
   id: number;
+  providerId?: string;
   location: string;
 };
 

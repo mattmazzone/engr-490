@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet, Platform } from "react-native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { DateRange } from "../../types/tripTypes";
+import { DateRange, Meeting } from "../../types/tripTypes";
 
 interface ImportEventsFromProviderProps {
   dateRange: DateRange;
   onButtonClick: (importEvents: boolean) => void;
+  onCalendarEvents: (calendarEvents: Meeting[]) => void;
 }
 
 // Get user provider from firebase
@@ -35,7 +36,11 @@ const getUserProvider = () => {
   }
 };
 
-const getCalendarEvents = async (provider: string, dateRange: DateRange) => {
+const getCalendarEvents = async (
+  provider: string,
+  dateRange: DateRange,
+  onCalendarEvents: (calendarEvents: Meeting[]) => void
+) => {
   console.log(provider);
   if (provider === "Google") {
     const startDate = dateRange.startDate?.toISOString(); // for example, today
@@ -51,7 +56,6 @@ const getCalendarEvents = async (provider: string, dateRange: DateRange) => {
       accessToken = (await AsyncStorage.getItem("googleAccessToken")) || "";
     }
 
-    console.log(accessToken);
     const response = await fetch(
       `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${startDate}&timeMax=${endDate}`,
       {
@@ -62,7 +66,19 @@ const getCalendarEvents = async (provider: string, dateRange: DateRange) => {
       }
     );
     const data = await response.json();
+
     console.log(data);
+
+    // Filter properties to only include what we need (title/summary, start, end, location, googleId)
+    const calendarEvents: Meeting[] = data.items.map((item: any) => ({
+      title: item.summary,
+      start: item.start.dateTime,
+      end: item.end.dateTime,
+      location: item.location,
+      providerId: item.id,
+    }));
+
+    onCalendarEvents(calendarEvents);
   } else if (provider === "Apple") {
     // Apple Calendar API
   }
@@ -70,7 +86,8 @@ const getCalendarEvents = async (provider: string, dateRange: DateRange) => {
 
 const promptUserToUseProvider = (
   dateRange: DateRange,
-  onButtonClick: (importEvents: boolean) => void
+  onButtonClick: (importEvents: boolean) => void,
+  onCalendarEvents: (calendarEvents: Meeting[]) => void
 ) => {
   const provider = getUserProvider();
 
@@ -84,7 +101,7 @@ const promptUserToUseProvider = (
           <Pressable
             style={styles.buttonYes}
             onPress={() => {
-              getCalendarEvents(provider, dateRange);
+              getCalendarEvents(provider, dateRange, onCalendarEvents);
               onButtonClick(true);
             }}
           >
@@ -105,8 +122,13 @@ const promptUserToUseProvider = (
 const ImportEventsFromProvider = ({
   dateRange,
   onButtonClick,
+  onCalendarEvents,
 }: ImportEventsFromProviderProps) => {
-  return <View>{promptUserToUseProvider(dateRange, onButtonClick)}</View>;
+  return (
+    <View>
+      {promptUserToUseProvider(dateRange, onButtonClick, onCalendarEvents)}
+    </View>
+  );
 };
 
 export default ImportEventsFromProvider;
