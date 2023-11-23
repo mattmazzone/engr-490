@@ -62,10 +62,8 @@ router.get("/current_trip/:uid", authenticate, async (req, res) => {
     if (userData.currentTrip === "") {
       return res.status(200).json({ hasActiveTrip: false });
     }
-    const trip = await db
-      .collection("trips")
-      .doc({ hasActiveTrip: true, trip: userData.currentTrip })
-      .get();
+    const trip = await db.collection("trips").doc(userData.currentTrip).get();
+
     return res.status(200).json(trip.data());
   } catch (error) {
     console.error("Error getting active trip", error);
