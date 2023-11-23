@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet, Platform } from "react-native";
-import { FIREBASE_AUTH } from "../../FirebaseConfig";
+import { getUserProvider } from "../../services/userServices";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DateRange, Meeting } from "../../types/tripTypes";
 
@@ -10,31 +10,7 @@ interface ImportEventsFromProviderProps {
   onCalendarEvents: (calendarEvents: Meeting[]) => void;
 }
 
-// Get user provider from firebase
-const getUserProvider = () => {
-  const auth = FIREBASE_AUTH;
-  const user = auth.currentUser;
 
-  if (user) {
-    const isGoogleUser = user.providerData.some(
-      (provider) => provider.providerId === "google.com"
-    );
-    const isEmailUser = user.providerData.some(
-      (provider) => provider.providerId === "password"
-    );
-    const isAppleUser = user.providerData.some(
-      (provider) => provider.providerId === "apple.com"
-    );
-
-    if (isGoogleUser) {
-      return "Google";
-    } else if (isAppleUser) {
-      return "Apple";
-    } else if (isEmailUser) {
-      return null;
-    }
-  }
-};
 
 const getCalendarEvents = async (
   provider: string,
