@@ -10,8 +10,10 @@ router.post("/signup", authenticate, async (req, res) => {
 
   // Check if user already exists
   const doc = await db.collection("users").doc(uid).get();
+  // Return 210 because when signing in with Google, the user is already created
+  // TODO: add an independent sign up route
   if (doc.exists) {
-    return res.status(400).send("User already exists");
+    return res.status(210).send("User already exists");
   }
 
   try {
