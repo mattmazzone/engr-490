@@ -47,6 +47,7 @@ const Trip = ({ navigation }: RouterProps) => {
       prevMeetings.filter((meeting) => meeting.id !== id)
     );
   };
+  const [importEventsVisible, setImportEventsVisible] = useState(true);
 
   const [confirmTripModalVisible, setConfirmTripModalVisible] = useState(false);
 
@@ -162,6 +163,15 @@ const Trip = ({ navigation }: RouterProps) => {
     );
   }
 
+  const handleImportEventsFromProviderClick = (importEvents: boolean) => {
+    if (importEvents) {
+      // TODO: navigate to calendar
+    } else {
+      // close modal
+      setImportEventsVisible(false);
+    }
+  };
+
   return (
     <BackgroundGradient>
       <SafeAreaView style={styles.container}>
@@ -170,9 +180,16 @@ const Trip = ({ navigation }: RouterProps) => {
 
           <DateRangePicker onData={getDateRange} />
 
-          <ImportEventsFromProvider />
+          {rangeDate.startDate && rangeDate.endDate && importEventsVisible ? (
+            <ImportEventsFromProvider
+              dateRange={rangeDate}
+              onButtonClick={handleImportEventsFromProviderClick}
+            />
+          ) : (
+            <></>
+          )}
 
-          {rangeDate.startDate && rangeDate.endDate ? (
+          {rangeDate.startDate && rangeDate.endDate && !importEventsVisible ? (
             <>
               <MeetingCreator
                 meetings={meetings}
