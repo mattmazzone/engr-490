@@ -54,7 +54,7 @@ const Trip = ({ navigation }: RouterProps) => {
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
 
-  // Change to initialize page intead of just trip, we need provider
+  // useFocusEffect is used to run code when the screen is focused
   useFocusEffect(
     React.useCallback(() => {
       const initializeTripPage = async () => {
