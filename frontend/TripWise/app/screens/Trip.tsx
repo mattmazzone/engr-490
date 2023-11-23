@@ -1,5 +1,5 @@
 import { NavigationProp } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Text,
   View,
@@ -10,17 +10,18 @@ import {
   ScrollView,
   Modal,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import BackgroundGradient from "../../components/BackgroundGradient";
 import DateRangePicker from "../../components/TripScreen/DateRangePicker";
-
 import { DateRange, Meeting, TripType } from "../../types/tripTypes";
 import MeetingCreator from "../../components/TripScreen/MeetingCreator";
 import MeetingList from "../../components/TripScreen/MeetingList";
 import ImportEventsFromProvider from "../../components/TripScreen/ImportEventsFromProvider";
-
-import { createTrip, fetchCurrentTrip } from "../../services/userServices";
-
-import { Calendar } from "react-native-big-calendar";
+import {
+  createTrip,
+  fetchCurrentTrip,
+  getUserProvider,
+} from "../../services/userServices";
 import CalendarConfirmModal from "../../components/TripScreen/CalendarConfimModal";
 import CurrentTrip from "../../components/TripScreen/CurrentTrip";
 
@@ -48,31 +49,39 @@ const Trip = ({ navigation }: RouterProps) => {
       prevMeetings.filter((meeting) => meeting.id !== id)
     );
   };
-  const [importEventsVisible, setImportEventsVisible] = useState(true);
+  const [importEventsVisible, setImportEventsVisible] = useState(false);
   const [confirmTripModalVisible, setConfirmTripModalVisible] = useState(false);
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
 
-  useEffect(() => {
-    const initializeCurrentTrip = async () => {
-      try {
-        const response = await fetchCurrentTrip();
+  // Change to initialize page intead of just trip, we need provider
+  useFocusEffect(
+    React.useCallback(() => {
+      const initializeTripPage = async () => {
+        try {
+          const trip = await fetchCurrentTrip();
+          const provider = getUserProvider();
 
-        if (response.hasActiveTrip === false) {
-          setCurrentTrip(null);
-        } else {
-          console.log("Current trip:", response);
-          setCurrentTrip(response);
+          if (trip.hasActiveTrip === false) {
+            setCurrentTrip(null);
+          } else {
+            console.log("Current trip:", trip);
+            setCurrentTrip(trip);
+          }
+
+          if (provider !== null) {
+            setImportEventsVisible(true);
+          }
+        } catch (error) {
+          console.error("Error fetching current trip:", error);
+        } finally {
+          setIsFetching(false);
         }
-      } catch (error) {
-        console.error("Error fetching current trip:", error);
-      } finally {
-        setIsFetching(false);
-      }
-    };
+      };
 
-    initializeCurrentTrip();
-  }, []);
+      initializeTripPage();
+    }, []) // Dependencies for the useCallback hook, if any
+  );
 
   const getDateRange = (dateRange: DateRange) => {
     setRangeDate(dateRange);
@@ -108,6 +117,15 @@ const Trip = ({ navigation }: RouterProps) => {
     location: meeting.location,
   }));
 
+  const handleImportEventsFromProviderClick = (importEvents: boolean) => {
+    if (importEvents) {
+      // TODO: navigate to calendar
+    } else {
+      // close modal
+      setImportEventsVisible(false);
+    }
+  };
+
   if (isFetching) {
     return (
       <BackgroundGradient>
@@ -122,15 +140,6 @@ const Trip = ({ navigation }: RouterProps) => {
   if (currentTrip) {
     return <CurrentTrip currentTrip={currentTrip} />;
   }
-
-  const handleImportEventsFromProviderClick = (importEvents: boolean) => {
-    if (importEvents) {
-      // TODO: navigate to calendar
-    } else {
-      // close modal
-      setImportEventsVisible(false);
-    }
-  };
 
   return (
     <BackgroundGradient>

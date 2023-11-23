@@ -178,4 +178,30 @@ export const endCurrentTrip = async (): Promise<any> => {
   }
 };
 
+// Get user provider from firebase 
+export  const getUserProvider = () => {
+  const auth = FIREBASE_AUTH;
+  const user = auth.currentUser;
+
+  if (user) {
+    const isGoogleUser = user.providerData.some(
+      (provider) => provider.providerId === "google.com"
+    );
+    const isEmailUser = user.providerData.some(
+      (provider) => provider.providerId === "password"
+    );
+    const isAppleUser = user.providerData.some(
+      (provider) => provider.providerId === "apple.com"
+    );
+
+    if (isGoogleUser) {
+      return "Google";
+    } else if (isAppleUser) {
+      return "Apple";
+    } else if (isEmailUser) {
+      return null;
+    }
+  }
+};
+
 export const getGoogleCalendarEvents = async (): Promise<any> => {};
