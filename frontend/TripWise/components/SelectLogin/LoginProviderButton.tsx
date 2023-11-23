@@ -25,7 +25,6 @@ const handleGoogleSignUp = async () => {
       throw new Error("Google Auth Provider Credential is null");
     }
 
-
     if (Platform.OS === "web") {
       // use session storage
       if (credential.accessToken === undefined) {
@@ -126,7 +125,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#1E90FF",
     flexDirection: "row",
-    //width: "55%",
+    width: "75%",
     height: 45,
     borderRadius: 7,
     justifyContent: "center",
