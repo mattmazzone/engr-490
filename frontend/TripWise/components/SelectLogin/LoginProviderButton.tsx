@@ -25,8 +25,6 @@ const handleGoogleSignUp = async () => {
       throw new Error("Google Auth Provider Credential is null");
     }
 
-    // USE THIS TOKEN!
-    // TODO: AUTH CONTEXT TO STORE TOKEN
 
     if (Platform.OS === "web") {
       // use session storage

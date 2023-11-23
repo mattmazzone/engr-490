@@ -63,7 +63,8 @@ const Trip = ({ navigation }: RouterProps) => {
         if (response.hasActiveTrip === false) {
           setCurrentTrip(null);
         } else {
-          setCurrentTrip(response.trip);
+          console.log("Current trip:", response);
+          setCurrentTrip(response);
         }
       } catch (error) {
         console.error("Error fetching current trip:", error);
