@@ -71,4 +71,28 @@ router.get("/current_trip/:uid", authenticate, async (req, res) => {
   }
 });
 
+// Route to end current trip and add trip to user's past trips
+router.post("/end_trip/:uid", authenticate, async (req, res) => {
+  try {
+    const uid = req.params.uid;
+    const user = await db.collection("users").doc(uid).get();
+    const userData = user.data();
+    const tripId = userData.currentTrip;
+
+    // Add trip to user's past trips
+    await db
+      .collection("users")
+      .doc(uid)
+      .update({
+        pastTrips: admin.firestore.FieldValue.arrayUnion(tripId),
+        currentTrip: "",
+      });
+
+    return res.status(200).json({ message: "Trip ended successfully" });
+  } catch (error) {
+    console.error("Error ending trip", error);
+    res.status(500).send(error.message);
+  }
+});
+
 module.exports = router;

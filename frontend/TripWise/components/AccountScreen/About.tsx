@@ -6,10 +6,11 @@ import {
   Modal,
   TextInput,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   SafeAreaView,
 } from "react-native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
+import * as UserService from "../../services/userServices";
 
 const testGoogleAPI = async () => {
   try {
@@ -52,11 +53,11 @@ const About = ({ closeModal, navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <Text>About Modal</Text>
-      <TouchableOpacity onPress={() => testGoogleAPI()} style={styles.button}>
+      <Pressable onPress={() => testGoogleAPI()} style={styles.button}>
         <Text style={styles.buttonText}>Test Google API</Text>
-      </TouchableOpacity>
+      </Pressable>
 
-      <TouchableOpacity
+      <Pressable
         onPress={() => {
           navigation.navigate("SelectInterests");
           closeModal();
@@ -64,11 +65,15 @@ const About = ({ closeModal, navigation }: any) => {
         style={styles.button}
       >
         <Text style={styles.buttonText}>Open Select Interest Page</Text>
-      </TouchableOpacity>
+      </Pressable>
 
-      <TouchableOpacity onPress={closeModal} style={styles.button}>
+      <Pressable style={styles.button} onPress={UserService.endCurrentTrip}>
+        <Text>End Current Trip</Text>
+      </Pressable>
+
+      <Pressable onPress={closeModal} style={styles.button}>
         <Text style={styles.buttonText}>Close Modal</Text>
-      </TouchableOpacity>
+      </Pressable>
     </SafeAreaView>
   );
 };

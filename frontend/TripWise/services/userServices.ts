@@ -154,4 +154,28 @@ export const fetchCurrentTrip = async (): Promise<any> => {
   }
 };
 
+export const endCurrentTrip = async (): Promise<any> => {
+  try {
+    if (FIREBASE_AUTH.currentUser) {
+      const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+      const response = await fetch(
+        `http://localhost:3000/api/end_trip/${FIREBASE_AUTH.currentUser.uid}`,
+        {
+          headers: {
+            Authorization: idToken,
+          },
+          method: "POST",
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to end current trip.");
+      }
+      const data = await response.json();
+      return data;
+    }
+  } catch (error) {
+    console.error("Error ending current trip:", error);
+  }
+};
+
 export const getGoogleCalendarEvents = async (): Promise<any> => {};
