@@ -23,6 +23,9 @@ function combineDateTime(date, timeString) {
 }
 
 // Helper function to calculate free time slots
+// Helper functions remain the same...
+
+// Updated function to calculate free time slots
 exports.calculateFreeTimeSlots = function (
   tripStart,
   tripEnd,
@@ -35,9 +38,6 @@ exports.calculateFreeTimeSlots = function (
   tripStart = new Date(tripStart);
   tripEnd = new Date(tripEnd);
 
-  let dayStart = combineDateTime(tripStart, dailyStartTime);
-  let dayEnd = combineDateTime(tripStart, dailyEndTime);
-
   // Apply buffer to meeting times
   let bufferedMeetings = meetings.map((meeting) =>
     addBufferToMeeting(meeting, bufferInMinutes)
@@ -46,61 +46,54 @@ exports.calculateFreeTimeSlots = function (
   // Sort meetings by start time
   bufferedMeetings.sort((a, b) => a.start - b.start);
 
-  let currentDay = new Date(tripStart);
+  for (
+    let currentDay = new Date(tripStart);
+    currentDay <= tripEnd;
+    currentDay.setDate(currentDay.getDate() + 1)
+  ) {
+    let dayStart = combineDateTime(currentDay, dailyStartTime);
+    let dayEnd = combineDateTime(currentDay, dailyEndTime);
 
-  // Loop through each day of the trip
-  while (currentDay <= tripEnd) {
-    let adjustedDayStart = new Date(
-      currentDay.getFullYear(),
-      currentDay.getMonth(),
-      currentDay.getDate(),
-      dayStart.getHours(),
-      dayStart.getMinutes()
-    );
-    let adjustedDayEnd = new Date(
-      currentDay.getFullYear(),
-      currentDay.getMonth(),
-      currentDay.getDate(),
-      dayEnd.getHours(),
-      dayEnd.getMinutes()
-    );
+    // Initialize the last end time as the start of the day
+    let lastEndTime = new Date(dayStart);
 
-    let lastEndTime = adjustedDayStart;
-
-    // Loop through each meeting
+    // Process each meeting
     bufferedMeetings.forEach((meeting) => {
       let meetingStart = new Date(meeting.start);
       let meetingEnd = new Date(meeting.end);
 
-      // If meeting is within the current day
-      if (meetingStart > adjustedDayStart || meetingEnd < adjustedDayEnd) {
+      // Ensure the meeting falls within the current day
+      if (meetingEnd < dayStart || meetingStart > dayEnd) {
+        // Skip this meeting as it doesn't belong to the current day
         return;
       }
 
+      // Adjust the meeting times if they go beyond the day's limits
+      if (meetingStart < dayStart) meetingStart = new Date(dayStart);
+      if (meetingEnd > dayEnd) meetingEnd = new Date(dayEnd);
+
+      // If there's a free slot before this meeting starts
       if (lastEndTime < meetingStart) {
         freeSlots.push({
-          start: new Date(lastEndTime),
-          end: new Date(meetingStart),
+          start: lastEndTime.toISOString(),
+          end: meetingStart.toISOString(),
         });
       }
 
-      lastEndTime = new Date(meetingEnd);
+      // Update the last end time to the end of the current meeting
+      lastEndTime = meetingEnd > lastEndTime ? meetingEnd : lastEndTime;
     });
 
-    if (lastEndTime < adjustedDayEnd) {
+    // Check for a free slot at the end of the day
+    if (lastEndTime < dayEnd) {
       freeSlots.push({
-        start: new Date(lastEndTime),
-        end: new Date(adjustedDayEnd),
+        start: lastEndTime.toISOString(),
+        end: dayEnd.toISOString(),
       });
     }
-
-    currentDay.setDate(currentDay.getDate() + 1);
   }
 
   console.log(freeSlots);
 
-  return freeSlots.map((slot) => ({
-    start: slot.start.toISOString(),
-    end: slot.end.toISOString(),
-  }));
+  return freeSlots;
 };
