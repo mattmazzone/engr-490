@@ -184,6 +184,10 @@ const Trip = ({ navigation }: RouterProps) => {
             <ImportEventsFromProvider
               dateRange={rangeDate}
               onButtonClick={handleImportEventsFromProviderClick}
+              onCalendarEvents={(calendarEvents: Meeting[]) => {
+                setMeetings(calendarEvents);
+                setConfirmTripModalVisible(true);
+              }}
             />
           ) : (
             <></>
