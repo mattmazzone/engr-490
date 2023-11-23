@@ -22,6 +22,7 @@ import { createTrip, fetchCurrentTrip } from "../../services/userServices";
 
 import { Calendar } from "react-native-big-calendar";
 import CalendarConfirmModal from "../../components/TripScreen/CalendarConfimModal";
+import CurrentTrip from "../../components/TripScreen/CurrentTrip";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -94,12 +95,10 @@ const Trip = ({ navigation }: RouterProps) => {
       meetings
     );
 
-    // if (createTripResponse) {
-    //   const {trip, freeTimeSlots} = createTripResponse;
-    // }
-
-    // // Set state to created trip
-    // setCurrentTrip(trip);
+    if (createTripResponse) {
+      const trip = createTripResponse.trip;
+      setCurrentTrip(trip);
+    }
   };
 
   const calendarEvents = meetings.map((meeting) => ({
@@ -121,46 +120,8 @@ const Trip = ({ navigation }: RouterProps) => {
     );
   }
 
-  const calendartheme = {
-    palette: {
-      primary: {
-        main: "#6185d0",
-        contrastText: "#000",
-      },
-      gray: {
-        "100": "#333",
-        "200": "transparent",
-        "300": "#888",
-        "500": "#000",
-        "800": "#ccc",
-      },
-    },
-  };
-
   if (currentTrip) {
-    return (
-      <BackgroundGradient>
-        <SafeAreaView style={styles.currentTripContainer}>
-          <View style={styles.calendarContainer}>
-            {currentTrip.tripStart && currentTrip.tripEnd && (
-              <Calendar
-                events={currentTrip.tripMeetings.map((meeting) => ({
-                  title: meeting.title,
-                  start: new Date(meeting.start),
-                  end: new Date(meeting.end),
-                  id: meeting.id,
-                  location: meeting.location,
-                }))}
-                date={new Date(currentTrip.tripStart)}
-                height={600}
-                mode="3days"
-                theme={calendartheme}
-              />
-            )}
-          </View>
-        </SafeAreaView>
-      </BackgroundGradient>
-    );
+    return <CurrentTrip currentTrip={currentTrip} />;
   }
 
   const handleImportEventsFromProviderClick = (importEvents: boolean) => {

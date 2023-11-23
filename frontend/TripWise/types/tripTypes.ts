@@ -17,8 +17,13 @@ export type Meeting = {
 };
 
 export type TripType = {
-  id: string;
   tripStart: Date;
   tripEnd: Date;
   tripMeetings: Meeting[];
+  freeSlots: FreeSlot[];
+};
+
+export type FreeSlot = {
+  start: Date;
+  end: Date;
 };

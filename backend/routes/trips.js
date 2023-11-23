@@ -45,7 +45,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     await db.collection("users").doc(uid).update({ currentTrip: tripId });
 
     const trip = await tripRef.get();
-    return res.status(200).json({ trip: trip.data(), freeSlots: freeSlots });
+
+    return res.status(200).json({ trip: trip.data() });
   } catch (error) {
     console.error("Error creating trip", error);
     res.status(500).send(error.message);
