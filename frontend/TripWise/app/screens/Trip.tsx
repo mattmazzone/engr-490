@@ -49,9 +49,7 @@ const Trip = ({ navigation }: RouterProps) => {
     );
   };
   const [importEventsVisible, setImportEventsVisible] = useState(true);
-
   const [confirmTripModalVisible, setConfirmTripModalVisible] = useState(false);
-
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
 
@@ -236,17 +234,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#fff",
     fontWeight: "bold",
-  },
-  calendarContainer: {
-    flex: 1,
-    width: "100%",
-  },
-
-  currentTripContainer: {
-    flex: 1,
-    alignItems: "flex-start",
-    marginHorizontal: 10,
-    paddingBottom: 110, //padding so meetings stop at nav bar
-    marginTop: 40,
   },
 });
