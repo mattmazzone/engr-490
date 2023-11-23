@@ -2,7 +2,7 @@
 import { FIREBASE_AUTH } from "../FirebaseConfig";
 import { UserProfile } from "../types/userTypes";
 
-import { Meeting } from "../types/tripTypes";
+import { Meeting, TripType } from "../types/tripTypes";
 
 // Base API URL
 const BASE_API_URL = "http://localhost:3000/api";
@@ -92,15 +92,9 @@ interface FreeSlot {
   start: string;
   end: string;
 }
-interface TripData {
-  tripStart: string;
-  tripEnd: string;
-  tripMeetings: Meeting[];
-  freeSlots: FreeSlot[];
-}
+
 interface TripDataResponse {
-  trip: TripData;
-  freeSlots: FreeSlot[];
+  trip: TripType;
 }
 
 export const createTrip = async (
@@ -160,7 +154,4 @@ export const fetchCurrentTrip = async (): Promise<any> => {
   }
 };
 
-export const getGoogleCalendarEvents = async (): Promise<any> => {
-
-
-};
+export const getGoogleCalendarEvents = async (): Promise<any> => {};
