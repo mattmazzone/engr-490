@@ -21,13 +21,35 @@ function combineDateTime(date, timeString) {
     [parseInt(timeParts[2])]
   );
 }
+// Function to get timezone offset from date string
+function getTimezoneOffset(dateString) {
+  const regex = /([+-][0-9]{2}:[0-9]{2})$/;
+  const match = dateString.match(regex);
+  return match ? match[0] : "+00:00"; // Default to UTC if no timezone info
+}
 
-// Helper function to calculate free time slots
-// Helper functions remain the same...
+// Function to format date in the same timezone as the original input
+function formatDateInSameTimezone(date, originalDateString) {
+  const timezoneOffset = getTimezoneOffset(originalDateString);
+
+  // Extract hours and minutes from the timezone offset
+  const offsetHours = parseInt(timezoneOffset.substring(1, 3));
+  const offsetMinutes = parseInt(timezoneOffset.substring(4));
+  const totalOffset =
+    (offsetHours * 60 + offsetMinutes) *
+    60000 *
+    (timezoneOffset[0] === "+" ? 1 : -1);
+
+  // Apply the offset to the date
+  const adjustedDate = new Date(date.getTime() + totalOffset);
+
+  // Format the date as an ISO string and append the timezone offset
+  return adjustedDate.toISOString().replace("Z", timezoneOffset);
+}
 
 // Updated function to calculate free time slots
 exports.calculateFreeTimeSlots = function (
-  tripStart,
+  originalTripStart,
   tripEnd,
   meetings,
   dailyStartTime,
@@ -35,7 +57,7 @@ exports.calculateFreeTimeSlots = function (
   bufferInMinutes
 ) {
   let freeSlots = [];
-  tripStart = new Date(tripStart);
+  let tripStart = new Date(originalTripStart);
   tripEnd = new Date(tripEnd);
 
   // Apply buffer to meeting times
@@ -75,8 +97,8 @@ exports.calculateFreeTimeSlots = function (
       // If there's a free slot before this meeting starts
       if (lastEndTime < meetingStart) {
         freeSlots.push({
-          start: lastEndTime.toISOString(),
-          end: meetingStart.toISOString(),
+          start: formatDateInSameTimezone(lastEndTime, originalTripStart),
+          end: formatDateInSameTimezone(meetingStart, originalTripStart),
         });
       }
 
@@ -87,8 +109,8 @@ exports.calculateFreeTimeSlots = function (
     // Check for a free slot at the end of the day
     if (lastEndTime < dayEnd) {
       freeSlots.push({
-        start: lastEndTime.toISOString(),
-        end: dayEnd.toISOString(),
+        start: formatDateInSameTimezone(lastEndTime, originalTripStart),
+        end: formatDateInSameTimezone(dayEnd, originalTripStart),
       });
     }
   }
