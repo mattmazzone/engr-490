@@ -77,7 +77,7 @@ const Login = ({ navigation }: RouterProps) => {
                 style={styles.input}
                 placeholder="Email"
                 autoCapitalize="none"
-                onChange={(text) => setEmail(text.nativeEvent.text)}
+                onChangeText={(text) => setEmail(text)}
               ></TextInput>
               <TextInput
                 secureTextEntry={true}
@@ -85,7 +85,7 @@ const Login = ({ navigation }: RouterProps) => {
                 style={styles.input}
                 placeholder="Password"
                 autoCapitalize="none"
-                onChange={(text) => setPassword(text.nativeEvent.text)}
+                onChangeText={(text) => setPassword(text)}
               ></TextInput>
 
               {loading ? (
@@ -102,7 +102,7 @@ const Login = ({ navigation }: RouterProps) => {
             </View>
           </>
         )}
-        </BackgroundGradient>
+      </BackgroundGradient>
     </>
   );
 };
