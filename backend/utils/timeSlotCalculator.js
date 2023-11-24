@@ -115,7 +115,5 @@ exports.calculateFreeTimeSlots = function (
     }
   }
 
-  console.log(freeSlots);
-
   return freeSlots;
 };
