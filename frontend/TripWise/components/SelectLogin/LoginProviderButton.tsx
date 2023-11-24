@@ -5,8 +5,71 @@ import {
   Image,
   StyleSheet,
   ImageSourcePropType,
+  Platform,
 } from "react-native";
 import { NavigationProp } from "@react-navigation/native";
+import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import * as UserService from "../../services/userServices";
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
+  signInWithCredential,
+} from "firebase/auth";
+// import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// We import the auth state from the firebase config file
+const auth = FIREBASE_AUTH;
+
+// We configure the google sign in for mobile
+// GoogleSignin.configure({
+//   webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
+//   scopes: ["https://www.googleapis.com/auth/calendar"], // We want to get the calendar access token
+// });
+
+const handleGoogleSignUp = async () => {
+  try {
+    if (Platform.OS === "web") {
+      const provider = new GoogleAuthProvider();
+      provider.addScope("https://www.googleapis.com/auth/calendar");
+      const response = await signInWithPopup(auth, provider);
+
+      const user = response.user;
+
+      if (user.displayName) {
+        UserService.createUser(
+          user.uid,
+          user.displayName.split(" ")[0],
+          user.displayName.split(" ")[1]
+        );
+      }
+
+      const credential = GoogleAuthProvider.credentialFromResult(response);
+
+      if (credential === null) {
+        throw new Error("Google Auth Provider Credential is null");
+      }
+      if (credential.accessToken === undefined) {
+        throw new Error("Google Auth Provider Credential Access Token is null");
+      }
+      // TODO: ENCRYPT TOKEN
+      sessionStorage.setItem("googleAccessToken", credential.accessToken);
+    } else {
+      // await GoogleSignin.hasPlayServices();
+      // const userInfo = await GoogleSignin.signIn();
+      // const { idToken, accessToken } = await GoogleSignin.getTokens();
+      // const user = userInfo.user;
+      // if (user.givenName === null || user.familyName === null) {
+      //   throw new Error("User is null");
+      // }
+      // UserService.createUser(user.id, user.givenName, user.familyName);
+      // // TODO: Securely store the token
+      // await AsyncStorage.setItem("googleAccessToken", accessToken);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 interface ProviderDetails {
   title: string;
@@ -35,7 +98,7 @@ const providerMap: Record<string, ProviderDetails> = {
     title: "Continue with Google",
     logo: require("../../assets/logos/google.png"),
     onPress: () => {
-      alert("Google");
+      handleGoogleSignUp();
     },
     bgColor: "#DB4437",
     textColor: "#FFFFFF",
@@ -73,17 +136,17 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#1E90FF",
     flexDirection: "row",
-    //width: "55%",
+    width: "75%",
     height: 45,
     borderRadius: 7,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 10,
-    paddingLeft: 30
+    paddingLeft: 30,
   },
   buttonText: {
     fontSize: 18,
-    marginRight: 30 // add some space between text and logo
+    marginRight: 30, // add some space between text and logo
   },
   logo: {
     width: 25,
