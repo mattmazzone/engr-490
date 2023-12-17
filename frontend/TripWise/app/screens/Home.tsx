@@ -11,6 +11,7 @@ import {
 import BackgroundGradient from "../../components/BackgroundGradient";
 import { UserProfile } from "../../types/userTypes";
 import * as UserService from "../../services/userServices";
+import { TripType } from "../../types/tripTypes";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -19,17 +20,14 @@ interface RouterProps {
 // Check for an ongoing Trip
 
 const Home = ({ navigation }: RouterProps) => {
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [currentTrip, setCurrentTrip] = useState<TripType>();
   const [isFetching, setIsFetching] = useState<boolean>(true); // To track the fetching state
-  const [trip, setTrip] = useState<any>(null);
 
   useEffect(() => {
-    const initializeUserProfile = async () => {
+    const initializeHomePage = async () => {
       try {
-        const profile = await UserService.fetchUserProfile();
-        setUserProfile(profile);
-        // If the user has an ongoing trip, set the trip to the user's ongoing trip else set it to null
-        setTrip(profile?.ongoingTrip !== "" ? profile?.ongoingTrip : null);
+        const currentTrip = await UserService.fetchCurrentTrip();
+        setCurrentTrip(currentTrip);
       } catch (error) {
         console.error("Error fetching user profile:", error);
       } finally {
@@ -37,7 +35,7 @@ const Home = ({ navigation }: RouterProps) => {
       }
     };
 
-    initializeUserProfile();
+    initializeHomePage();
   }, []);
 
   if (isFetching) {
@@ -48,19 +46,22 @@ const Home = ({ navigation }: RouterProps) => {
     );
   }
 
-  if (trip) {
+  if (currentTrip) {
     return (
       <BackgroundGradient>
-        <View>
-          <Text>
-            You have an ongoing trip to {trip?.destination} with{" "}
-            {trip?.travelers.length} other travelers
+        <SafeAreaView style={styles.container}>
+          <Text style={styles.title}>
+            You have an ongoing trip!
+            {/* to {currentTrip?.destination} with{" "} */}
+            {/* {trip?.travelers.length} other travelers */}
           </Text>
-          <Button
-            title="View Trip"
-            onPress={() => navigation.navigate("TripDetails")}
-          />
-        </View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Trip")}
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}>View Trip Details</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
       </BackgroundGradient>
     );
   }
