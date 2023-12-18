@@ -34,17 +34,17 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     width: "100%",
+    marginTop: 20,
     marginBottom: 110, // Apply padding here
   },
   content: {
     alignItems: "flex-start",
-    marginTop: 20,
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "white",
     textAlign: "center",
-    marginBottom: 20,
   },
 });
