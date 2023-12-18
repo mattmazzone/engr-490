@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, Button, Modal } from "react-native";
 import { TripType } from "../../types/tripTypes";
 import * as UserService from "../../services/userServices";
-import { hours } from "react-native-big-calendar";
 
 const PastTrip = ({ pastTrip }: any) => {
   const [pastTripData, setPastTripData] = useState<TripType | null>(null);
   const [isFetching, setIsFetching] = useState<boolean>(true);
+  const [tripDetailsModalVisible, setTripDetailsModalVisible] =
+    useState<boolean>(false);
 
   useEffect(() => {
     const fetchPastTripData = async () => {
@@ -37,7 +38,16 @@ const PastTrip = ({ pastTrip }: any) => {
   const formattedStartDate = new Date(pastTripData.tripStart).toLocaleString(
     "en-US",
     {
-      month: "long",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }
+  );
+
+  const formattedEndDate = new Date(pastTripData.tripEnd).toLocaleString(
+    "en-US",
+    {
+      month: "short",
       day: "numeric",
       year: "numeric",
     }
@@ -49,28 +59,30 @@ const PastTrip = ({ pastTrip }: any) => {
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>{formattedStartDate}</Text>
+        <Text style={styles.title}>
+          {formattedStartDate} - {formattedEndDate}
+        </Text>
       </View>
-      <View>
-        {sneakPeek.map((meeting: any, index: any) => (
-          <>
-            <Text key={index} style={styles.text}>
-              {new Date(meeting.start).toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-              })}
-              {" - "}
-              {meeting.title}
-            </Text>
-            <View style={styles.verticalBar}>
-              <Pressable style={styles.button}>
-                <Text style={styles.buttonText}>View Details</Text>
-              </Pressable>
-            </View>
-          </>
-        ))}
-      </View>
+      <Pressable style={styles.button} onPress={() =>setTripDetailsModalVisible(true)}>
+        <Text style={styles.buttonText}>View Details</Text>
+      </Pressable>
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={tripDetailsModalVisible}
+        onRequestClose={() => {
+          setTripDetailsModalVisible(!tripDetailsModalVisible);
+        }}
+      >
+        <View>
+          <View>
+            <Text>This is my modal</Text>
+            <Pressable onPress={() => setTripDetailsModalVisible(false)}>
+              <Text>close</Text>
+            </Pressable> 
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -106,20 +118,10 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "rgba(0, 255, 85, 0.6)",
     padding: 10,
-    width: "75%",
     borderRadius: 3,
     marginBottom: 5,
   },
-  verticalBar: {
-    marginLeft: 30,
-    paddingVertical: 10,
-    borderLeftWidth: 2,
-    borderLeftColor: "white",
-    width: "100%",
-    alignItems: "center",
-    borderStyle: "dotted",
-    marginVertical: 10,
-  },
+
   buttonText: {
     color: "white",
     textAlign: "center",
