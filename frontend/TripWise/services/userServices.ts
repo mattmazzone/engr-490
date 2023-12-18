@@ -146,7 +146,9 @@ export const fetchCurrentTrip = async (): Promise<any> => {
       if (!response.ok) {
         throw new Error("Failed to fetch current trip.");
       }
+
       const data = await response.json();
+    
       return data;
     }
   } catch (error) {
@@ -178,8 +180,8 @@ export const endCurrentTrip = async (): Promise<any> => {
   }
 };
 
-// Get user provider from firebase 
-export  const getUserProvider = () => {
+// Get user provider from firebase
+export const getUserProvider = () => {
   const auth = FIREBASE_AUTH;
   const user = auth.currentUser;
 
