@@ -12,6 +12,7 @@ import BackgroundGradient from "../../components/BackgroundGradient";
 import { UserProfile } from "../../types/userTypes";
 import * as UserService from "../../services/userServices";
 import { TripType } from "../../types/tripTypes";
+import { useFocusEffect } from "@react-navigation/native";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -20,23 +21,38 @@ interface RouterProps {
 // Check for an ongoing Trip
 
 const Home = ({ navigation }: RouterProps) => {
+  const [userProfile, setUserProfile] = useState<UserProfile>();
   const [currentTrip, setCurrentTrip] = useState<TripType>();
   const [isFetching, setIsFetching] = useState<boolean>(true); // To track the fetching state
 
-  useEffect(() => {
-    const initializeHomePage = async () => {
-      try {
-        const currentTrip = await UserService.fetchCurrentTrip();
-        setCurrentTrip(currentTrip);
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      } finally {
-        setIsFetching(false);
-      }
-    };
+  // useFocusEffect is used to run code when the screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      const initializeHomePage = async () => {
+        try {
+          const userProfile = await UserService.fetchUserProfile();
+          const currentTrip = await UserService.fetchCurrentTrip();
 
-    initializeHomePage();
-  }, []);
+          if (!userProfile) {
+            throw new Error("User profile not found");
+          }
+          setUserProfile(userProfile);
+
+          if (currentTrip?.hasActiveTrip === false) {
+            setCurrentTrip(undefined);
+          } else {
+            setCurrentTrip(currentTrip);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        } finally {
+          setIsFetching(false);
+        }
+      };
+
+      initializeHomePage();
+    }, []) // Dependencies for the useCallback hook, if any
+  );
 
   if (isFetching) {
     return (
@@ -51,10 +67,11 @@ const Home = ({ navigation }: RouterProps) => {
       <BackgroundGradient>
         <SafeAreaView style={styles.container}>
           <Text style={styles.title}>
-            You have an ongoing trip!
+            Welcome back, {userProfile?.firstName}! You have an ongoing trip!
             {/* to {currentTrip?.destination} with{" "} */}
             {/* {trip?.travelers.length} other travelers */}
           </Text>
+
           <TouchableOpacity
             onPress={() => navigation.navigate("Trip")}
             style={styles.button}
@@ -69,7 +86,7 @@ const Home = ({ navigation }: RouterProps) => {
   return (
     <BackgroundGradient>
       <SafeAreaView style={styles.container}>
-        <Text style={styles.title}>No Ongoing Trips!</Text>
+        <Text style={styles.title}>Welcome back, {userProfile?.firstName}!</Text>
         <Text style={styles.subTitle}>
           Click below to start planning a trip.
         </Text>
