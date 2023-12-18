@@ -13,6 +13,7 @@ import { UserProfile } from "../../types/userTypes";
 import * as UserService from "../../services/userServices";
 import { TripType } from "../../types/tripTypes";
 import { useFocusEffect } from "@react-navigation/native";
+import PastTrips from "../../components/HomeScreen/PastTrips";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -23,6 +24,7 @@ interface RouterProps {
 const Home = ({ navigation }: RouterProps) => {
   const [userProfile, setUserProfile] = useState<UserProfile>();
   const [currentTrip, setCurrentTrip] = useState<TripType>();
+  const [pastTrips, setPastTrips] = useState<TripType[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(true); // To track the fetching state
 
   // useFocusEffect is used to run code when the screen is focused
@@ -32,6 +34,7 @@ const Home = ({ navigation }: RouterProps) => {
         try {
           const userProfile = await UserService.fetchUserProfile();
           const currentTrip = await UserService.fetchCurrentTrip();
+          const pastTrips = await UserService.fetchPastTrips();
 
           if (!userProfile) {
             throw new Error("User profile not found");
@@ -43,6 +46,12 @@ const Home = ({ navigation }: RouterProps) => {
           } else {
             setCurrentTrip(currentTrip);
           }
+
+          if (!pastTrips) {
+            throw new Error("Past trips not found");
+          }
+          setPastTrips(pastTrips);
+          
         } catch (error) {
           console.error("Error fetching user profile:", error);
         } finally {
@@ -86,7 +95,9 @@ const Home = ({ navigation }: RouterProps) => {
   return (
     <BackgroundGradient>
       <SafeAreaView style={styles.container}>
-        <Text style={styles.title}>Welcome back, {userProfile?.firstName}!</Text>
+        <Text style={styles.title}>
+          Welcome back, {userProfile?.firstName}!
+        </Text>
         <Text style={styles.subTitle}>
           Click below to start planning a trip.
         </Text>
@@ -97,8 +108,8 @@ const Home = ({ navigation }: RouterProps) => {
         >
           <Text style={styles.buttonText}>Start a Trip</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Review your past Trips</Text>
-        <View>{/* Map past trips to TSX here */}</View>
+
+        <PastTrips pastTrips={pastTrips} />
       </SafeAreaView>
     </BackgroundGradient>
   );
@@ -129,7 +140,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#00FF55",
     padding: 10,
     width: "50%",
-    borderRadius: 5,
+    borderRadius: 3,
     marginBottom: 40,
   },
   buttonText: {
