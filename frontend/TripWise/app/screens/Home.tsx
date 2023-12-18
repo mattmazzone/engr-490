@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
+  ScrollView,
 } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
 import { UserProfile } from "../../types/userTypes";
@@ -51,7 +52,6 @@ const Home = ({ navigation }: RouterProps) => {
             throw new Error("Past trips not found");
           }
           setPastTrips(pastTrips);
-          
         } catch (error) {
           console.error("Error fetching user profile:", error);
         } finally {
@@ -123,6 +123,10 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginHorizontal: 40,
     marginTop: 40,
+  },
+  scrollView: {
+    width: "100%",
+    marginBottom: 110, //padding so meetings stop at nav bar
   },
   title: {
     fontSize: 24,
