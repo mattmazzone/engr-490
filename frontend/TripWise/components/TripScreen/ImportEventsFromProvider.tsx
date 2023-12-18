@@ -10,8 +10,6 @@ interface ImportEventsFromProviderProps {
   onCalendarEvents: (calendarEvents: Meeting[]) => void;
 }
 
-
-
 const getCalendarEvents = async (
   provider: string,
   dateRange: DateRange,
@@ -127,7 +125,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   buttonYes: {
-    backgroundColor: "#00FF55",
+    backgroundColor: "rgba(0, 255, 85, 0.6)",
     padding: 10,
     width: 100,
     borderRadius: 5,
