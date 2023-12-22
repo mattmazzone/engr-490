@@ -4,6 +4,9 @@ from firebase_admin import initialize_app, auth, credentials, firestore
 from dotenv import load_dotenv
 import requests, os, json
 from functools import wraps
+from sklearn.metrics.pairwise import cosine_similarity
+import pandas as pd
+import numpy as np
 
 load_dotenv()
 
@@ -48,7 +51,6 @@ def authenticate(f):
     return decorated_function
 
 @app.route('/api/recommend-cold-start', method=['POST'])
-@authenticate
 def recommend_cold_start():
     # Get nearby places and user interests array from POST body
     content_type = request.headers.get('Content-Type')
@@ -68,8 +70,6 @@ def recommend_cold_start():
             # Concat the two lists together
             relevant_interests += interests_dict[category]
     
-    # The key = number of matching interests, values = array of place_ids with that number of 
-    # matching interests
     filtered_place_ids = {}
     for place_info in nearby_places:
         types = place_info["types"]
@@ -84,26 +84,47 @@ def recommend_cold_start():
     # Return filtered list
     return filtered_place_ids
 
+def normalize(row: pd.Series) -> pd.Series:
+    # don't factor the name of the place into normalization
+    if "user_name" in row:
+        selected = row.drop(["user_name"])
+    # elif "place_name" in row:
+    #     selected = row.drop(["place_name"])
+    else:
+        selected = row.drop(["place_name"])
+
+    # compute the length of the vector using L2 normalization
+    norm = np.linalg.norm(selected)
+    if norm != 0:
+        selected_normalized = selected / norm
+        row.update(selected_normalized)
+        return row
+    return row
 
 @app.route('/api/recommend', methods=['POST'])
 @authenticate
 def recommend():
-    # Get nearby places from POST body
-
-    # Get user vector from database
-
+    request_body = request.json
+    # Get place vectors that correspond to the nearby places
+    places_df = pd.json_normalize(request_body["nearbyPlaceVectors"])
+    # Get user vectors from database
+    historical_user_df = pd.json_normalize(request_body["userVectors"])
     # join user and places on place_id 
-
+    user_places_df = pd.merge(historical_user_df, places_df, on="place_name")
     # Sum all the columns of the newly created user-place table
-
+    users_summed = user_places_df.drop(["place_name"], axis=1).groupby("user_name").sum().reset_index()
     # Normalize the user-place table
-
+    users_sum_normalized = users_summed.apply(normalize, axis=1)
     # Normalize the places table
-
+    places_normalized_df = places_df.apply(normalize, axis=1)
+    # Drop useless columns for calculations
+    users_sum_normalized_copy = users_sum_normalized.drop(["user_name"], axis=1)
+    places_normalized_df_copy = places_normalized_df.drop(["place_name"], axis=1)
     # Get cosine similarity between normalized places table and the normalized user-place table
-
+    users_places_similarity_df = cosine_similarity(users_sum_normalized_copy, places_normalized_df_copy)
     # Return the similarity table
-    return 
+    users_places_similarity_df = pd.DataFrame(users_places_similarity_df).transpose()
+    return pd.DataFrame.to_json(users_places_similarity_df)
 
 
 # Start the server
