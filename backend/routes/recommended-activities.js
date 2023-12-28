@@ -1,26 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const authenticate = require("../middlewares/authenticate");
-const axios = require("axios");
+const admin = require("firebase-admin");
+const db = admin.firestore();
 const { getNearbyPlaces, REQUEST } = require("../utils/getNearbyPlaces");
 
-router.get("/places/nearby", authenticate, async (req, res) => {
-  let { includedTypes, maxResultCount, latitude, longitude, radius } =
-    req.query;
-
-  // Parse the includedTypes query parameter to be an array of strings
-  try {
-    includedTypes = JSON.parse(includedTypes);
-  } catch (error) {
-    if (typeof includedTypes === "string") {
-      includedTypes = includedTypes.split(",");
-    } else {
-      includedTypes = [];
-    }
-  }
+router.post("/recommend-activities", authenticate, async (req, res) => {
+  let { maxResultCount, latitude, longitude, radius } = req.body;
 
   const payload = {
-    includedTypes,
     maxResultCount,
     locationRestriction: {
       circle: {
@@ -32,14 +20,14 @@ router.get("/places/nearby", authenticate, async (req, res) => {
       },
     },
   };
-  
+
   let [successOrNot, responseData] = await getNearbyPlaces(
-    req.query,
     payload,
-    "places.displayName"
+    "places.id, places.displayName, places.types"
   );
   if (successOrNot == REQUEST.SUCCESSFUL) {
-    return res.status(200).json(responseData);
+    const nearbyPlaces = responseData;
+    console.log(nearbyPlaces);
   } else {
     const error = responseData;
     res.status(500).send(error.message);

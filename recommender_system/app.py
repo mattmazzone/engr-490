@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
-from firebase_admin import initialize_app, auth, credentials, firestore
+from firebase_admin import initialize_app, auth, credentials
 from dotenv import load_dotenv
 import requests, os, json
 from functools import wraps

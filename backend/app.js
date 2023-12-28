@@ -15,6 +15,7 @@ admin.initializeApp({
 const tripRoutes = require("./routes/trips");
 const userRoutes = require("./routes/users");
 const placesRoutes = require("./routes/places");
+const recommendedActivitiesRoutes = require("./routes/recommended-activities");
 
 app.use(cors());
 app.use(express.json());
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use("/api", tripRoutes);
 app.use("/api", userRoutes);
 app.use("/api", placesRoutes);
+app.use("/api", recommendedActivitiesRoutes);
 
 // Start the server
 const port = 3000;
