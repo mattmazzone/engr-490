@@ -23,14 +23,14 @@ router.post("/recommend-activities", authenticate, async (req, res) => {
 
   let [successOrNot, responseData] = await getNearbyPlaces(
     payload,
-    "places.id, places.displayName, places.types"
+    "places.id,places.displayName,places.types"
   );
   if (successOrNot == REQUEST.SUCCESSFUL) {
     const nearbyPlaces = responseData;
-    console.log(nearbyPlaces);
+    res.status(200).send(nearbyPlaces);
   } else {
     const error = responseData;
-    res.status(500).send(error.message);
+    res.status(400).send(error.message);
   }
 });
 

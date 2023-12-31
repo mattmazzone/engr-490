@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
 const app = express();
-require("dotenv").config();
+require("dotenv").config({ path: __dirname + "/../.env" });
 
 // Initialize Firebase Admin with your project's credentials
 const serviceAccount = require("./tripwise-sdk-key.json");
