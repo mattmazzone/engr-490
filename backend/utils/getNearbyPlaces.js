@@ -7,7 +7,6 @@ const REQUEST = {
 
 async function getNearbyPlaces(payload, fieldMask) {
   try {
-    console.log(process.env);
     const response = await axios.post(
       "https://places.googleapis.com/v1/places:searchNearby",
       payload,
@@ -22,10 +21,8 @@ async function getNearbyPlaces(payload, fieldMask) {
 
     return [REQUEST.SUCCESSFUL, response.data];
   } catch (error) {
-    console.error("Error getting nearby places", error);
+    // console.error("Error getting nearby places", error);
     if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
       console.error(error.response.data);
