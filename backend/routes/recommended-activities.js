@@ -34,14 +34,18 @@ router.post("/recommend-activities", authenticate, async (req, res) => {
     const nearbyPlaces = responseData;
 
     const token = req.headers.authorization;
-    const response = await axios.post(recommenderURL, nearbyPlaces, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
-    });
-    const activities = response.data.places;
-    res.status(200).send(activities);
+    try {
+      const response = await axios.post(recommenderURL, nearbyPlaces, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      });
+      const activities = response.data.places;
+      res.status(200).send(activities);
+    } catch (e) {
+      res.status(500).send(e);
+    }
   } else {
     const error = responseData;
     res.status(400).send(error.message);
