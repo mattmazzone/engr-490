@@ -1,5 +1,7 @@
 const axios = require("axios");
 
+const NUM_RECENT_TRIPS = 10;
+
 const REQUEST = {
   SUCCESSFUL: 0,
   ERROR: 1,
@@ -39,4 +41,28 @@ async function getNearbyPlaces(payload, fieldMask) {
   }
 }
 
+async function getRecentTrips(admin, db) {
+  try {
+    let recentTripIds = [];
+    await db
+      .collections("users")
+      .doc(uid)
+      .get()
+      .then((doc) => {
+        recentTrips = doc.data().pastTrips.slice(0, NUM_RECENT_TRIPS);
+      });
+
+    // Change later
+    if (recentTrips.length < 5)
+      console.log(
+        "Minimum number of trips >= 5. Around 10 to get a good recommendation"
+      );
+    let recentTrips = [];
+    await db
+      .collections("trips")
+      .where(admin.firestore.FieldPath.documentId(), "in", recentTripIds)
+      .get()
+      .then((snapshot) => {});
+  } catch (error) {}
+}
 module.exports = { REQUEST, getNearbyPlaces };
