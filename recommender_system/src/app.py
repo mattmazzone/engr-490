@@ -89,15 +89,14 @@ def recommend_cold_start():
 @authenticate
 def recommend():
     request_body = request.get_json()
+    # Calculate place vectors that correspond to the nearby places
     nearby_places = request_body["places"]
     places_df = create_places_df(nearby_places)
-    print(places_df)
-    return make_response(jsonify(request_body), 200)
+    # Calculate user vectors from database from recent trips
+    # historical_user_df = request_body["recentTrips"]
+    return make_response(jsonify(places_df), 200)
 
-    # # Get place vectors that correspond to the nearby places
-    # places_df = pd.json_normalize(request_body["nearbyPlaceVectors"])
-    # # Get user vectors from database
-    # historical_user_df = pd.json_normalize(request_body["userVectors"])
+    
     # # join user and places on place_id 
     # user_places_df = pd.merge(historical_user_df, places_df, on="place_name")
     # # Sum all the columns of the newly created user-place table
