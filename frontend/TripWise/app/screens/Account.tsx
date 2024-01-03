@@ -14,6 +14,7 @@ import { UserProfile } from "../../types/userTypes";
 import * as UserService from "../../services/userServices";
 import { NavigationProp } from "@react-navigation/native";
 import About from "../../components/AccountScreen/About";
+import NotificationScreen from "../../components/AccountScreen/NotificationScreen";
 import AppSettingsLogo from "../../components/SVGLogos/AppSettingsLogo";
 import PrivacySettingsLogo from "../../components/SVGLogos/PrivacySettingsLogo";
 import BackupAndRestoreLogo from "../../components/SVGLogos/BackupAndRestoreLogo";
@@ -28,6 +29,7 @@ interface RouterProps {
 const Account = ({ navigation }: RouterProps) => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [aboutModalVisible, setAboutModalVisible] = useState(false);
+  const [notificationModalVisible, setNotificationModalVisible] = useState(false);
   const [isFetching, setIsFetching] = useState<boolean>(true); // To track the fetching state
 
   useEffect(() => {
@@ -88,7 +90,11 @@ const Account = ({ navigation }: RouterProps) => {
           )}
           {SettingOption(
             <NotificationSettingsLogo focused={false} />,
-            "Notification Settings"
+            "Notification Settings",
+            () => {
+              setNotificationModalVisible(true);
+            },
+            true
           )}
           {SettingOption(
             <TripWiseLogoSmall />,
@@ -99,6 +105,19 @@ const Account = ({ navigation }: RouterProps) => {
             true
           )}
         </View>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={notificationModalVisible}
+          onRequestClose={() => {
+            setNotificationModalVisible(!notificationModalVisible);
+          }}
+        >
+          <NotificationScreen
+            closeModal={() => setNotificationModalVisible(false)}
+            navigation={navigation}
+          />
+        </Modal>
 
         <Modal
           animationType="slide"
