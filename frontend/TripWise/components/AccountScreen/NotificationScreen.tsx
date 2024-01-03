@@ -27,9 +27,9 @@ const NotificationScreen = ({closeModal, navigation}:any)=>{
                 <View style={styles.notificationSpaces}>
                     <View style={styles.notificationChoice}>
                         <Text style={styles.typeNotificationText}> E-Mail Notifications </Text>
-                        <Switch 
-                            trackColor={{false: '#767577', true: '#81b0ff'}}
-                            thumbColor={isEmailEnabled ? '#f5dd4b' : '#f4f3f4'}
+                        <Switch style={{height:25}}
+                            trackColor={{false: '#767577', true: '#00ff00'}}
+                            thumbColor={isEmailEnabled ? '#32cd32' : '#f4f3f4'}
                             ios_backgroundColor="#3e3e3e"
                             onValueChange={toggleEmailSwitch}
                             value={isEmailEnabled}
@@ -37,9 +37,9 @@ const NotificationScreen = ({closeModal, navigation}:any)=>{
                     </View>
                     <View style={styles.notificationChoice}>
                         <Text style={styles.typeNotificationText}> Push Notifications </Text>
-                        <Switch 
-                            trackColor={{false: '#767577', true: '#81b0ff'}}
-                            thumbColor={isPushEnabled ? '#f5dd4b' : '#f4f3f4'}
+                        <Switch style={{height:25}}
+                            trackColor={{false: '#767577', true: '#00ff00'}}
+                            thumbColor={isPushEnabled ? '#32cd32' : '#f4f3f4'}
                             ios_backgroundColor="#3e3e3e"
                             onValueChange={togglePushSwitch}
                             value={isPushEnabled}
@@ -48,7 +48,7 @@ const NotificationScreen = ({closeModal, navigation}:any)=>{
                 </View>    
                 <View>
                     <Pressable onPress={closeModal} style={styles.button}>
-                            <Text style={styles.buttonText}>Close Modal</Text>
+                            <Text style={styles.buttonText}>Close</Text>
                     </Pressable>
                 </View>
             </SafeAreaView>
@@ -66,25 +66,30 @@ const styles = StyleSheet.create({
       },
       titleView:{
         height: 60,
+        width: 400,
+        alignItems:'center',
+        marginTop: 16,
+        marginBottom: 30,
       },
       titleText:{
-        color: "black",
+        color: "white",
         fontSize: 30,
         marginTop: 3,
-        fontWeight: "bold",
+        fontWeight: 'bold',
         width:"80%",
         marginBottom:16,
       },
       typeNotificationText:{
-        color: "black",
+        color: "white",
+        alignSelf:'center',
         fontSize: 20,
-        marginTop: 3,
         fontWeight: "bold",
-        width:"80%",
+        width:315,//325
+        marginBottom: 32,
       },
       notificationSpaces:{
         alignItems:"flex-start",
-        height: 675,
+        height: 650,
       },
       notificationChoice:{
         flexDirection:"row",
@@ -92,20 +97,21 @@ const styles = StyleSheet.create({
         height: 50,
       },
       button: {
-        backgroundColor: "black",
+        backgroundColor: "#006400",
         flexDirection: "row",
         width: "75%",
         height: 45,
         borderRadius: 7,
         justifyContent: "center",
-        alignItems: "center",
-        marginTop: 10,
-        paddingLeft: 30,
+        alignSelf: "center",
       },
       buttonText: {
         color:"white",
+        marginTop: 10,
+        marginLeft: "30%",
         fontSize: 18,
-        marginRight: 30, // add some space between text and logo
+        width: 150,
+        height: 50, // add some space between text and logo
       },
 });
 
