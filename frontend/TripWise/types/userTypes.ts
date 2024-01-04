@@ -5,6 +5,7 @@ export type UserProfile = {
   firstName: string;
   lastName: string;
   interests: string[];
+  settings: UserSettings;
   ongoingTrip: string; // trip id
   pastTrips: string[]; // trip ids
   currentMeetings: Meeting[];
@@ -12,7 +13,9 @@ export type UserProfile = {
 };
 
 export type UserSettings = {
-  // ... user settings properties
+  emailNotification: boolean;
+  pushNotification: boolean;
+  
 };
 
 export type UserPermissions = {

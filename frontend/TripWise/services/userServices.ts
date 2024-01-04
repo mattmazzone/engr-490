@@ -60,6 +60,36 @@ export const fetchUserProfile = async (): Promise<UserProfile | null> => {
   }
 };
 
+//Update user preference for notifications
+export const userNotification = async (
+  emailNotification: boolean,
+  pushNotification: boolean
+): Promise<void> => {
+  try{
+    if (FIREBASE_AUTH.currentUser){
+      const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+      console.log("idToken", idToken);
+      const response = await fetch(
+        `http://localhost:3000/api/settings/${FIREBASE_AUTH.currentUser.uid}`,
+        {
+          headers:{
+            Authorization: idToken,
+            "Content-Type": "application/json",
+          },
+          method: "PUT",
+          body: JSON.stringify({ emailNotification, pushNotification }),
+        }
+      );
+      if(!response.ok){
+        throw new Error("Failed to update user notifications.");
+      }
+    }
+  } catch(error){
+    console.error("Error to update user notificaitons:", error);
+    throw error;
+  }
+}
+
 export const updateUserInterests = async (
   interests: string[]
 ): Promise<void> => {
@@ -177,6 +207,8 @@ export const endCurrentTrip = async (): Promise<any> => {
     console.error("Error ending current trip:", error);
   }
 };
+
+
 
 // Get user provider from firebase 
 export  const getUserProvider = () => {
