@@ -59,13 +59,13 @@ router.put("/interests/:uid", authenticate, async (req, res) => {
 });
 
 // route to update user settings
-router.put("/settings/:uid", authenticate, async (req, res) =>{
+router.put("/settings/:uid", authenticate, async (req, res) => {
   const uid = req.params.uid;
-  const settings = req.body.settings;
-  try{
-    await db.collection("users").doc(uid).update({settings});
+  const { userSettings } = req.body;
+  try {
+    await db.collection("users").doc(uid).update({ settings: userSettings });
     return res.status(200).send("Settings updated successfully");
-  } catch(error){
+  } catch (error) {
     console.error("Error updating settings:", error);
     req.status(500).send(error.message);
   }

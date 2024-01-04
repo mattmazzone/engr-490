@@ -10,7 +10,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
-import { UserProfile } from "../../types/userTypes";
+import { useUserProfile } from "../../hooks/useUserProfile";
 import * as UserService from "../../services/userServices";
 import { NavigationProp } from "@react-navigation/native";
 import About from "../../components/AccountScreen/About";
@@ -27,26 +27,38 @@ interface RouterProps {
 }
 
 const Account = ({ navigation }: RouterProps) => {
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { userProfile, isFetching } = useUserProfile();
+
+  const [userSettings, setUserSettings] = useState({
+    emailNotification: false,
+    pushNotification: false,
+  });
+
   const [aboutModalVisible, setAboutModalVisible] = useState(false);
-  const [notificationModalVisible, setNotificationModalVisible] = useState(false);
-  const [isFetching, setIsFetching] = useState<boolean>(true); // To track the fetching state
+  const [notificationModalVisible, setNotificationModalVisible] =
+    useState(false);
 
+  // Get user settings
   useEffect(() => {
-    const initializeUserProfile = async () => {
-      try {
-        const profile = await UserService.fetchUserProfile();
-        setUserProfile(profile);
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      } finally {
-        setIsFetching(false);
-      }
-    };
+    console.log("userProfile", userProfile);
+    if (userProfile && userProfile.settings) {
+      setUserSettings({
+        emailNotification: userProfile.settings.emailNotification,
+        pushNotification: userProfile.settings.pushNotification,
+      });
+    }
+  }, [userProfile]); // Update settings when userProfile changes
 
-    initializeUserProfile();
-  }, []);
-  
+  // Function to update user settings
+  const updateUserSettings = async (newSettings: any) => {
+    try {
+      await UserService.updateUserSettings(newSettings);
+      setUserSettings(newSettings); // Update state with new settings
+    } catch (error) {
+      console.error("Error updating user settings:", error);
+    }
+  };
+
   const handleLogout = () => {
     FIREBASE_AUTH.signOut();
   };
@@ -93,8 +105,7 @@ const Account = ({ navigation }: RouterProps) => {
             "Notification Settings",
             () => {
               setNotificationModalVisible(true);
-            },
-            true
+            }
           )}
           {SettingOption(
             <TripWiseLogoSmall />,
@@ -105,20 +116,13 @@ const Account = ({ navigation }: RouterProps) => {
             true
           )}
         </View>
-        <Modal
-          animationType="slide"
-          transparent={false}
-          visible={notificationModalVisible}
-          onRequestClose={() => {
-            setNotificationModalVisible(!notificationModalVisible);
-          }}
-        >
-          <NotificationScreen
-            notificationPreferences = {[userProfile?.settings.emailNotification, userProfile?.settings.pushNotification]}
-            closeModal={() => setNotificationModalVisible(false)}
-            navigation={navigation}
-          />
-        </Modal>
+
+        <NotificationScreen
+          isVisible={notificationModalVisible}
+          userSettings={userSettings}
+          updateUserSettings={updateUserSettings}
+          closeModal={() => setNotificationModalVisible(false)}
+        />
 
         <Modal
           animationType="slide"

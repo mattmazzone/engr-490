@@ -1,6 +1,7 @@
 // Import necessary dependencies, Firebase config, etc.
 import { FIREBASE_AUTH } from "../FirebaseConfig";
 import { UserProfile } from "../types/userTypes";
+import { UserSettings } from "../types/userTypes";
 
 import { Meeting, TripType } from "../types/tripTypes";
 
@@ -61,34 +62,35 @@ export const fetchUserProfile = async (): Promise<UserProfile | null> => {
 };
 
 //Update user preference for notifications
-export const userNotification = async (
-  emailNotification: boolean,
-  pushNotification: boolean
+export const updateUserSettings = async (
+  userSettings: UserSettings
 ): Promise<void> => {
-  try{
-    if (FIREBASE_AUTH.currentUser){
+  console.log("userSettings", userSettings);
+
+  try {
+    if (FIREBASE_AUTH.currentUser) {
       const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
       console.log("idToken", idToken);
       const response = await fetch(
         `http://localhost:3000/api/settings/${FIREBASE_AUTH.currentUser.uid}`,
         {
-          headers:{
+          headers: {
             Authorization: idToken,
             "Content-Type": "application/json",
           },
           method: "PUT",
-          body: JSON.stringify({ emailNotification, pushNotification }),
+          body: JSON.stringify({ userSettings }),
         }
       );
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error("Failed to update user notifications.");
       }
     }
-  } catch(error){
-    console.error("Error to update user notificaitons:", error);
+  } catch (error) {
+    console.error("Error to update user notifications:", error);
     throw error;
   }
-}
+};
 
 export const updateUserInterests = async (
   interests: string[]
@@ -208,10 +210,8 @@ export const endCurrentTrip = async (): Promise<any> => {
   }
 };
 
-
-
-// Get user provider from firebase 
-export  const getUserProvider = () => {
+// Get user provider from firebase
+export const getUserProvider = () => {
   const auth = FIREBASE_AUTH;
   const user = auth.currentUser;
 
