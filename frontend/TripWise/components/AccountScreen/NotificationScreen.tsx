@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
   Text,
   View,
@@ -11,12 +11,49 @@ import {
   Switch,
 } from "react-native";
 import BackgroundGradient from "../BackgroundGradient";
+import { UserProfile } from "firebase/auth";
+import * as UserService from "../../services/userServices";
+import { arraysEqual } from "../../util/arraysEqual"
 
-const NotificationScreen = ({closeModal, navigation}:any)=>{
+const NotificationScreen = ({notificationPreferences, closeModal, navigation}:any)=>{
     const [isEmailEnabled, setIsEmailEnabled] = useState(false);
     const toggleEmailSwitch = () => setIsEmailEnabled(previousState => !previousState);
     const [isPushEnabled, setIsPushEnabled] = useState(false);
     const togglePushSwitch = () => setIsPushEnabled(previousState => !previousState);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [isFetching, setIsFetching] = useState<boolean>(true);
+
+    useEffect(() => {
+      const initializeUserProfile = async () => {
+        try {
+          const profile = await UserService.fetchUserProfile();
+          setUserProfile(profile);
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        } finally {
+          setIsFetching(false);
+        }
+      };
+
+      initializeUserProfile();
+    }, []);
+    
+
+    //Function to handle noticiations preferences
+    const handlePreferences = async () => {
+      if (userProfile && userProfile.uid){
+        try{
+          await UserService.userNotification(isEmailEnabled, isPushEnabled);
+          const updatedProfile = await UserService.fetchUserProfile();
+          if(!updatedProfile){
+            return;
+          }
+          setUserProfile(updatedProfile);
+        } catch (error){
+          console.error("Error updating Notifications:", error);
+        }
+      }
+    };
 
     return(
          <BackgroundGradient>
@@ -47,7 +84,7 @@ const NotificationScreen = ({closeModal, navigation}:any)=>{
                     </View>
                 </View>    
                 <View>
-                    <Pressable onPress={closeModal} style={styles.button}>
+                    <Pressable onPressIn= {handlePreferences} onPress={closeModal} style={styles.button}>
                             <Text style={styles.buttonText}>Close</Text>
                     </Pressable>
                 </View>

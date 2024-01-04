@@ -46,7 +46,7 @@ const Account = ({ navigation }: RouterProps) => {
 
     initializeUserProfile();
   }, []);
-
+  
   const handleLogout = () => {
     FIREBASE_AUTH.signOut();
   };
@@ -114,6 +114,7 @@ const Account = ({ navigation }: RouterProps) => {
           }}
         >
           <NotificationScreen
+            notificationPreferences = {[userProfile?.settings.emailNotification, userProfile?.settings.pushNotification]}
             closeModal={() => setNotificationModalVisible(false)}
             navigation={navigation}
           />
