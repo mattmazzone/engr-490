@@ -15,7 +15,7 @@ export type UserProfile = {
 export type UserSettings = {
   emailNotification: boolean;
   pushNotification: boolean;
-  
+  backgroundTheme: boolean; //true is dark mode and false is light mode
 };
 
 export type UserPermissions = {

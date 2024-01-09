@@ -21,6 +21,7 @@ import BackupAndRestoreLogo from "../../components/SVGLogos/BackupAndRestoreLogo
 import HelpAndSupportLogo from "../../components/SVGLogos/HelpAndSupportLogo";
 import NotificationSettingsLogo from "../../components/SVGLogos/NotificationSettingsLogo";
 import TripWiseLogoSmall from "../../components/SVGLogos/TripWiseLogoSmall";
+import AppSettingsPage from "../../components/AccountScreen/AppSettings";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -32,11 +33,12 @@ const Account = ({ navigation }: RouterProps) => {
   const [userSettings, setUserSettings] = useState({
     emailNotification: false,
     pushNotification: false,
+    backgroundTheme: false,
   });
 
   const [aboutModalVisible, setAboutModalVisible] = useState(false);
-  const [notificationModalVisible, setNotificationModalVisible] =
-    useState(false);
+  const [notificationModalVisible, setNotificationModalVisible] = useState(false);
+  const [appSettingsVisible, setAppSettingsModalVisible] = useState(false);
 
   // Get user settings
   useEffect(() => {
@@ -45,6 +47,7 @@ const Account = ({ navigation }: RouterProps) => {
       setUserSettings({
         emailNotification: userProfile.settings.emailNotification,
         pushNotification: userProfile.settings.pushNotification,
+        backgroundTheme: userProfile.settings.backgroundTheme,
       });
     }
   }, [userProfile]); // Update settings when userProfile changes
@@ -87,7 +90,13 @@ const Account = ({ navigation }: RouterProps) => {
 
         <View style={styles.settings}>
           {/* Settings options with icons */}
-          {SettingOption(<AppSettingsLogo focused={false} />, "App Settings")}
+          {SettingOption(
+            <AppSettingsLogo focused={false} />, 
+            "App Settings",
+            () => {
+              setAppSettingsModalVisible(true);
+            }
+          )}
           {SettingOption(
             <PrivacySettingsLogo focused={false} />,
             "Privacy Settings"
@@ -116,6 +125,13 @@ const Account = ({ navigation }: RouterProps) => {
             true
           )}
         </View>
+
+        <AppSettingsPage
+          isVisible={appSettingsVisible}
+          userSettings={userSettings}
+          updateUserSettings={updateUserSettings}
+          closeModal={() => setAppSettingsModalVisible(false)}
+        />
 
         <NotificationScreen
           isVisible={notificationModalVisible}
