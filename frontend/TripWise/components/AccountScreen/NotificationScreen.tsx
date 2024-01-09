@@ -45,6 +45,7 @@ const NotificationScreen = ({
     const newSettings = {
       emailNotification: isEmailEnabled,
       pushNotification: isPushEnabled,
+      backgroundTheme: userSettings.backgroundTheme,
     };
 
     await updateUserSettings(newSettings);
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
     marginLeft: "30%",
     fontSize: 18,
     width: 150,
-    height: 50, // add some space between text and logo
+    height: 50,
   },
 });
 
