@@ -91,7 +91,7 @@ const Account = ({ navigation }: RouterProps) => {
         <View style={styles.settings}>
           {/* Settings options with icons */}
           {SettingOption(
-            <AppSettingsLogo focused={false} />, 
+            <AppSettingsLogo focused={false} />,
             "App Settings",
             () => {
               setAppSettingsModalVisible(true);
