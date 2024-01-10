@@ -15,12 +15,12 @@ import {
   GoogleAuthProvider,
   signInWithCredential,
 } from "firebase/auth";
-// import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  GoogleSignin,
-  statusCodes,
-} from "@react-native-google-signin/google-signin";
+// import {
+//   GoogleSignin,
+//   statusCodes,
+// } from "@react-native-google-signin/google-signin";
 
 // We import the auth state from the firebase config file
 const auth = FIREBASE_AUTH;
