@@ -35,7 +35,7 @@ const handleGoogleSignUp = async () => {
   try {
     if (Platform.OS === "web") {
       const provider = new GoogleAuthProvider();
-      provider.addScope("https://www.googleapis.com/auth/calendar");
+      provider.addScope("https://www.googleapis.com/auth/calendar.readonly");
       const response = await signInWithPopup(auth, provider);
 
       const user = response.user;
