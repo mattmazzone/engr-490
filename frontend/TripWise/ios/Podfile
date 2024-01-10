@@ -11,7 +11,7 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '13.0'
 install! 'cocoapods',
   :deterministic_uuids => false
 
-use_modular_headers!
+use_frameworks! :linkage => :static
 
 prepare_react_native_project!
 

@@ -15,7 +15,7 @@ import SelectInterests from "./app/screens/SelectInterests";
 import AccountLogo from "./components/SVGLogos/AccountLogo";
 import HomeLogo from "./components/SVGLogos/HomeLogo";
 import TripLogo from "./components/SVGLogos/TripLogo";
-import { PaperProvider } from "react-native-paper";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 // import your component here
 // import NotificationScreen from "./components/AccountScreen/NotificationScreen";
@@ -124,6 +124,10 @@ export default function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    GoogleSignin.configure({
+      iosClientId:
+        "425734765321-poj5etgv9nffmi4n42mj6b1sroajrq4c.apps.googleusercontent.com",
+    });
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user: any) => {
       setUser(user);
     });

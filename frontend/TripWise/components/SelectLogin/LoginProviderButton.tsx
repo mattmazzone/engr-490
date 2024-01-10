@@ -17,6 +17,10 @@ import {
 } from "firebase/auth";
 // import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  GoogleSignin,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
 
 // We import the auth state from the firebase config file
 const auth = FIREBASE_AUTH;
@@ -55,8 +59,37 @@ const handleGoogleSignUp = async () => {
       // TODO: ENCRYPT TOKEN
       sessionStorage.setItem("googleAccessToken", credential.accessToken);
     } else {
-      // await GoogleSignin.hasPlayServices();
-      // const userInfo = await GoogleSignin.signIn();
+      // Get the Google Sign-In user information
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      console.log("USER_INFO:", userInfo);
+
+      // Extract the id token from the Google Sign-In response
+      const { idToken } = await GoogleSignin.getTokens();
+
+      // Create a Firebase credential with the Google ID token
+      const googleCredential = GoogleAuthProvider.credential(idToken);
+
+      // Sign in to Firebase with the Google credential
+      const firebaseUserCredential = await signInWithCredential(
+        auth,
+        googleCredential
+      );
+
+      // Here, you can access the Firebase user object
+      const firebaseUser = firebaseUserCredential.user;
+
+      // Perform any additional user setup or database writes you need here
+      // For example, if you're using a user service to create user profiles:
+      if (firebaseUser.displayName) {
+        UserService.createUser(
+          firebaseUser.uid,
+          firebaseUser.displayName.split(" ")[0],
+          firebaseUser.displayName.split(" ")[1]
+        );
+      }
+
+      // If you need to store the refresh token or perform other actions, do so here
       // const { idToken, accessToken } = await GoogleSignin.getTokens();
       // const user = userInfo.user;
       // if (user.givenName === null || user.familyName === null) {
