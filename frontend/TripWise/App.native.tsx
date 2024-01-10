@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView } from "react-native";
+import { SafeAreaView, Platform } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -15,6 +15,8 @@ import SelectInterests from "./app/screens/SelectInterests";
 import AccountLogo from "./components/SVGLogos/AccountLogo";
 import HomeLogo from "./components/SVGLogos/HomeLogo";
 import TripLogo from "./components/SVGLogos/TripLogo";
+
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 // import your component here
 // import NotificationScreen from "./components/AccountScreen/NotificationScreen";
@@ -123,6 +125,14 @@ export default function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    if (Platform.OS === "ios") {
+      GoogleSignin.configure({
+        iosClientId:
+          "425734765321-poj5etgv9nffmi4n42mj6b1sroajrq4c.apps.googleusercontent.com",
+        scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
+      });
+    }
+
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user: any) => {
       setUser(user);
     });
