@@ -30,6 +30,12 @@
           <string>com.mattmazzone.TripWise</string>
         </array>
       </dict>
+      <dict>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>com.googleusercontent.apps.425734765321-poj5etgv9nffmi4n42mj6b1sroajrq4c</string>
+        </array>
+      </dict>
     </array>
     <key>CFBundleVersion</key>
     <string>1</string>
