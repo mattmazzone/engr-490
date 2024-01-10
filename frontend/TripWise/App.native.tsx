@@ -125,10 +125,11 @@ export default function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    if (Platform.OS === "ios") {
+    if (Platform.OS === "ios" || Platform.OS === "android") {
       GoogleSignin.configure({
         iosClientId:
           "425734765321-poj5etgv9nffmi4n42mj6b1sroajrq4c.apps.googleusercontent.com",
+          webClientId:"425734765321-lj7r5lgpisv442e293g7kf8vm27m5p0d.apps.googleusercontent.com",
         scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
       });
     }
