@@ -15,42 +15,66 @@ import {
   GoogleAuthProvider,
   signInWithCredential,
 } from "firebase/auth";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ca } from "react-native-paper-dates";
+// import {
+//   GoogleSignin,
+//   statusCodes,
+// } from "@react-native-google-signin/google-signin";
 
 // We import the auth state from the firebase config file
 const auth = FIREBASE_AUTH;
 
+// We configure the google sign in for mobile
+// GoogleSignin.configure({
+//   webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
+//   scopes: ["https://www.googleapis.com/auth/calendar"], // We want to get the calendar access token
+// });
+
 const handleGoogleSignUp = async () => {
-  try {
-    if (Platform.OS === "web") {
-      const provider = new GoogleAuthProvider();
-      provider.addScope("https://www.googleapis.com/auth/calendar.readonly");
-      const response = await signInWithPopup(auth, provider);
+  if (Platform.OS === "ios") {
+    // Get the Google Sign-In user information
+    await GoogleSignin.hasPlayServices();
+    const userInfo = await GoogleSignin.signIn();
+    console.log("USER_INFO:", userInfo);
 
-      const user = response.user;
+    // Extract the id token from the Google Sign-In response
+    const { idToken } = await GoogleSignin.getTokens();
 
-      if (user.displayName) {
-        UserService.createUser(
-          user.uid,
-          user.displayName.split(" ")[0],
-          user.displayName.split(" ")[1]
-        );
-      }
+    // Create a Firebase credential with the Google ID token
+    const googleCredential = GoogleAuthProvider.credential(idToken);
 
-      const credential = GoogleAuthProvider.credentialFromResult(response);
+    // Sign in to Firebase with the Google credential
+    const firebaseUserCredential = await signInWithCredential(
+      auth,
+      googleCredential
+    );
 
-      if (credential === null) {
-        throw new Error("Google Auth Provider Credential is null");
-      }
-      if (credential.accessToken === undefined) {
-        throw new Error("Google Auth Provider Credential Access Token is null");
-      }
-      // TODO: ENCRYPT TOKEN
-      sessionStorage.setItem("googleAccessToken", credential.accessToken);
-    } else {
-      console.log("Platform is not web");
+    // Here, you can access the Firebase user object
+    const firebaseUser = firebaseUserCredential.user;
+
+    // Perform any additional user setup or database writes you need here
+    // For example, if you're using a user service to create user profiles:
+    if (firebaseUser.displayName) {
+      UserService.createUser(
+        firebaseUser.uid,
+        firebaseUser.displayName.split(" ")[0],
+        firebaseUser.displayName.split(" ")[1]
+      );
     }
-  } catch (error) {
-    console.log(error);
+
+    // If you need to store the refresh token or perform other actions, do so here
+    // const { idToken, accessToken } = await GoogleSignin.getTokens();
+    // const user = userInfo.user;
+    // if (user.givenName === null || user.familyName === null) {
+    //   throw new Error("User is null");
+    // }
+    // UserService.createUser(user.id, user.givenName, user.familyName);
+    // // TODO: Securely store the token
+    // await AsyncStorage.setItem("googleAccessToken", accessToken);
+  } else {
+    console.log("Platform is not ios");
   }
 };
 
