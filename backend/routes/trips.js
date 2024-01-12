@@ -84,13 +84,44 @@ router.post("/end_trip/:uid", authenticate, async (req, res) => {
       .collection("users")
       .doc(uid)
       .update({
-        pastTrips: admin.firestore.FieldValue.arrayUnion(tripId),
+        pastTrips: db.FieldValue.arrayUnion(tripId),
         currentTrip: "",
       });
 
     return res.status(200).json({ message: "Trip ended successfully" });
   } catch (error) {
     console.error("Error ending trip", error);
+    res.status(500).send(error.message);
+  }
+});
+
+// Route to get all past trips for a user
+router.get("/past_trips/:uid", authenticate, async (req, res) => {
+  try {
+    const uid = req.params.uid;
+    const user = await db.collection("users").doc(uid).get();
+    const userData = user.data();
+    const pastTrips = userData.pastTrips;
+
+    return res.status(200).json(pastTrips);
+  } catch (error) {
+    console.error("Error getting past trips", error);
+    res.status(500).send(error.message);
+  }
+});
+
+// Route to get a specific past trip for a user
+router.get("/past_trips/:uid/:tripId", authenticate, async (req, res) => {
+  try {
+    const uid = req.params.uid;
+    const tripId = req.params.tripId;
+
+    // TODO validate tripId belongs to user
+    const trip = await db.collection("trips").doc(tripId).get();
+
+    return res.status(200).json(trip.data());
+  } catch (error) {
+    console.error("Error getting past trip", error);
     res.status(500).send(error.message);
   }
 });

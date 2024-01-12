@@ -7,10 +7,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
+  ScrollView,
 } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
 import { UserProfile } from "../../types/userTypes";
 import * as UserService from "../../services/userServices";
+import { TripType } from "../../types/tripTypes";
+import { useFocusEffect } from "@react-navigation/native";
+import PastTrips from "../../components/HomeScreen/PastTrips";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -19,26 +23,45 @@ interface RouterProps {
 // Check for an ongoing Trip
 
 const Home = ({ navigation }: RouterProps) => {
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile>();
+  const [currentTrip, setCurrentTrip] = useState<TripType>();
+  const [pastTrips, setPastTrips] = useState<TripType[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(true); // To track the fetching state
-  const [trip, setTrip] = useState<any>(null);
 
-  useEffect(() => {
-    const initializeUserProfile = async () => {
-      try {
-        const profile = await UserService.fetchUserProfile();
-        setUserProfile(profile);
-        // If the user has an ongoing trip, set the trip to the user's ongoing trip else set it to null
-        setTrip(profile?.ongoingTrip !== "" ? profile?.ongoingTrip : null);
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      } finally {
-        setIsFetching(false);
-      }
-    };
+  // useFocusEffect is used to run code when the screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      const initializeHomePage = async () => {
+        try {
+          const userProfile = await UserService.fetchUserProfile();
+          const currentTrip = await UserService.fetchCurrentTrip();
+          const pastTrips = await UserService.fetchPastTrips();
 
-    initializeUserProfile();
-  }, []);
+          if (!userProfile) {
+            throw new Error("User profile not found");
+          }
+          setUserProfile(userProfile);
+
+          if (currentTrip?.hasActiveTrip === false) {
+            setCurrentTrip(undefined);
+          } else {
+            setCurrentTrip(currentTrip);
+          }
+
+          if (!pastTrips) {
+            throw new Error("Past trips not found");
+          }
+          setPastTrips(pastTrips);
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        } finally {
+          setIsFetching(false);
+        }
+      };
+
+      initializeHomePage();
+    }, []) // Dependencies for the useCallback hook, if any
+  );
 
   if (isFetching) {
     return (
@@ -48,19 +71,23 @@ const Home = ({ navigation }: RouterProps) => {
     );
   }
 
-  if (trip) {
+  if (currentTrip) {
     return (
       <BackgroundGradient>
-        <View>
-          <Text>
-            You have an ongoing trip to {trip?.destination} with{" "}
-            {trip?.travelers.length} other travelers
+        <SafeAreaView style={styles.container}>
+          <Text style={styles.title}>
+            Welcome back, {userProfile?.firstName}! You have an ongoing trip!
+            {/* to {currentTrip?.destination} with{" "} */}
+            {/* {trip?.travelers.length} other travelers */}
           </Text>
-          <Button
-            title="View Trip"
-            onPress={() => navigation.navigate("TripDetails")}
-          />
-        </View>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Trip")}
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}>View Trip Details</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
       </BackgroundGradient>
     );
   }
@@ -68,7 +95,9 @@ const Home = ({ navigation }: RouterProps) => {
   return (
     <BackgroundGradient>
       <SafeAreaView style={styles.container}>
-        <Text style={styles.title}>No Ongoing Trips!</Text>
+        <Text style={styles.title}>
+          Welcome back, {userProfile?.firstName}!
+        </Text>
         <Text style={styles.subTitle}>
           Click below to start planning a trip.
         </Text>
@@ -79,8 +108,8 @@ const Home = ({ navigation }: RouterProps) => {
         >
           <Text style={styles.buttonText}>Start a Trip</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Review your past Trips</Text>
-        <View>{/* Map past trips to TSX here */}</View>
+
+        <PastTrips pastTrips={pastTrips} />
       </SafeAreaView>
     </BackgroundGradient>
   );
@@ -95,6 +124,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 40,
     marginTop: 40,
   },
+  scrollView: {
+    width: "100%",
+    marginBottom: 110, //padding so meetings stop at nav bar
+  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -108,10 +141,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    backgroundColor: "#00FF55",
+    backgroundColor: "rgba(0, 255, 85, 0.6)",
     padding: 10,
     width: "50%",
-    borderRadius: 5,
+    borderRadius: 3,
     marginBottom: 40,
   },
   buttonText: {
