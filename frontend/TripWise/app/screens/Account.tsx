@@ -10,40 +10,57 @@ import {
   SafeAreaView,
 } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
-import { UserProfile } from "../../types/userTypes";
+import { useUserProfile } from "../../hooks/useUserProfile";
 import * as UserService from "../../services/userServices";
 import { NavigationProp } from "@react-navigation/native";
 import About from "../../components/AccountScreen/About";
+import NotificationScreen from "../../components/AccountScreen/NotificationScreen";
 import AppSettingsLogo from "../../components/SVGLogos/AppSettingsLogo";
 import PrivacySettingsLogo from "../../components/SVGLogos/PrivacySettingsLogo";
 import BackupAndRestoreLogo from "../../components/SVGLogos/BackupAndRestoreLogo";
 import HelpAndSupportLogo from "../../components/SVGLogos/HelpAndSupportLogo";
 import NotificationSettingsLogo from "../../components/SVGLogos/NotificationSettingsLogo";
 import TripWiseLogoSmall from "../../components/SVGLogos/TripWiseLogoSmall";
+import AppSettingsPage from "../../components/AccountScreen/AppSettings";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
 const Account = ({ navigation }: RouterProps) => {
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { userProfile, isFetching } = useUserProfile();
+
+  const [userSettings, setUserSettings] = useState({
+    emailNotification: false,
+    pushNotification: false,
+    backgroundTheme: false,
+  });
+
   const [aboutModalVisible, setAboutModalVisible] = useState(false);
-  const [isFetching, setIsFetching] = useState<boolean>(true); // To track the fetching state
+  const [notificationModalVisible, setNotificationModalVisible] = useState(false);
+  const [appSettingsVisible, setAppSettingsModalVisible] = useState(false);
 
+  // Get user settings
   useEffect(() => {
-    const initializeUserProfile = async () => {
-      try {
-        const profile = await UserService.fetchUserProfile();
-        setUserProfile(profile);
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      } finally {
-        setIsFetching(false);
-      }
-    };
+    console.log("userProfile", userProfile);
+    if (userProfile && userProfile.settings) {
+      setUserSettings({
+        emailNotification: userProfile.settings.emailNotification,
+        pushNotification: userProfile.settings.pushNotification,
+        backgroundTheme: userProfile.settings.backgroundTheme,
+      });
+    }
+  }, [userProfile]); // Update settings when userProfile changes
 
-    initializeUserProfile();
-  }, []);
+  // Function to update user settings
+  const updateUserSettings = async (newSettings: any) => {
+    try {
+      await UserService.updateUserSettings(newSettings);
+      setUserSettings(newSettings); // Update state with new settings
+    } catch (error) {
+      console.error("Error updating user settings:", error);
+    }
+  };
 
   const handleLogout = () => {
     FIREBASE_AUTH.signOut();
@@ -73,7 +90,13 @@ const Account = ({ navigation }: RouterProps) => {
 
         <View style={styles.settings}>
           {/* Settings options with icons */}
-          {SettingOption(<AppSettingsLogo focused={false} />, "App Settings")}
+          {SettingOption(
+            <AppSettingsLogo focused={false} />,
+            "App Settings",
+            () => {
+              setAppSettingsModalVisible(true);
+            }
+          )}
           {SettingOption(
             <PrivacySettingsLogo focused={false} />,
             "Privacy Settings"
@@ -88,7 +111,10 @@ const Account = ({ navigation }: RouterProps) => {
           )}
           {SettingOption(
             <NotificationSettingsLogo focused={false} />,
-            "Notification Settings"
+            "Notification Settings",
+            () => {
+              setNotificationModalVisible(true);
+            }
           )}
           {SettingOption(
             <TripWiseLogoSmall />,
@@ -99,6 +125,20 @@ const Account = ({ navigation }: RouterProps) => {
             true
           )}
         </View>
+
+        <AppSettingsPage
+          isVisible={appSettingsVisible}
+          userSettings={userSettings}
+          updateUserSettings={updateUserSettings}
+          closeModal={() => setAppSettingsModalVisible(false)}
+        />
+
+        <NotificationScreen
+          isVisible={notificationModalVisible}
+          userSettings={userSettings}
+          updateUserSettings={updateUserSettings}
+          closeModal={() => setNotificationModalVisible(false)}
+        />
 
         <Modal
           animationType="slide"
