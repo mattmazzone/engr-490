@@ -178,7 +178,9 @@ export const fetchCurrentTrip = async (): Promise<any> => {
       if (!response.ok) {
         throw new Error("Failed to fetch current trip.");
       }
+
       const data = await response.json();
+
       return data;
     }
   } catch (error) {
@@ -233,6 +235,56 @@ export const getUserProvider = () => {
     } else if (isEmailUser) {
       return null;
     }
+  }
+};
+
+export const fetchPastTrips = async (): Promise<any> => {
+  try {
+    if (FIREBASE_AUTH.currentUser) {
+      const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+      const response = await fetch(
+        `http://localhost:3000/api/past_trips/${FIREBASE_AUTH.currentUser.uid}`,
+        {
+          headers: {
+            Authorization: idToken,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch past trips.");
+      }
+
+      const data = await response.json();
+      
+      return data;
+    }
+  } catch (error) {
+    console.error("Error fetching past trips:", error);
+  }
+};
+
+
+export const fetchPastTripData = async (tripId: string): Promise<any> => {
+  try {
+    if (FIREBASE_AUTH.currentUser) {
+      const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+      const response = await fetch(
+        `http://localhost:3000/api/past_trips/${FIREBASE_AUTH.currentUser.uid}/${tripId}`,
+        {
+          headers: {
+            Authorization: idToken,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch trip data.");
+      }
+
+      const data = await response.json();
+      return data;
+    }
+  } catch (error) {
+    console.error("Error fetching trip data:", error);
   }
 };
 
