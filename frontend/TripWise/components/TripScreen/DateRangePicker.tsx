@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   pickRangeBtn: {
-    backgroundColor: "#00FF55",
+    backgroundColor: "rgba(0, 255, 85, 0.6)",
     padding: 10,
     borderRadius: 5,
     marginBottom: 15,
