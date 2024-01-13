@@ -15,6 +15,8 @@ import * as UserService from "../../services/userServices";
 import { TripType } from "../../types/tripTypes";
 import { useFocusEffect } from "@react-navigation/native";
 import PastTrips from "../../components/HomeScreen/PastTrips";
+import { useUserProfile } from "../../hooks/useUserProfile";
+import { use } from "chai";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -23,44 +25,30 @@ interface RouterProps {
 // Check for an ongoing Trip
 
 const Home = ({ navigation }: RouterProps) => {
-  const [userProfile, setUserProfile] = useState<UserProfile>();
-  const [currentTrip, setCurrentTrip] = useState<TripType>();
+  const { userProfile } = useUserProfile({ refreshData: false });
+  const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
   const [pastTrips, setPastTrips] = useState<TripType[]>([]);
-  const [isFetching, setIsFetching] = useState<boolean>(true); // To track the fetching state
+  const [isFetching, setIsFetching] = useState<boolean>(true);
+
+  const loadTripData = async () => {
+    try {
+      const currentTrip = await UserService.fetchCurrentTrip();
+      const pastTrips = await UserService.fetchPastTrips();
+
+      setCurrentTrip(currentTrip?.hasActiveTrip ? currentTrip : null);
+      setPastTrips(pastTrips || []);
+    } catch (error) {
+      console.error("Error fetching trip data:", error);
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   // useFocusEffect is used to run code when the screen is focused
   useFocusEffect(
     React.useCallback(() => {
-      const initializeHomePage = async () => {
-        try {
-          const userProfile = await UserService.fetchUserProfile();
-          const currentTrip = await UserService.fetchCurrentTrip();
-          const pastTrips = await UserService.fetchPastTrips();
-
-          if (!userProfile) {
-            throw new Error("User profile not found");
-          }
-          setUserProfile(userProfile);
-
-          if (currentTrip?.hasActiveTrip === false) {
-            setCurrentTrip(undefined);
-          } else {
-            setCurrentTrip(currentTrip);
-          }
-
-          if (!pastTrips) {
-            throw new Error("Past trips not found");
-          }
-          setPastTrips(pastTrips);
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
-        } finally {
-          setIsFetching(false);
-        }
-      };
-
-      initializeHomePage();
-    }, []) // Dependencies for the useCallback hook, if any
+      loadTripData();
+    }, [])
   );
 
   if (isFetching) {
@@ -71,45 +59,26 @@ const Home = ({ navigation }: RouterProps) => {
     );
   }
 
-  if (currentTrip) {
-    return (
-      <BackgroundGradient>
-        <SafeAreaView style={styles.container}>
-          <Text style={styles.title}>
-            Welcome back, {userProfile?.firstName}! You have an ongoing trip!
-            {/* to {currentTrip?.destination} with{" "} */}
-            {/* {trip?.travelers.length} other travelers */}
-          </Text>
-
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Trip")}
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}>View Trip Details</Text>
-          </TouchableOpacity>
-        </SafeAreaView>
-      </BackgroundGradient>
-    );
-  }
-
   return (
     <BackgroundGradient>
       <SafeAreaView style={styles.container}>
         <Text style={styles.title}>
           Welcome back, {userProfile?.firstName}!
-        </Text>
-        <Text style={styles.subTitle}>
-          Click below to start planning a trip.
+          {currentTrip && " You have an ongoing trip!"}
         </Text>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate("Trip")}
+          onPress={() =>
+            navigation.navigate(currentTrip ? "TripDetails" : "CreateTrip")
+          }
           style={styles.button}
         >
-          <Text style={styles.buttonText}>Start a Trip</Text>
+          <Text style={styles.buttonText}>
+            {currentTrip ? "View Trip Details" : "Start a Trip"}
+          </Text>
         </TouchableOpacity>
 
-        <PastTrips pastTrips={pastTrips} />
+        {!currentTrip && <PastTrips pastTrips={pastTrips} />}
       </SafeAreaView>
     </BackgroundGradient>
   );
