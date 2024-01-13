@@ -44,7 +44,6 @@ const Account = ({ navigation }: RouterProps) => {
 
   // Get user settings
   useEffect(() => {
-    console.log("userProfile", userProfile);
     if (userProfile && userProfile.settings) {
       setUserSettings({
         emailNotification: userProfile.settings.emailNotification,

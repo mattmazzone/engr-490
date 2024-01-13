@@ -42,8 +42,6 @@ const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
     })),
   ];
 
-  console.log(calendarEvents);
-
   return (
     <BackgroundGradient>
       <SafeAreaView style={styles.currentTripContainer}>

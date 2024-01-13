@@ -15,7 +15,6 @@ const getCalendarEvents = async (
   dateRange: DateRange,
   onCalendarEvents: (calendarEvents: Meeting[]) => void
 ) => {
-  console.log(provider);
   if (provider === "Google") {
     const startDate = dateRange.startDate?.toISOString(); // for example, today
     const endDate = dateRange.endDate?.toISOString(); // set this to your desired end date
@@ -41,7 +40,6 @@ const getCalendarEvents = async (
     );
     const data = await response.json();
 
-    console.log(data);
 
     // Filter properties to only include what we need (title/summary, start, end, location, googleId)
     const calendarEvents: Meeting[] = data.items.map((item: any) => ({
