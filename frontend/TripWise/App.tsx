@@ -15,6 +15,7 @@ import SelectInterests from "./app/screens/SelectInterests";
 import AccountLogo from "./components/SVGLogos/AccountLogo";
 import HomeLogo from "./components/SVGLogos/HomeLogo";
 import TripLogo from "./components/SVGLogos/TripLogo";
+import ThemeProvider from "./context/ThemeProvider";
 
 // import your component here
 // import NotificationScreen from "./components/AccountScreen/NotificationScreen";
@@ -132,8 +133,10 @@ export default function App() {
   }, []);
 
   return (
-    <NavigationContainer>
-      <RootNavigator user={user} />
-    </NavigationContainer>
+    <ThemeProvider>
+      <NavigationContainer>
+        <RootNavigator user={user} />
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
