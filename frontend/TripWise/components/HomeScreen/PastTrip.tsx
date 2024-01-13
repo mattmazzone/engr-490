@@ -75,9 +75,6 @@ const PastTrip = ({ pastTrip }: any) => {
     }
   );
 
-  const sneakPeek = pastTripData.tripMeetings.slice(0, 2);
-  console.log("sneakPeek", sneakPeek);
-
   return (
     <Animated.View style={{ ...styles.container, opacity: fadeAnim }}>
       <View style={styles.titleContainer}>
