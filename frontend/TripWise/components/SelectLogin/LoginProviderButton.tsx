@@ -8,13 +8,9 @@ import {
   Platform,
 } from "react-native";
 import { NavigationProp } from "@react-navigation/native";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import * as UserService from "../../services/userServices";
-import {
-  signInWithPopup,
-  GoogleAuthProvider,
-  signInWithCredential,
-} from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
 // We import the auth state from the firebase config file
 const auth = FIREBASE_AUTH;
