@@ -33,11 +33,10 @@ const auth = FIREBASE_AUTH;
 // });
 
 const handleGoogleSignUp = async () => {
-  if (Platform.OS === "ios") {
+  if (Platform.OS === "ios" || Platform.OS === "android") {
     // Get the Google Sign-In user information
     await GoogleSignin.hasPlayServices();
     const userInfo = await GoogleSignin.signIn();
-    console.log("USER_INFO:", userInfo);
 
     // Extract the id token from the Google Sign-In response
     const { idToken } = await GoogleSignin.getTokens();
