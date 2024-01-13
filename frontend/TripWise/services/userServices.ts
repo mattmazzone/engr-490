@@ -22,11 +22,8 @@ export const createUser = async (
   lastName: string
 ): Promise<void> => {
   try {
-    console.log("uid", uid);
     if (FIREBASE_AUTH.currentUser) {
-      console.log("FIREBASE_AUTH.currentUser", FIREBASE_AUTH.currentUser);
       const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
-      console.log("idToken", idToken);
       const response = await fetch(`${BASE_API_URL}/signup`, {
         headers: {
           Authorization: idToken,
@@ -35,7 +32,6 @@ export const createUser = async (
         method: "POST",
         body: JSON.stringify({ uid, firstName, lastName }),
       });
-      console.log("response", response);
       if (!response.ok) {
         throw new Error("Failed to create user.");
       }
@@ -76,12 +72,9 @@ export const fetchUserProfile = async (): Promise<UserProfile | null> => {
 export const updateUserSettings = async (
   userSettings: UserSettings
 ): Promise<void> => {
-  console.log("userSettings", userSettings);
-
   try {
     if (FIREBASE_AUTH.currentUser) {
       const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
-      console.log("idToken", idToken);
       const response = await fetch(
         `${BASE_API_URL}/settings/${FIREBASE_AUTH.currentUser.uid}`,
         {
@@ -109,7 +102,6 @@ export const updateUserInterests = async (
   try {
     if (FIREBASE_AUTH.currentUser) {
       const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
-      console.log("idToken", idToken);
       const response = await fetch(
         `${BASE_API_URL}/interests/${FIREBASE_AUTH.currentUser.uid}`,
         {

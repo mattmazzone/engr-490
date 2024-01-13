@@ -29,7 +29,6 @@ const testGoogleAPI = async () => {
         queryParams
       )}`;
 
-      console.log(idToken);
       const response = await fetch(url, {
         headers: {
           Authorization: idToken,
@@ -39,8 +38,6 @@ const testGoogleAPI = async () => {
         throw new Error("Failed to fetch user profile.");
       }
       const data = await response.json();
-      console.log(response);
-      console.log(data);
     }
     return null;
   } catch (error) {
