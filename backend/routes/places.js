@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authenticate = require("../middlewares/authenticate");
 const axios = require("axios");
-const { getNearbyPlaces, REQUEST } = require("../utils/getNearbyPlaces");
+const { getNearbyPlaces, REQUEST } = require("../utils/services");
 
 router.get("/places/nearby", authenticate, async (req, res) => {
   let { includedTypes, maxResultCount, latitude, longitude, radius } =
