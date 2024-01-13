@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import LoginScreenButton from "../../components/LoginScreenButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import BackButton from "../../components/BackButton";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import BackgroundGradient from "../../components/BackgroundGradient";

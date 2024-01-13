@@ -10,27 +10,12 @@ import {
 import { NavigationProp } from "@react-navigation/native";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 import * as UserService from "../../services/userServices";
-import {
-  signInWithPopup,
-  GoogleAuthProvider,
-  signInWithCredential,
-} from "firebase/auth";
+import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ca } from "react-native-paper-dates";
-// import {
-//   GoogleSignin,
-//   statusCodes,
-// } from "@react-native-google-signin/google-signin";
 
 // We import the auth state from the firebase config file
 const auth = FIREBASE_AUTH;
-
-// We configure the google sign in for mobile
-// GoogleSignin.configure({
-//   webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
-//   scopes: ["https://www.googleapis.com/auth/calendar"], // We want to get the calendar access token
-// });
 
 const handleGoogleSignUp = async () => {
   if (Platform.OS === "ios" || Platform.OS === "android") {
