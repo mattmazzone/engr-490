@@ -8,7 +8,7 @@ from functools import wraps
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import numpy as np
-from utils import normalize, create_places_df
+from utils import normalize, create_places_df, create_historical_user_df
 
 load_dotenv()
 
@@ -93,8 +93,9 @@ def recommend():
     nearby_places = request_body["places"]
     places_df = create_places_df(nearby_places)
     # Calculate user vectors from database from recent trips
-    # historical_user_df = request_body["recentTrips"]
-    return make_response(jsonify(places_df), 200)
+    recent_trips = request_body["recentTrips"]
+    historical_user_df = create_historical_user_df(recent_trips)
+    return make_response(jsonify(historical_user_df), 200)
 
     
     # # join user and places on place_id 

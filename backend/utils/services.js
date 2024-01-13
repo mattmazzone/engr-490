@@ -41,28 +41,42 @@ async function getNearbyPlaces(payload, fieldMask) {
   }
 }
 
-async function getRecentTrips(admin, db) {
+async function getRecentTrips(admin, db, uid) {
   try {
     let recentTripIds = [];
     await db
-      .collections("users")
+      .collection("users")
       .doc(uid)
       .get()
       .then((doc) => {
-        recentTrips = doc.data().pastTrips.slice(0, NUM_RECENT_TRIPS);
+        recentTripIds = doc.data().pastTrips.slice(0, NUM_RECENT_TRIPS);
       });
 
-    // Change later
-    if (recentTrips.length < 5)
+    console.log("Retreived recent trip IDs");
+
+    if (recentTripIds.length < 5) {
+      // Change to throw a proper error
       console.log(
         "Minimum number of trips >= 5. Around 10 to get a good recommendation"
       );
+    }
+
     let recentTrips = [];
     await db
-      .collections("trips")
+      .collection("trips")
       .where(admin.firestore.FieldPath.documentId(), "in", recentTripIds)
       .get()
-      .then((snapshot) => {});
-  } catch (error) {}
+      .then((querySnapshot) => {
+        querySnapshot.forEach((trip) => {
+          recentTrips.push(trip);
+        });
+      });
+    console.log("Retreived recent trip data");
+
+    return [REQUEST.SUCCESSFUL, recentTrips];
+  } catch (error) {
+    console.log(error.message);
+    return [REQUEST.ERROR, error];
+  }
 }
-module.exports = { REQUEST, getNearbyPlaces };
+module.exports = { REQUEST, getNearbyPlaces, getRecentTrips };

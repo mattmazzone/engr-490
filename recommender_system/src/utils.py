@@ -166,6 +166,8 @@ def create_places_df(nearby_places) -> pd.DataFrame:
     places_df = pd.DataFrame(data, index=row_indices)
     return places_df
 
+def create_historical_user_df(recent_trips) -> pd.DataFrame:
+    pass
 
 
 def normalize(row: pd.Series) -> pd.Series:
