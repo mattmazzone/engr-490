@@ -9,7 +9,7 @@ interface UserProfileHook {
 
 export const useUserProfile = ({ refreshData }: UserProfileHook) => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isFetching, setIsFetching] = useState(true);
+  const [isFetchingProfile, setIsFetchingProfile] = useState(true);
 
   useEffect(() => {
     const fetchProfileFromDB = async () => {
@@ -20,7 +20,7 @@ export const useUserProfile = ({ refreshData }: UserProfileHook) => {
       } catch (error) {
         console.error("Error fetching user profile:", error);
       } finally {
-        setIsFetching(false);
+        setIsFetchingProfile(false);
       }
     };
 
@@ -31,13 +31,14 @@ export const useUserProfile = ({ refreshData }: UserProfileHook) => {
           setUserProfile(JSON.parse(storedProfile));
         } else {
           // No profile found in storage, fetch from DB
+          console.log("No profile found in storage, fetching from DB");
           await fetchProfileFromDB();
         }
       } catch (error) {
         console.error("Error fetching user profile from storage:", error);
         await fetchProfileFromDB(); // Fallback to fetching from DB in case of error
       } finally {
-        setIsFetching(false);
+        setIsFetchingProfile(false);
       }
     };
 
@@ -48,5 +49,5 @@ export const useUserProfile = ({ refreshData }: UserProfileHook) => {
     }
   }, [refreshData]);
 
-  return { userProfile, isFetching };
+  return { userProfile, isFetchingProfile };
 };
