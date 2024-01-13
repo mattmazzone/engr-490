@@ -9,12 +9,6 @@ type ContainerProps = {
   children: React.ReactNode;
 };
 
-async function fetchUserTheme() {
-  const user = await UserService.fetchUserProfile();
-  if (!user) return false;
-  return user.settings.backgroundTheme;
-}
-
 const BackgroundGradient: React.FC<ContainerProps> = ({ children }) => {
   const { theme } = useContext(ThemeContext);
   const isDarkMode = theme === "Dark";
