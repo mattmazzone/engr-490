@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, Platform, Dimensions } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView, Platform, Dimensions, StatusBar } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -25,14 +25,6 @@ const RootStack = createNativeStackNavigator();
 const MainStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const TabBarHeight = () => {
-  const insets = useSafeAreaInsets();
-  const windowHeight = Dimensions.get("window").height;
-
-  let calculatedHeight = 0;
-  return Math.max(calculatedHeight, 100);
-};
-
 // Tab Navigator
 function BottomTabNavigation() {
   return (
@@ -53,7 +45,7 @@ function BottomTabNavigation() {
           borderTopColor: "white", // Top border color
           borderTopWidth: 2, // Top border width
           borderStyle: "solid", // Add solid border style
-          backgroundColor: "rgba(255, 255, 255, 0)", // Only the background is semi-transparent
+          backgroundColor: "rgba(255, 255, 255, 0.2)", // Only the background is semi-transparent
           height: 100, // Set the height of the tab bar
           elevation: 0, // Set elevation to 0 to remove shadow (Android)
         },
@@ -152,10 +144,14 @@ export default function App() {
   }, []);
 
   return (
-    <ThemeProvider>
-      <NavigationContainer>
-        <RootNavigator user={user} />
-      </NavigationContainer>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      {/*This removes the white top bar on Android */}
+      <StatusBar backgroundColor="transparent" translucent={true} />
+      <ThemeProvider>
+        <NavigationContainer>
+          <RootNavigator user={user} />
+        </NavigationContainer>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
