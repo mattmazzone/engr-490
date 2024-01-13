@@ -51,14 +51,6 @@ const Home = ({ navigation }: RouterProps) => {
     }, [])
   );
 
-  if (isFetching) {
-    return (
-      <BackgroundGradient>
-        <Text>Loading...</Text>
-      </BackgroundGradient>
-    );
-  }
-
   return (
     <BackgroundGradient>
       <SafeAreaView style={styles.container}>
@@ -78,7 +70,9 @@ const Home = ({ navigation }: RouterProps) => {
           </Text>
         </TouchableOpacity>
 
-        {!currentTrip && <PastTrips pastTrips={pastTrips} />}
+        {!currentTrip && (
+          <PastTrips isFetching={isFetching} pastTrips={pastTrips} />
+        )}
       </SafeAreaView>
     </BackgroundGradient>
   );

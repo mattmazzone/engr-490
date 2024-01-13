@@ -1,38 +1,60 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Pressable, Button, Modal } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Button,
+  Modal,
+  Animated,
+} from "react-native";
 import { TripType } from "../../types/tripTypes";
 import * as UserService from "../../services/userServices";
+import PastTripSkeleton from "./PastTripSkeleton";
 
 const PastTrip = ({ pastTrip }: any) => {
   const [pastTripData, setPastTripData] = useState<TripType | null>(null);
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [tripDetailsModalVisible, setTripDetailsModalVisible] =
     useState<boolean>(false);
+  const [fadeAnim] = useState(new Animated.Value(0)); // Initial opacity is 0
 
   useEffect(() => {
     const fetchPastTripData = async () => {
       try {
         const fetchedData = await UserService.fetchPastTripData(pastTrip);
-        if (fetchedData) {
-          setPastTripData(fetchedData);
-        } else {
-          throw new Error("Past trip not found");
-        }
+        setTimeout(() => {
+          if (fetchedData) {
+            setPastTripData(fetchedData);
+            fadeIn(); // Start fade-in animation after setting data
+          } else {
+            throw new Error("Past trip not found");
+          }
+        }, 3000); // Ensure skeleton is visible for 3 seconds
       } catch (error) {
         console.error("Error fetching past trip data:", error);
       } finally {
-        setIsFetching(false);
+        setTimeout(() => setIsFetching(false), 3000); // Delay hiding skeleton
       }
     };
     fetchPastTripData();
-  }, []);
+  }, [pastTrip]);
+
+  const fadeIn = () => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: false,
+    }).start();
+  };
+  useEffect(() => {
+    if (!isFetching) {
+      fadeIn();
+    }
+  }, [isFetching]);
 
   if (isFetching || !pastTripData) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.text}>Loading...</Text>
-      </View>
-    );
+    return <PastTripSkeleton />;
   }
 
   const formattedStartDate = new Date(pastTripData.tripStart).toLocaleString(
@@ -57,13 +79,16 @@ const PastTrip = ({ pastTrip }: any) => {
   console.log("sneakPeek", sneakPeek);
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={{ ...styles.container, opacity: fadeAnim }}>
       <View style={styles.titleContainer}>
         <Text style={styles.title}>
           {formattedStartDate} - {formattedEndDate}
         </Text>
       </View>
-      <Pressable style={styles.button} onPress={() =>setTripDetailsModalVisible(true)}>
+      <Pressable
+        style={styles.button}
+        onPress={() => setTripDetailsModalVisible(true)}
+      >
         <Text style={styles.buttonText}>View Details</Text>
       </Pressable>
       <Modal
@@ -79,11 +104,11 @@ const PastTrip = ({ pastTrip }: any) => {
             <Text>This is my modal</Text>
             <Pressable onPress={() => setTripDetailsModalVisible(false)}>
               <Text>close</Text>
-            </Pressable> 
+            </Pressable>
           </View>
         </View>
       </Modal>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -95,7 +120,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderRadius: 3,
-    marginVertical: 10,
+    marginBottom: 20,
     width: "100%",
     paddingBottom: 20,
     paddingTop: 10,
