@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, Platform } from "react-native";
+import { SafeAreaView, Platform, Dimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -15,16 +16,22 @@ import SelectInterests from "./app/screens/SelectInterests";
 import AccountLogo from "./components/SVGLogos/AccountLogo";
 import HomeLogo from "./components/SVGLogos/HomeLogo";
 import TripLogo from "./components/SVGLogos/TripLogo";
+import ThemeProvider from "./context/ThemeProvider";
 
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-
-// import your component here
-// import NotificationScreen from "./components/AccountScreen/NotificationScreen";
 
 // Declare your stacks
 const RootStack = createNativeStackNavigator();
 const MainStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+const TabBarHeight = () => {
+  const insets = useSafeAreaInsets();
+  const windowHeight = Dimensions.get("window").height;
+
+  let calculatedHeight = 0;
+  return Math.max(calculatedHeight, 100);
+};
 
 // Tab Navigator
 function BottomTabNavigation() {
@@ -46,8 +53,9 @@ function BottomTabNavigation() {
           borderTopColor: "white", // Top border color
           borderTopWidth: 2, // Top border width
           borderStyle: "solid", // Add solid border style
-          backgroundColor: "rgba(255, 255, 255, 0.2)", // Only the background is semi-transparent
+          backgroundColor: "rgba(255, 255, 255, 0)", // Only the background is semi-transparent
           height: 100, // Set the height of the tab bar
+          elevation: 0, // Set elevation to 0 to remove shadow (Android)
         },
         tabBarActiveTintColor: "grey",
         tabBarInactiveTintColor: "white",
@@ -144,8 +152,10 @@ export default function App() {
   }, []);
 
   return (
-    <NavigationContainer>
-      <RootNavigator user={user} />
-    </NavigationContainer>
+    <ThemeProvider>
+      <NavigationContainer>
+        <RootNavigator user={user} />
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
