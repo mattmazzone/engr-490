@@ -12,7 +12,7 @@ import React, { useState } from "react";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { NavigationProp } from "@react-navigation/native";
-import LoginScreenButton from "../../components/LoginScreenButton";
+import LoginScreenButton from "../../components/Login/LoginScreenButton";
 import BackButton from "../../components/BackButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import BackgroundGradient from "../../components/BackgroundGradient";

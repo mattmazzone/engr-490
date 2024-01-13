@@ -14,7 +14,10 @@ interface RouterProps {
 }
 
 const Home = ({ navigation }: RouterProps) => {
-  const { userProfile } = useUserProfile({ refreshData: false });
+  const { userProfile, isFetchingProfile } = useUserProfile({
+    refreshData: false,
+  });
+
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
   const [pastTrips, setPastTrips] = useState<TripType[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(true);
@@ -39,6 +42,16 @@ const Home = ({ navigation }: RouterProps) => {
       loadTripData();
     }, [])
   );
+
+  if (isFetchingProfile) {
+    return (
+      <BackgroundGradient>
+        <View style={styles.container}>
+          <Text style={styles.title}>Loading...</Text>
+        </View>
+      </BackgroundGradient>
+    );
+  }
 
   return (
     <BackgroundGradient>

@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Image,
   Modal,
-  SafeAreaView,
 } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
 import { useUserProfile } from "../../hooks/useUserProfile";
@@ -30,7 +29,7 @@ interface RouterProps {
 }
 
 const Account = ({ navigation }: RouterProps) => {
-  const { userProfile, isFetching } = useUserProfile({ refreshData: false });
+  const { userProfile, isFetching } = useUserProfile({ refreshData: true });
 
   const [userSettings, setUserSettings] = useState<UserSettings>({
     emailNotification: false,
