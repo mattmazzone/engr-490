@@ -6,7 +6,6 @@ import {
   Button,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
 } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
@@ -16,7 +15,6 @@ import { TripType } from "../../types/tripTypes";
 import { useFocusEffect } from "@react-navigation/native";
 import PastTrips from "../../components/HomeScreen/PastTrips";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import { use } from "chai";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -53,7 +51,7 @@ const Home = ({ navigation }: RouterProps) => {
 
   return (
     <BackgroundGradient>
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <Text style={styles.title}>
           Welcome back, {userProfile?.firstName}!
           {currentTrip && " You have an ongoing trip!"}
@@ -73,7 +71,7 @@ const Home = ({ navigation }: RouterProps) => {
         {!currentTrip && (
           <PastTrips isFetching={isFetching} pastTrips={pastTrips} />
         )}
-      </SafeAreaView>
+      </View>
     </BackgroundGradient>
   );
 };
