@@ -1,15 +1,8 @@
 import { NavigationProp } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
-import {
-  Text,
-  View,
-  Button,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import React, { useState } from "react";
+import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
-import { UserProfile } from "../../types/userTypes";
+
 import * as UserService from "../../services/userServices";
 import { TripType } from "../../types/tripTypes";
 import { useFocusEffect } from "@react-navigation/native";
@@ -19,8 +12,6 @@ import { useUserProfile } from "../../hooks/useUserProfile";
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
-
-// Check for an ongoing Trip
 
 const Home = ({ navigation }: RouterProps) => {
   const { userProfile } = useUserProfile({ refreshData: false });
@@ -85,20 +76,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 40,
     marginTop: 40,
   },
-  scrollView: {
-    width: "100%",
-    marginBottom: 110, //padding so meetings stop at nav bar
-  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "white",
     textAlign: "center",
-    marginBottom: 20,
-  },
-  subTitle: {
-    fontSize: 16,
-    color: "white",
     marginBottom: 20,
   },
   button: {
@@ -113,10 +95,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
     fontSize: 16,
-  },
-
-  loadingText: {
-    color: "white",
-    textAlign: "center",
   },
 });

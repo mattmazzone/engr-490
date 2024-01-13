@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import {
   View,
   Text,
@@ -23,6 +23,7 @@ import NotificationSettingsLogo from "../../components/SVGLogos/NotificationSett
 import TripWiseLogoSmall from "../../components/SVGLogos/TripWiseLogoSmall";
 import AppSettingsPage from "../../components/AccountScreen/AppSettings";
 import SettingOption from "../../components/AccountScreen/SettingOption";
+import { UserSettings } from "../../types/userTypes";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -31,16 +32,17 @@ interface RouterProps {
 const Account = ({ navigation }: RouterProps) => {
   const { userProfile, isFetching } = useUserProfile({ refreshData: false });
 
-  const [userSettings, setUserSettings] = useState({
+  const [userSettings, setUserSettings] = useState<UserSettings>({
     emailNotification: false,
     pushNotification: false,
     backgroundTheme: false,
   });
 
-  const [aboutModalVisible, setAboutModalVisible] = useState(false);
+  const [aboutModalVisible, setAboutModalVisible] = useState<boolean>(false);
   const [notificationModalVisible, setNotificationModalVisible] =
-    useState(false);
-  const [appSettingsVisible, setAppSettingsModalVisible] = useState(false);
+    useState<boolean>(false);
+  const [appSettingsVisible, setAppSettingsModalVisible] =
+    useState<boolean>(false);
 
   // Get user settings
   useEffect(() => {
@@ -78,7 +80,7 @@ const Account = ({ navigation }: RouterProps) => {
 
   return (
     <BackgroundGradient>
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <View style={styles.header}>
           {/* Profile image and name */}
           <Image source={{}} style={styles.profileImage} />
@@ -173,7 +175,7 @@ const Account = ({ navigation }: RouterProps) => {
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
-      </SafeAreaView>
+      </View>
     </BackgroundGradient>
   );
 };
