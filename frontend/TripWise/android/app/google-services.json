@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "425734765321",
+    "project_id": "tripwise-3ecc6",
+    "storage_bucket": "tripwise-3ecc6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425734765321:android:becc35d3bc77a14ae8b1d8",
+        "android_client_info": {
+          "package_name": "com.mattmazzone.TripWise"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "425734765321-lj7r5lgpisv442e293g7kf8vm27m5p0d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5Jx8pe7wMiRo1O3sBw2iI_Xlpur5sej8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "425734765321-lj7r5lgpisv442e293g7kf8vm27m5p0d.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "425734765321-poj5etgv9nffmi4n42mj6b1sroajrq4c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mattmazzone.TripWise"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

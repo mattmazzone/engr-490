@@ -169,7 +169,7 @@ const MeetingCreator = ({
         >
           {startTime.hours && startTime.minutes != undefined ? (
             <Text style={styles.pickRangeBtnTxt}>
-              {startTime.hours}:{String(startTime.minutes).padStart(2, "0")} 
+              {startTime.hours}:{String(startTime.minutes).padStart(2, "0")}
             </Text>
           ) : (
             <Text style={styles.pickRangeBtnTxt}>Start time</Text>
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   addMeetingBtn: {
-    backgroundColor: "#00FF55",
+    backgroundColor: "rgba(0, 255, 85, 0.6)",
     padding: 10,
     borderRadius: 5,
     marginBottom: 5,
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   },
 
   pickRangeBtn: {
-    backgroundColor: "#00FF55",
+    backgroundColor: "rgba(0, 255, 85, 0.6)",
     padding: 10,
     borderRadius: 5,
     marginBottom: 15,
