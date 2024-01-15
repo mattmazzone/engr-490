@@ -15,7 +15,9 @@ import SelectInterests from "./app/screens/SelectInterests";
 import AccountLogo from "./components/SVGLogos/AccountLogo";
 import HomeLogo from "./components/SVGLogos/HomeLogo";
 import TripLogo from "./components/SVGLogos/TripLogo";
-import { PaperProvider } from "react-native-paper";
+
+// import your component here
+// import NotificationScreen from "./components/AccountScreen/NotificationScreen";
 
 // Declare your stacks
 const RootStack = createNativeStackNavigator();
@@ -54,6 +56,7 @@ function BottomTabNavigation() {
         },
       })}
     >
+      {/*Change back to Home when done*/}
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Trip" component={Trip} />
       {/* Dont display in nav */}
@@ -129,10 +132,8 @@ export default function App() {
   }, []);
 
   return (
-    
-      <NavigationContainer>
-        <RootNavigator user={user} />
-      </NavigationContainer>
-    
+    <NavigationContainer>
+      <RootNavigator user={user} />
+    </NavigationContainer>
   );
 }

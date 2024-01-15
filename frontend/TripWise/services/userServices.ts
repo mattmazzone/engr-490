@@ -1,6 +1,7 @@
 // Import necessary dependencies, Firebase config, etc.
 import { FIREBASE_AUTH } from "../FirebaseConfig";
 import { UserProfile } from "../types/userTypes";
+import { UserSettings } from "../types/userTypes";
 
 import { Meeting, TripType } from "../types/tripTypes";
 
@@ -56,6 +57,37 @@ export const fetchUserProfile = async (): Promise<UserProfile | null> => {
     return null;
   } catch (error) {
     console.error("Error fetching user profile from backend:", error);
+    throw error;
+  }
+};
+
+//Update user preference for notifications
+export const updateUserSettings = async (
+  userSettings: UserSettings
+): Promise<void> => {
+  console.log("userSettings", userSettings);
+
+  try {
+    if (FIREBASE_AUTH.currentUser) {
+      const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+      console.log("idToken", idToken);
+      const response = await fetch(
+        `http://localhost:3000/api/settings/${FIREBASE_AUTH.currentUser.uid}`,
+        {
+          headers: {
+            Authorization: idToken,
+            "Content-Type": "application/json",
+          },
+          method: "PUT",
+          body: JSON.stringify({ userSettings }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update user notifications.");
+      }
+    }
+  } catch (error) {
+    console.error("Error to update user notifications:", error);
     throw error;
   }
 };
@@ -146,7 +178,9 @@ export const fetchCurrentTrip = async (): Promise<any> => {
       if (!response.ok) {
         throw new Error("Failed to fetch current trip.");
       }
+
       const data = await response.json();
+
       return data;
     }
   } catch (error) {
@@ -178,8 +212,8 @@ export const endCurrentTrip = async (): Promise<any> => {
   }
 };
 
-// Get user provider from firebase 
-export  const getUserProvider = () => {
+// Get user provider from firebase
+export const getUserProvider = () => {
   const auth = FIREBASE_AUTH;
   const user = auth.currentUser;
 
@@ -201,6 +235,56 @@ export  const getUserProvider = () => {
     } else if (isEmailUser) {
       return null;
     }
+  }
+};
+
+export const fetchPastTrips = async (): Promise<any> => {
+  try {
+    if (FIREBASE_AUTH.currentUser) {
+      const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+      const response = await fetch(
+        `http://localhost:3000/api/past_trips/${FIREBASE_AUTH.currentUser.uid}`,
+        {
+          headers: {
+            Authorization: idToken,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch past trips.");
+      }
+
+      const data = await response.json();
+      
+      return data;
+    }
+  } catch (error) {
+    console.error("Error fetching past trips:", error);
+  }
+};
+
+
+export const fetchPastTripData = async (tripId: string): Promise<any> => {
+  try {
+    if (FIREBASE_AUTH.currentUser) {
+      const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
+      const response = await fetch(
+        `http://localhost:3000/api/past_trips/${FIREBASE_AUTH.currentUser.uid}/${tripId}`,
+        {
+          headers: {
+            Authorization: idToken,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch trip data.");
+      }
+
+      const data = await response.json();
+      return data;
+    }
+  } catch (error) {
+    console.error("Error fetching trip data:", error);
   }
 };
 

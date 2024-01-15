@@ -15,23 +15,15 @@ import {
   GoogleAuthProvider,
   signInWithCredential,
 } from "firebase/auth";
-// import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // We import the auth state from the firebase config file
 const auth = FIREBASE_AUTH;
-
-// We configure the google sign in for mobile
-// GoogleSignin.configure({
-//   webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
-//   scopes: ["https://www.googleapis.com/auth/calendar"], // We want to get the calendar access token
-// });
 
 const handleGoogleSignUp = async () => {
   try {
     if (Platform.OS === "web") {
       const provider = new GoogleAuthProvider();
-      provider.addScope("https://www.googleapis.com/auth/calendar");
+      provider.addScope("https://www.googleapis.com/auth/calendar.readonly");
       const response = await signInWithPopup(auth, provider);
 
       const user = response.user;
@@ -55,16 +47,7 @@ const handleGoogleSignUp = async () => {
       // TODO: ENCRYPT TOKEN
       sessionStorage.setItem("googleAccessToken", credential.accessToken);
     } else {
-      // await GoogleSignin.hasPlayServices();
-      // const userInfo = await GoogleSignin.signIn();
-      // const { idToken, accessToken } = await GoogleSignin.getTokens();
-      // const user = userInfo.user;
-      // if (user.givenName === null || user.familyName === null) {
-      //   throw new Error("User is null");
-      // }
-      // UserService.createUser(user.id, user.givenName, user.familyName);
-      // // TODO: Securely store the token
-      // await AsyncStorage.setItem("googleAccessToken", accessToken);
+      console.log("Platform is not web");
     }
   } catch (error) {
     console.log(error);
