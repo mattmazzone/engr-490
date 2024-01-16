@@ -29,7 +29,9 @@ interface RouterProps {
 }
 
 const Account = ({ navigation }: RouterProps) => {
-  const { userProfile, isFetching } = useUserProfile({ refreshData: true });
+  const { userProfile, isFetchingProfile } = useUserProfile({
+    refreshData: true,
+  });
 
   const [userSettings, setUserSettings] = useState<UserSettings>({
     emailNotification: false,

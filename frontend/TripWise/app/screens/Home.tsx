@@ -15,7 +15,7 @@ interface RouterProps {
 
 const Home = ({ navigation }: RouterProps) => {
   const { userProfile, isFetchingProfile } = useUserProfile({
-    refreshData: false,
+    refreshData: true,
   });
 
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
@@ -62,9 +62,7 @@ const Home = ({ navigation }: RouterProps) => {
         </Text>
 
         <TouchableOpacity
-          onPress={() =>
-            navigation.navigate(currentTrip ? "TripDetails" : "CreateTrip")
-          }
+          onPress={() => navigation.navigate("Trip")}
           style={styles.button}
         >
           <Text style={styles.buttonText}>
