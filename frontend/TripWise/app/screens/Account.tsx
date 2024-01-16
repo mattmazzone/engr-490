@@ -71,7 +71,7 @@ const Account = ({ navigation }: RouterProps) => {
   };
 
   // TODO: REPLACE WITH COOL SPINNER
-  if (isFetching) {
+  if (isFetchingProfile) {
     return (
       <BackgroundGradient>
         <Text>Loading...</Text>
