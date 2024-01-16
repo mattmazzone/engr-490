@@ -78,13 +78,14 @@ router.post("/end_trip/:uid", authenticate, async (req, res) => {
     const user = await db.collection("users").doc(uid).get();
     const userData = user.data();
     const tripId = userData.currentTrip;
+    console.log(tripId);
 
     // Add trip to user's past trips
     await db
       .collection("users")
       .doc(uid)
       .update({
-        pastTrips: db.FieldValue.arrayUnion(tripId),
+        pastTrips: admin.firestore.FieldValue.arrayUnion(tripId),
         currentTrip: "",
       });
 

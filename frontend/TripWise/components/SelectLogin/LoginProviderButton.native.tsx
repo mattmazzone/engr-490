@@ -24,7 +24,7 @@ const handleGoogleSignUp = async () => {
     const userInfo = await GoogleSignin.signIn();
 
     // Extract the id token from the Google Sign-In response
-    const { idToken } = await GoogleSignin.getTokens();
+    const { idToken, accessToken } = await GoogleSignin.getTokens();
 
     // Create a Firebase credential with the Google ID token
     const googleCredential = GoogleAuthProvider.credential(idToken);
@@ -48,15 +48,11 @@ const handleGoogleSignUp = async () => {
       );
     }
 
-    // If you need to store the refresh token or perform other actions, do so here
-    // const { idToken, accessToken } = await GoogleSignin.getTokens();
-    // const user = userInfo.user;
-    // if (user.givenName === null || user.familyName === null) {
-    //   throw new Error("User is null");
-    // }
-    // UserService.createUser(user.id, user.givenName, user.familyName);
-    // // TODO: Securely store the token
-    // await AsyncStorage.setItem("googleAccessToken", accessToken);
+    if (accessToken === undefined) {
+      throw new Error("Google Auth Provider Credential Access Token is null");
+    }
+    // TODO: ENCRYPT TOKEN
+    AsyncStorage.setItem("googleAccessToken", accessToken);
   } else {
     console.log("Platform is not ios");
   }
