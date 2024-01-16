@@ -66,7 +66,7 @@ router.get("/current_trip/:uid", authenticate, async (req, res) => {
 
     return res.status(200).json(trip.data());
   } catch (error) {
-    console.error("Error getting active trip", error);
+    console.error("Error getting active trip\n", error);
     res.status(500).send(error.message);
   }
 });

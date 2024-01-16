@@ -72,11 +72,35 @@ async function getRecentTrips(admin, db, uid) {
         });
       });
     console.log("Retreived recent trip data");
-
     return [REQUEST.SUCCESSFUL, recentTrips];
   } catch (error) {
     console.log(error.message);
     return [REQUEST.ERROR, error];
   }
 }
-module.exports = { REQUEST, getNearbyPlaces, getRecentTrips };
+
+async function getPlaceDetails(id, fieldMask) {
+  try {
+    const response = await axios.get(
+      `https://places.googleapis.com/v1/places/${id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": process.env.GOOGLE_MAPS_API_KEY,
+          "X-Goog-FieldMask": fieldMask,
+        },
+      }
+    );
+    return [REQUEST.SUCCESSFUL, response.data];
+  } catch (error) {
+    console.error(error);
+    return [REQUEST.ERROR, error];
+  }
+}
+module.exports = {
+  REQUEST,
+  getNearbyPlaces,
+  getRecentTrips,
+  getPlaceDetails,
+  NUM_RECENT_TRIPS,
+};
