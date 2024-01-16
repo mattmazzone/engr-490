@@ -153,7 +153,8 @@ place_types = {
 def create_places_df(nearby_places) -> pd.DataFrame:
     data = []
     row_indices = []
-    for place in nearby_places:
+    print(f'nearby_places \n {nearby_places}')
+    for place in nearby_places['places']:
         types = place['types']
         place_types_copy = copy.deepcopy(place_types)
         for type in types:
