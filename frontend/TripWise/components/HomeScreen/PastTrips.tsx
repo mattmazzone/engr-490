@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import PastTrip from "./PastTrip";
 
-const PastTrips = ({ pastTrips }: any) => {
+const PastTrips = ({ isFetching, pastTrips }: any) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Review your past Trips</Text>

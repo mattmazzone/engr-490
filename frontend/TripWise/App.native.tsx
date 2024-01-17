@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, Platform } from "react-native";
+import { SafeAreaView, Platform, Dimensions, StatusBar } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -15,11 +16,9 @@ import SelectInterests from "./app/screens/SelectInterests";
 import AccountLogo from "./components/SVGLogos/AccountLogo";
 import HomeLogo from "./components/SVGLogos/HomeLogo";
 import TripLogo from "./components/SVGLogos/TripLogo";
+import ThemeProvider from "./context/ThemeProvider";
 
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-
-// import your component here
-// import NotificationScreen from "./components/AccountScreen/NotificationScreen";
 
 // Declare your stacks
 const RootStack = createNativeStackNavigator();
@@ -48,6 +47,7 @@ function BottomTabNavigation() {
           borderStyle: "solid", // Add solid border style
           backgroundColor: "rgba(255, 255, 255, 0.2)", // Only the background is semi-transparent
           height: 100, // Set the height of the tab bar
+          elevation: 0, // Set elevation to 0 to remove shadow (Android)
         },
         tabBarActiveTintColor: "grey",
         tabBarInactiveTintColor: "white",
@@ -129,7 +129,8 @@ export default function App() {
       GoogleSignin.configure({
         iosClientId:
           "425734765321-poj5etgv9nffmi4n42mj6b1sroajrq4c.apps.googleusercontent.com",
-          webClientId:"425734765321-lj7r5lgpisv442e293g7kf8vm27m5p0d.apps.googleusercontent.com",
+        webClientId:
+          "425734765321-lj7r5lgpisv442e293g7kf8vm27m5p0d.apps.googleusercontent.com",
         scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
       });
     }
@@ -143,8 +144,14 @@ export default function App() {
   }, []);
 
   return (
-    <NavigationContainer>
-      <RootNavigator user={user} />
-    </NavigationContainer>
+    <SafeAreaProvider>
+      {/*This removes the white top bar on Android */}
+      <StatusBar backgroundColor="transparent" translucent={true} />
+      <ThemeProvider>
+        <NavigationContainer>
+          <RootNavigator user={user} />
+        </NavigationContainer>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

@@ -65,7 +65,6 @@ const Trip = ({ navigation }: RouterProps) => {
           if (trip.hasActiveTrip === false) {
             setCurrentTrip(null);
           } else {
-            console.log("Current trip:", trip);
             setCurrentTrip(trip);
           }
 

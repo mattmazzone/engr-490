@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import {
   View,
   Text,
@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Image,
   Modal,
-  SafeAreaView,
 } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
 import { useUserProfile } from "../../hooks/useUserProfile";
@@ -22,27 +21,32 @@ import HelpAndSupportLogo from "../../components/SVGLogos/HelpAndSupportLogo";
 import NotificationSettingsLogo from "../../components/SVGLogos/NotificationSettingsLogo";
 import TripWiseLogoSmall from "../../components/SVGLogos/TripWiseLogoSmall";
 import AppSettingsPage from "../../components/AccountScreen/AppSettings";
+import SettingOption from "../../components/AccountScreen/SettingOption";
+import { UserSettings } from "../../types/userTypes";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
 const Account = ({ navigation }: RouterProps) => {
-  const { userProfile, isFetching } = useUserProfile();
+  const { userProfile, isFetchingProfile } = useUserProfile({
+    refreshData: true,
+  });
 
-  const [userSettings, setUserSettings] = useState({
+  const [userSettings, setUserSettings] = useState<UserSettings>({
     emailNotification: false,
     pushNotification: false,
     backgroundTheme: false,
   });
 
-  const [aboutModalVisible, setAboutModalVisible] = useState(false);
-  const [notificationModalVisible, setNotificationModalVisible] = useState(false);
-  const [appSettingsVisible, setAppSettingsModalVisible] = useState(false);
+  const [aboutModalVisible, setAboutModalVisible] = useState<boolean>(false);
+  const [notificationModalVisible, setNotificationModalVisible] =
+    useState<boolean>(false);
+  const [appSettingsVisible, setAppSettingsModalVisible] =
+    useState<boolean>(false);
 
   // Get user settings
   useEffect(() => {
-    console.log("userProfile", userProfile);
     if (userProfile && userProfile.settings) {
       setUserSettings({
         emailNotification: userProfile.settings.emailNotification,
@@ -67,7 +71,7 @@ const Account = ({ navigation }: RouterProps) => {
   };
 
   // TODO: REPLACE WITH COOL SPINNER
-  if (isFetching) {
+  if (isFetchingProfile) {
     return (
       <BackgroundGradient>
         <Text>Loading...</Text>
@@ -77,7 +81,7 @@ const Account = ({ navigation }: RouterProps) => {
 
   return (
     <BackgroundGradient>
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <View style={styles.header}>
           {/* Profile image and name */}
           <Image source={{}} style={styles.profileImage} />
@@ -90,40 +94,54 @@ const Account = ({ navigation }: RouterProps) => {
 
         <View style={styles.settings}>
           {/* Settings options with icons */}
-          {SettingOption(
-            <AppSettingsLogo focused={false} />,
-            "App Settings",
-            () => {
+          {SettingOption({
+            icon: <AppSettingsLogo focused={false} />,
+            title: "App Settings",
+            onPress: () => {
               setAppSettingsModalVisible(true);
-            }
-          )}
-          {SettingOption(
-            <PrivacySettingsLogo focused={false} />,
-            "Privacy Settings"
-          )}
-          {SettingOption(
-            <BackupAndRestoreLogo focused={false} />,
-            "Backup and Restore"
-          )}
-          {SettingOption(
-            <HelpAndSupportLogo focused={false} />,
-            "Help and Support"
-          )}
-          {SettingOption(
-            <NotificationSettingsLogo focused={false} />,
-            "Notification Settings",
-            () => {
+            },
+            hasBorder: true,
+          })}
+          {SettingOption({
+            icon: <PrivacySettingsLogo focused={false} />,
+            title: "Privacy Settings",
+            onPress: () => {
+              console.log("Privacy Settings");
+            },
+            hasBorder: true,
+          })}
+          {SettingOption({
+            icon: <BackupAndRestoreLogo focused={false} />,
+            title: "Backup and Restore",
+            onPress: () => {
+              console.log("Backup and Restore");
+            },
+            hasBorder: true,
+          })}
+          {SettingOption({
+            icon: <HelpAndSupportLogo focused={false} />,
+            title: "Help and Support",
+            onPress: () => {
+              console.log("Help and Support");
+            },
+            hasBorder: true,
+          })}
+          {SettingOption({
+            icon: <NotificationSettingsLogo focused={false} />,
+            title: "Notification Settings",
+            onPress: () => {
               setNotificationModalVisible(true);
-            }
-          )}
-          {SettingOption(
-            <TripWiseLogoSmall />,
-            "About",
-            () => {
+            },
+            hasBorder: true,
+          })}
+          {SettingOption({
+            icon: <TripWiseLogoSmall />,
+            title: "About",
+            onPress: () => {
               setAboutModalVisible(true);
             },
-            true
-          )}
+            hasBorder: false,
+          })}
         </View>
 
         <AppSettingsPage
@@ -158,26 +176,10 @@ const Account = ({ navigation }: RouterProps) => {
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
-      </SafeAreaView>
+      </View>
     </BackgroundGradient>
   );
 };
-
-// Helper function to create a setting option with an icon
-const SettingOption = (
-  iconComponent: any,
-  title: any,
-  action?: any,
-  isLast?: any
-) => (
-  <TouchableOpacity
-    style={[styles.settingOption, isLast ? null : styles.settingOptionBorder]}
-    onPress={action}
-  >
-    <View style={styles.settingIconContainer}>{iconComponent}</View>
-    <Text style={styles.settingTitle}>{title}</Text>
-  </TouchableOpacity>
-);
 
 const styles = StyleSheet.create({
   container: {
@@ -224,29 +226,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderRadius: 3,
   },
-  settingOption: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    padding: 20,
-    alignItems: "center",
-  },
-  settingIconContainer: {
-    width: 50, // You can adjust this width as needed
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 20, // This will be the gap between the icon and the text
-  },
-  settingTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#fff",
-    // Add flex: 1 if you want to ensure the text is aligned left and the TouchableOpacity fills the available space
-    flex: 1,
-  },
-  settingOptionBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.2)",
-  },
+
   logoutButton: {
     backgroundColor: "rgba(255, 0, 0, 0.8)",
     padding: 10,

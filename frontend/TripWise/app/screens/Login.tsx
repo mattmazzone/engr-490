@@ -12,7 +12,7 @@ import React, { useState } from "react";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { NavigationProp } from "@react-navigation/native";
-import LoginScreenButton from "../../components/LoginScreenButton";
+import LoginScreenButton from "../../components/Login/LoginScreenButton";
 import BackButton from "../../components/BackButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import BackgroundGradient from "../../components/BackgroundGradient";
@@ -41,20 +41,14 @@ const mobileRenderContent = (children: React.ReactNode) => {
 };
 
 const Login = ({ navigation }: RouterProps) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const signIn = async () => {
     setLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        FIREBASE_AUTH,
-        email,
-        password
-      );
-      const user = userCredential.user;
-      const token = await user.getIdToken();
+      await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
     } catch (error) {
       console.log(error);
     } finally {

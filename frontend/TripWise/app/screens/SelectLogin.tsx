@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, useColorScheme } from "react-native";
+import { View, StyleSheet, useColorScheme } from "react-native";
 import TripWiseLogo from "../../components/SVGLogos/TripWiseLogo";
 import LoginProviderButton from "../../components/SelectLogin/LoginProviderButton";
 import { NavigationProp } from "@react-navigation/native";
@@ -9,24 +9,22 @@ interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
-
 const SelectLogin = ({ navigation }: RouterProps) => {
-
   return (
     <BackgroundGradient>
-    <View style={styles.container}>   
-      <View style={styles.logoContainer}>
-        <View style={styles.logo}>
-          <TripWiseLogo />
+      <View style={styles.container}>
+        <View style={styles.logoContainer}>
+          <View style={styles.logo}>
+            <TripWiseLogo />
+          </View>
+        </View>
+        <View style={styles.loginProviders}>
+          <LoginProviderButton provider={"email"} navigation={navigation} />
+          <LoginProviderButton provider={"google"} navigation={navigation} />
+          <LoginProviderButton provider={"apple"} navigation={navigation} />
         </View>
       </View>
-      <View style={styles.loginProviders}>
-        <LoginProviderButton provider={"email"} navigation={navigation} />
-        <LoginProviderButton provider={"google"} navigation={navigation} />
-        <LoginProviderButton provider={"apple"} navigation={navigation} />
-      </View>
-    </View>
-</BackgroundGradient>
+    </BackgroundGradient>
   );
 };
 const styles = StyleSheet.create({

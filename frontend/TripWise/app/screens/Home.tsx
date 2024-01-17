@@ -1,116 +1,79 @@
 import { NavigationProp } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
-import {
-  Text,
-  View,
-  Button,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  ScrollView,
-} from "react-native";
+import React, { useState } from "react";
+import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
-import { UserProfile } from "../../types/userTypes";
+
 import * as UserService from "../../services/userServices";
 import { TripType } from "../../types/tripTypes";
 import { useFocusEffect } from "@react-navigation/native";
 import PastTrips from "../../components/HomeScreen/PastTrips";
+import { useUserProfile } from "../../hooks/useUserProfile";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
-// Check for an ongoing Trip
-
 const Home = ({ navigation }: RouterProps) => {
-  const [userProfile, setUserProfile] = useState<UserProfile>();
-  const [currentTrip, setCurrentTrip] = useState<TripType>();
+  const { userProfile, isFetchingProfile } = useUserProfile({
+    refreshData: true,
+  });
+
+  const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
   const [pastTrips, setPastTrips] = useState<TripType[]>([]);
-  const [isFetching, setIsFetching] = useState<boolean>(true); // To track the fetching state
+  const [isFetching, setIsFetching] = useState<boolean>(true);
+
+  const loadTripData = async () => {
+    try {
+      const currentTrip = await UserService.fetchCurrentTrip();
+      const pastTrips = await UserService.fetchPastTrips();
+
+      setCurrentTrip(currentTrip?.hasActiveTrip ? currentTrip : null);
+      setPastTrips(pastTrips || []);
+    } catch (error) {
+      console.error("Error fetching trip data:", error);
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   // useFocusEffect is used to run code when the screen is focused
   useFocusEffect(
     React.useCallback(() => {
-      const initializeHomePage = async () => {
-        try {
-          const userProfile = await UserService.fetchUserProfile();
-          const currentTrip = await UserService.fetchCurrentTrip();
-          const pastTrips = await UserService.fetchPastTrips();
-
-          if (!userProfile) {
-            throw new Error("User profile not found");
-          }
-          setUserProfile(userProfile);
-
-          if (currentTrip?.hasActiveTrip === false) {
-            setCurrentTrip(undefined);
-          } else {
-            setCurrentTrip(currentTrip);
-          }
-
-          if (!pastTrips) {
-            throw new Error("Past trips not found");
-          }
-          setPastTrips(pastTrips);
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
-        } finally {
-          setIsFetching(false);
-        }
-      };
-
-      initializeHomePage();
-    }, []) // Dependencies for the useCallback hook, if any
+      loadTripData();
+    }, [])
   );
 
-  if (isFetching) {
+  if (isFetchingProfile) {
     return (
       <BackgroundGradient>
-        <Text>Loading...</Text>
-      </BackgroundGradient>
-    );
-  }
-
-  if (currentTrip) {
-    return (
-      <BackgroundGradient>
-        <SafeAreaView style={styles.container}>
-          <Text style={styles.title}>
-            Welcome back, {userProfile?.firstName}! You have an ongoing trip!
-            {/* to {currentTrip?.destination} with{" "} */}
-            {/* {trip?.travelers.length} other travelers */}
-          </Text>
-
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Trip")}
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}>View Trip Details</Text>
-          </TouchableOpacity>
-        </SafeAreaView>
+        <View style={styles.container}>
+          <Text style={styles.title}>Loading...</Text>
+        </View>
       </BackgroundGradient>
     );
   }
 
   return (
     <BackgroundGradient>
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <Text style={styles.title}>
           Welcome back, {userProfile?.firstName}!
-        </Text>
-        <Text style={styles.subTitle}>
-          Click below to start planning a trip.
+          {currentTrip && " You have an ongoing trip!"}
         </Text>
 
         <TouchableOpacity
           onPress={() => navigation.navigate("Trip")}
           style={styles.button}
         >
-          <Text style={styles.buttonText}>Start a Trip</Text>
+          <Text style={styles.buttonText}>
+            {currentTrip ? "View Trip Details" : "Start a Trip"}
+          </Text>
         </TouchableOpacity>
 
-        <PastTrips pastTrips={pastTrips} />
-      </SafeAreaView>
+        {!currentTrip && (
+          <PastTrips isFetching={isFetching} pastTrips={pastTrips} />
+        )}
+      </View>
     </BackgroundGradient>
   );
 };
@@ -124,20 +87,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 40,
     marginTop: 40,
   },
-  scrollView: {
-    width: "100%",
-    marginBottom: 110, //padding so meetings stop at nav bar
-  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "white",
     textAlign: "center",
-    marginBottom: 20,
-  },
-  subTitle: {
-    fontSize: 16,
-    color: "white",
     marginBottom: 20,
   },
   button: {
@@ -152,10 +106,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
     fontSize: 16,
-  },
-
-  loadingText: {
-    color: "white",
-    textAlign: "center",
   },
 });
