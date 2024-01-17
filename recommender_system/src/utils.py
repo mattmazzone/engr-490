@@ -1,4 +1,5 @@
 import copy
+from sqlite3 import Row
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import numpy as np
@@ -150,11 +151,13 @@ place_types = {
     "town_square": 0,
 }
 
-def create_places_df(nearby_places) -> pd.DataFrame:
+# Transforms the json returned from the google places api into a 
+# properly formatted dataframe (1s and 0s, not normalized yet).
+# Add a print at the end to see what the df looks like
+def create_df(google_places_json) -> pd.DataFrame:
     data = []
     row_indices = []
-    print(f'nearby_places \n {nearby_places}')
-    for place in nearby_places['places']:
+    for place in google_places_json:
         types = place['types']
         place_types_copy = copy.deepcopy(place_types)
         for type in types:
@@ -167,23 +170,15 @@ def create_places_df(nearby_places) -> pd.DataFrame:
     places_df = pd.DataFrame(data, index=row_indices)
     return places_df
 
-def create_historical_user_df(recent_trips) -> pd.DataFrame:
-    pass
-
-
 def normalize(row: pd.Series) -> pd.Series:
-    # don't factor the name of the place into normalization
-    if "user_name" in row:
-        selected = row.drop(["user_name"])
-    # elif "place_name" in row:
-    #     selected = row.drop(["place_name"])
-    else:
-        selected = row.drop(["place_name"])
-
+    
     # compute the length of the vector using L2 normalization
-    norm = np.linalg.norm(selected)
+    norm = np.linalg.norm(row)
+    # print(f'Length of vector (norm) = {norm}')
+    #  row dtype (int64) incompatible with norm dtype (floating point dtype)
+    row = row.astype(norm.dtype)
     if norm != 0:
-        selected_normalized = selected / norm
-        row.update(selected_normalized)
+        row_normalized = row / norm
+        row.update(row_normalized)
         return row
     return row

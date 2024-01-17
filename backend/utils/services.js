@@ -1,7 +1,5 @@
 const axios = require("axios");
 
-const NUM_RECENT_TRIPS = 10;
-
 const REQUEST = {
   SUCCESSFUL: 0,
   ERROR: 1,
@@ -41,7 +39,7 @@ async function getNearbyPlaces(payload, fieldMask) {
   }
 }
 
-async function getRecentTrips(admin, db, uid) {
+async function getRecentTrips(admin, db, uid, numRecentTrips) {
   try {
     let recentTripIds = [];
     await db
@@ -49,7 +47,7 @@ async function getRecentTrips(admin, db, uid) {
       .doc(uid)
       .get()
       .then((doc) => {
-        recentTripIds = doc.data().pastTrips.slice(0, NUM_RECENT_TRIPS);
+        recentTripIds = doc.data().pastTrips.slice(0, numRecentTrips);
       });
 
     console.log("Retreived recent trip IDs");
@@ -102,5 +100,4 @@ module.exports = {
   getNearbyPlaces,
   getRecentTrips,
   getPlaceDetails,
-  NUM_RECENT_TRIPS,
 };
