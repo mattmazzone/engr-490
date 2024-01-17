@@ -2,11 +2,18 @@
 import { FIREBASE_AUTH } from "../FirebaseConfig";
 import { UserProfile } from "../types/userTypes";
 import { UserSettings } from "../types/userTypes";
+import { Platform } from "react-native";
 
 import { Meeting, TripType } from "../types/tripTypes";
 
 // Base API URL
-const BASE_API_URL = "http://localhost:3000/api";
+let BASE_API_URL: string;
+if (Platform.OS === "android") {
+  BASE_API_URL = "http://10.0.2.2:3000/api";
+} else {
+  BASE_API_URL = "http://localhost:3000/api";
+}
+
 
 // Function to create a new user
 export const createUser = async (
@@ -41,7 +48,7 @@ export const fetchUserProfile = async (): Promise<UserProfile | null> => {
     if (FIREBASE_AUTH.currentUser) {
       const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
       const response = await fetch(
-        `http://localhost:3000/api/profile/${FIREBASE_AUTH.currentUser.uid}`,
+        `${BASE_API_URL}/profile/${FIREBASE_AUTH.currentUser.uid}`,
         {
           headers: {
             Authorization: idToken,
@@ -65,14 +72,11 @@ export const fetchUserProfile = async (): Promise<UserProfile | null> => {
 export const updateUserSettings = async (
   userSettings: UserSettings
 ): Promise<void> => {
-  console.log("userSettings", userSettings);
-
   try {
     if (FIREBASE_AUTH.currentUser) {
       const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
-      console.log("idToken", idToken);
       const response = await fetch(
-        `http://localhost:3000/api/settings/${FIREBASE_AUTH.currentUser.uid}`,
+        `${BASE_API_URL}/settings/${FIREBASE_AUTH.currentUser.uid}`,
         {
           headers: {
             Authorization: idToken,
@@ -98,9 +102,8 @@ export const updateUserInterests = async (
   try {
     if (FIREBASE_AUTH.currentUser) {
       const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
-      console.log("idToken", idToken);
       const response = await fetch(
-        `http://localhost:3000/api/interests/${FIREBASE_AUTH.currentUser.uid}`,
+        `${BASE_API_URL}/interests/${FIREBASE_AUTH.currentUser.uid}`,
         {
           headers: {
             Authorization: idToken,
@@ -141,7 +144,7 @@ export const createTrip = async (
   try {
     const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
     const response = await fetch(
-      `http://localhost:3000/api/create_trip/${FIREBASE_AUTH.currentUser.uid}`,
+      `${BASE_API_URL}/create_trip/${FIREBASE_AUTH.currentUser.uid}`,
       {
         headers: {
           Authorization: idToken,
@@ -168,7 +171,7 @@ export const fetchCurrentTrip = async (): Promise<any> => {
     if (FIREBASE_AUTH.currentUser) {
       const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
       const response = await fetch(
-        `http://localhost:3000/api/current_trip/${FIREBASE_AUTH.currentUser.uid}`,
+        `${BASE_API_URL}/current_trip/${FIREBASE_AUTH.currentUser.uid}`,
         {
           headers: {
             Authorization: idToken,
@@ -193,7 +196,7 @@ export const endCurrentTrip = async (): Promise<any> => {
     if (FIREBASE_AUTH.currentUser) {
       const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
       const response = await fetch(
-        `http://localhost:3000/api/end_trip/${FIREBASE_AUTH.currentUser.uid}`,
+        `${BASE_API_URL}/end_trip/${FIREBASE_AUTH.currentUser.uid}`,
         {
           headers: {
             Authorization: idToken,
@@ -243,7 +246,7 @@ export const fetchPastTrips = async (): Promise<any> => {
     if (FIREBASE_AUTH.currentUser) {
       const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
       const response = await fetch(
-        `http://localhost:3000/api/past_trips/${FIREBASE_AUTH.currentUser.uid}`,
+        `${BASE_API_URL}/past_trips/${FIREBASE_AUTH.currentUser.uid}`,
         {
           headers: {
             Authorization: idToken,
@@ -255,7 +258,7 @@ export const fetchPastTrips = async (): Promise<any> => {
       }
 
       const data = await response.json();
-      
+
       return data;
     }
   } catch (error) {
@@ -263,13 +266,12 @@ export const fetchPastTrips = async (): Promise<any> => {
   }
 };
 
-
 export const fetchPastTripData = async (tripId: string): Promise<any> => {
   try {
     if (FIREBASE_AUTH.currentUser) {
       const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
       const response = await fetch(
-        `http://localhost:3000/api/past_trips/${FIREBASE_AUTH.currentUser.uid}/${tripId}`,
+        `${BASE_API_URL}/past_trips/${FIREBASE_AUTH.currentUser.uid}/${tripId}`,
         {
           headers: {
             Authorization: idToken,
