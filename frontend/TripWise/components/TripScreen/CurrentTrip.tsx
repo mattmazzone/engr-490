@@ -42,27 +42,25 @@ const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
     })),
   ];
 
-  console.log(calendarEvents);
-
   return (
     <BackgroundGradient>
       <SafeAreaView style={styles.currentTripContainer}>
-        <View style={styles.calendarContainer}>
-          {currentTrip.tripStart && currentTrip.tripEnd && (
-            <Calendar
-              events={calendarEvents}
-              date={new Date(currentTrip.tripStart)}
-              height={600}
-              mode="3days"
-              theme={calendartheme}
-              eventCellStyle={(event) => {
-                return {
-                  backgroundColor: event.color,
-                };
-              }}
-            />
-          )}
-        </View>
+          <View style={styles.calendarContainer}>
+            {currentTrip.tripStart && currentTrip.tripEnd && (
+              <Calendar
+                events={calendarEvents}
+                date={new Date(currentTrip.tripStart)}
+                height={600}
+                mode="3days"
+                theme={calendartheme}
+                eventCellStyle={(event) => {
+                  return {
+                    backgroundColor: event.color,
+                  };
+                }}
+              />
+            )}
+          </View>
       </SafeAreaView>
     </BackgroundGradient>
   );
@@ -75,11 +73,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "flex-start",
     marginHorizontal: 10,
-    paddingBottom: 110, //padding so meetings stop at nav bar
     marginTop: 40,
   },
   calendarContainer: {
     flex: 1,
     width: "100%",
+    paddingBottom: 50, //padding so meetings stop at nav bar
   },
 });

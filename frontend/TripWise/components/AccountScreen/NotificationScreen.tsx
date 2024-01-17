@@ -28,18 +28,14 @@ const NotificationScreen = ({
   );
   const togglePushSwitch = () => {
     setIsPushEnabled((previousState: boolean) => !previousState);
-    console.log("isPushEnabled", isPushEnabled);
   };
 
   useEffect(() => {
     if (userSettings) {
-      console.log("userSettings", userSettings);
       setIsEmailEnabled(userSettings.emailNotification);
       setIsPushEnabled(userSettings.pushNotification);
     }
   }, [userSettings]);
-
-  console.log("userSettings", userSettings);
 
   const handleNotificationPreferences = async () => {
     const newSettings = {
