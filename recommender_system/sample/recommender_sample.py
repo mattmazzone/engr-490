@@ -1,6 +1,7 @@
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import numpy as np
+import os
 
 # Assumptions
 # 1. User is willing to travel the distance (will deal with later)
@@ -11,7 +12,8 @@ import numpy as np
 
 # Get place vectors
 # Assume these are places that are near the user
-places_df = pd.read_csv("places_dataset_sample.csv")
+script_path_from_venv = os.path.dirname(__file__) + "/"
+places_df = pd.read_csv(script_path_from_venv + "places_dataset_sample.csv")
 
 
 def normalize(row: pd.Series) -> pd.Series:
@@ -36,9 +38,10 @@ places_normalized_df = places_df.apply(normalize, axis=1)
 
 # Get user vectors
 # fetched from our database
-historical_user_df = pd.read_csv("historical_user_dataset_sample.csv")
+historical_user_df = pd.read_csv(script_path_from_venv + "historical_user_dataset_sample.csv")
 
 user_places_df = pd.merge(historical_user_df, places_df, on="place_name")
+print(user_places_df)
 
 # Remove the place_name column since its useless now
 users_summed = user_places_df.drop(["place_name"], axis=1).groupby("user_name").sum().reset_index()

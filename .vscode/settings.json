@@ -1,4 +1,5 @@
 {
+  "python.analysis.autoImportCompletions": true,
 
   "cSpell.words": ["firestore", "Pressable"]
 

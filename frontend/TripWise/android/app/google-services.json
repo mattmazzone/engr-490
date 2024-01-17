@@ -7,12 +7,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:425734765321:android:becc35d3bc77a14ae8b1d8",
+        "mobilesdk_app_id": "1:425734765321:android:e00a4fc88aa30662e8b1d8",
         "android_client_info": {
           "package_name": "com.mattmazzone.TripWise"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "425734765321-v3s4fqdut5pl588ej8fkoupoouac6797.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mattmazzone.TripWise",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
         {
           "client_id": "425734765321-lj7r5lgpisv442e293g7kf8vm27m5p0d.apps.googleusercontent.com",
           "client_type": 3
