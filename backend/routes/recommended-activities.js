@@ -18,6 +18,7 @@ const recommenderURL = `http://localhost:${recommenderPort}${recommenderRoute}`;
 router.post("/recommend-activities/:uid", authenticate, async (req, res) => {
   const { maxResultCount, numRecentTrips, latitude, longitude, radius } =
     req.body;
+  console.log(req.body);
   const uid = req.params.uid;
 
   const payload = {
