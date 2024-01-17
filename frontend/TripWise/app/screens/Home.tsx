@@ -5,7 +5,6 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
-  Button,
   FlatList,
 } from "react-native";
 import BackgroundGradient from "../../components/BackgroundGradient";
@@ -82,14 +81,16 @@ const Home = ({ navigation }: RouterProps) => {
         </TouchableOpacity>
         {activities && (
           <FlatList
-            data={Object.entries(activities.data.Similarity).map(([k, v]) => ({
-              id: k,
-              score: v,
-            }))}
+            data={Object.entries(activities.similarityScores.Similarity).map(
+              ([k, v]) => ({
+                id: k,
+                score: v,
+              })
+            )}
             renderItem={({ item }) => (
-              <Text>{`Similarity score for ${item.id}: ${
+              <Text>{`${item.id}: ${(
                 item.score * 100.0
-              }`}</Text>
+              ).toPrecision(4)}%`}</Text>
             )}
             keyExtractor={(item) => item.id}
           ></FlatList>
