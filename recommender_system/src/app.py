@@ -8,7 +8,7 @@ from functools import wraps
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import numpy as np
-from utils import normalize, create_places_df, create_historical_user_df
+from utils import normalize, create_df
 
 load_dotenv()
 
@@ -91,29 +91,29 @@ def recommend():
     request_body = request.get_json()
     # Calculate place vectors that correspond to the nearby places
     nearby_places = request_body["nearbyPlaces"]
-    places_df = create_places_df(nearby_places)
+    nearby_places_df = create_df(nearby_places['places'])
     # Calculate user vectors from database from recent trips
     recent_trips = request_body["recentTripsPlaceDetails"]
-    # historical_user_df = create_historical_user_df(recent_trips)
-    return make_response(jsonify({'nearby_places': nearby_places, 'recent_trips': recent_trips}), 200)
-    
-    # # join user and places on place_id 
-    # user_places_df = pd.merge(historical_user_df, places_df, on="place_name")
-    # # Sum all the columns of the newly created user-place table
-    # users_summed = user_places_df.drop(["place_name"], axis=1).groupby("user_name").sum().reset_index()
-    # # Normalize the user-place table
-    # users_sum_normalized = users_summed.apply(normalize, axis=1)
-    # # Normalize the places table
-    # places_normalized_df = places_df.apply(normalize, axis=1)
-    # # Drop useless columns for calculations
-    # users_sum_normalized_copy = users_sum_normalized.drop(["user_name"], axis=1)
-    # places_normalized_df_copy = places_normalized_df.drop(["place_name"], axis=1)
-    # # Get cosine similarity between normalized places table and the normalized user-place table
-    # users_places_similarity_df = cosine_similarity(users_sum_normalized_copy, places_normalized_df_copy)
-    # # Return the similarity table
-    # users_places_similarity_df = pd.DataFrame(users_places_similarity_df).transpose()
-    # return pd.DataFrame.to_json(users_places_similarity_df)
-
+    recent_places_df = create_df(recent_trips)
+    # Aggregate ALL rows and sum all the rows to make a one row dataframe 
+    recent_places_summed = recent_places_df.groupby(lambda f: True).sum().reset_index().drop(["index"], axis=1)
+    # Normalize the recent places table
+    recent_places_normalized_df = recent_places_summed.apply(normalize, axis=1)
+    # Normalize the places table
+    nearby_places_normalized_df = nearby_places_df.apply(normalize, axis=1)
+    # Drop useless columns for calculations
+    recent_places_normalized_df_copy = recent_places_normalized_df.reset_index(drop=True)
+    nearby_places_normalized_df_copy = nearby_places_normalized_df.reset_index(drop=True)
+    # Get cosine similarity between normalized places table and the normalized user-place table
+    users_places_similarity_df = cosine_similarity(recent_places_normalized_df_copy, nearby_places_normalized_df_copy)
+    # Return the similarity table
+    users_places_similarity_df = pd.DataFrame(users_places_similarity_df).transpose()
+    # set the index to place ids instead
+    place_ids = nearby_places_df.index
+    users_places_similarity_df = users_places_similarity_df.set_index(place_ids)
+    users_places_similarity_df = users_places_similarity_df.rename(columns={0 : "Similarity"})
+    print(users_places_similarity_df)
+    return make_response(jsonify({"data": users_places_similarity_df.to_dict()}), 200)
 
 # Start the server
 if __name__ == '__main__':

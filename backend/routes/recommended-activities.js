@@ -8,7 +8,6 @@ const {
   getRecentTrips,
   REQUEST,
   getPlaceDetails,
-  NUM_RECENT_TRIPS,
 } = require("../utils/services");
 const axios = require("axios");
 
@@ -17,7 +16,8 @@ const recommenderRoute = "/api/recommend";
 const recommenderURL = `http://localhost:${recommenderPort}${recommenderRoute}`;
 
 router.post("/recommend-activities/:uid", authenticate, async (req, res) => {
-  let { maxResultCount, latitude, longitude, radius } = req.body;
+  const { maxResultCount, numRecentTrips, latitude, longitude, radius } =
+    req.body;
   const uid = req.params.uid;
 
   const payload = {
@@ -52,7 +52,8 @@ router.post("/recommend-activities/:uid", authenticate, async (req, res) => {
   let [successOrNotTrips, responseDataTrips] = await getRecentTrips(
     admin,
     db,
-    uid
+    uid,
+    numRecentTrips
   );
 
   if (successOrNotTrips != REQUEST.SUCCESSFUL) {
@@ -82,10 +83,10 @@ router.post("/recommend-activities/:uid", authenticate, async (req, res) => {
       const placeDetails = responsePlaceDetails;
       recentTripsPlaceDetails.push(placeDetails);
 
-      if (recentTripsPlaceDetails.length >= NUM_RECENT_TRIPS) break;
+      if (recentTripsPlaceDetails.length >= numRecentTrips) break;
     }
 
-    if (recentTripsPlaceDetails.length >= NUM_RECENT_TRIPS) break;
+    if (recentTripsPlaceDetails.length >= numRecentTrips) break;
   }
 
   // Finally pass data into the recommender system and get the activities
