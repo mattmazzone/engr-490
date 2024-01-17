@@ -38,7 +38,7 @@ router.post("/recommend-activities/:uid", authenticate, async (req, res) => {
   // Get nearby place ids and types
   let [successOrNot, responseData] = await getNearbyPlaces(
     payload,
-    "places.id,places.types"
+    "places.id,places.types,places.displayName,places.formattedAddress,places.priceLevel,places.rating,places.regularOpeningHours"
   );
 
   if (successOrNot != REQUEST.SUCCESSFUL) {
@@ -103,8 +103,10 @@ router.post("/recommend-activities/:uid", authenticate, async (req, res) => {
         },
       }
     );
-    const activities = response.data;
-    res.status(200).json(activities);
+    const similarityScores = response.data;
+    res
+      .status(200)
+      .json({ similarityScores: similarityScores.data, nearbyPlaces });
   } catch (e) {
     console.error(e);
     res.status(500).send(e);
