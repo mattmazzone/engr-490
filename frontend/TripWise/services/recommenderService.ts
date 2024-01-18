@@ -20,7 +20,6 @@ export const recommendActivities = async (
   try {
     if (FIREBASE_AUTH.currentUser) {
       const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
-      console.log(FIREBASE_AUTH.currentUser.uid);
       const payload = {
         maxResultCount,
         numRecentTrips,
