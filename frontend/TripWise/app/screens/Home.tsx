@@ -15,7 +15,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import PastTrips from "../../components/HomeScreen/PastTrips";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import { recommendActivities } from "../../services/recommenderService";
-import { SimilarityTableResponse } from "../../types/recommenderTypes";
+import { RecommendActivitiesResponse } from "../../types/recommenderTypes";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -29,8 +29,10 @@ const Home = ({ navigation }: RouterProps) => {
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
   const [pastTrips, setPastTrips] = useState<TripType[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(true);
-  const [activities, setRecommenedActivities] =
-    useState<SimilarityTableResponse | null>(null);
+  const [recommendedActivities, setRecommenedActivities] =
+    useState<RecommendActivitiesResponse | null>(null);
+  const [isFetchingActivities, setIsFetchingActivities] =
+    useState<boolean>(false);
 
   const loadTripData = async () => {
     try {
@@ -70,31 +72,7 @@ const Home = ({ navigation }: RouterProps) => {
           Welcome back, {userProfile?.firstName}!
           {currentTrip && " You have an ongoing trip!"}
         </Text>
-        <TouchableOpacity
-          onPress={async () => {
-            const activitiesV = await recommendActivities();
-            setRecommenedActivities(activitiesV);
-          }}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}> Recommend activities</Text>
-        </TouchableOpacity>
-        {activities && (
-          <FlatList
-            data={Object.entries(activities.similarityScores.Similarity).map(
-              ([k, v]) => ({
-                id: k,
-                score: v,
-              })
-            )}
-            renderItem={({ item }) => (
-              <Text>{`${item.id}: ${(
-                item.score * 100.0
-              ).toPrecision(4)}%`}</Text>
-            )}
-            keyExtractor={(item) => item.id}
-          ></FlatList>
-        )}
+
         <TouchableOpacity
           onPress={() => navigation.navigate("Trip")}
           style={styles.button}
@@ -103,6 +81,29 @@ const Home = ({ navigation }: RouterProps) => {
             {currentTrip ? "View Trip Details" : "Start a Trip"}
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={async () => {
+            setIsFetchingActivities(true);
+            const _activities = await recommendActivities();
+            setRecommenedActivities(_activities);
+            setIsFetchingActivities(false);
+          }}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}> Recommend activities</Text>
+        </TouchableOpacity>
+        {isFetchingActivities && <Text>Loading activities...</Text>}
+        {recommendedActivities && (
+          <FlatList
+            data={recommendedActivities.activities}
+            renderItem={({ item }) => (
+              <Text>{`${item.displayName.text}: ${(
+                item.similarity * 100.0
+              ).toPrecision(4)}%`}</Text>
+            )}
+            keyExtractor={(item) => item.id}
+          ></FlatList>
+        )}
         {!currentTrip && (
           <PastTrips isFetching={isFetching} pastTrips={pastTrips} />
         )}

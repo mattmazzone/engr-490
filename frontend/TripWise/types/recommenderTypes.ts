@@ -1,15 +1,8 @@
-export interface SimilarityTableResponse {
-  nearbyPlaces: NearbyPlaces;
-  similarityScores: {
-    Similarity: Record<string, number>;
-  };
+export interface RecommendActivitiesResponse {
+  activities: Activity[];
 }
 
-export interface NearbyPlaces {
-  places: Place[];
-}
-
-export interface Place {
+export interface Activity {
   id: string;
   types: string[];
   formattedAddress: string;
@@ -17,6 +10,7 @@ export interface Place {
   regularOpeningHours?: RegularOpeningHours;
   priceLevel?: string;
   displayName: DisplayName;
+  similarity: number;
 }
 
 export interface RegularOpeningHours {
