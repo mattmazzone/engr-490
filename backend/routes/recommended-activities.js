@@ -103,10 +103,16 @@ router.post("/recommend-activities/:uid", authenticate, async (req, res) => {
         },
       }
     );
-    const similarityScores = response.data;
-    res
-      .status(200)
-      .json({ similarityScores: similarityScores.data, nearbyPlaces });
+    const similarityScores = response.data.similarity;
+    let activities = [];
+    for (let i = 0; i < nearbyPlaces.places.length; i++) {
+      const place = nearbyPlaces.places[i];
+      let activity = place;
+      console.log(activity);
+      activity.similarity = similarityScores[place.id];
+      activities.push(activity);
+    }
+    res.status(200).json({ activities });
   } catch (e) {
     console.error(e);
     res.status(500).send(e);

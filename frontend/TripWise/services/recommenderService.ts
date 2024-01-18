@@ -1,6 +1,6 @@
 import { Platform } from "react-native";
 import { FIREBASE_AUTH } from "../FirebaseConfig";
-import { SimilarityTableResponse } from "../types/recommenderTypes";
+import { RecommendActivitiesResponse } from "../types/recommenderTypes";
 
 // Base API URL
 let BASE_API_URL: string;
@@ -16,7 +16,7 @@ export const recommendActivities = async (
   latitude: number = 37.7749,
   longitude: number = -122.4194,
   radius: number = 1500
-): Promise<SimilarityTableResponse | null> => {
+): Promise<RecommendActivitiesResponse | null> => {
   try {
     if (FIREBASE_AUTH.currentUser) {
       const idToken = await FIREBASE_AUTH.currentUser.getIdToken();
@@ -42,7 +42,7 @@ export const recommendActivities = async (
       if (!response.ok) {
         throw new Error("Failed to retrieve recommended activities.");
       }
-      const activities: SimilarityTableResponse = await response.json();
+      const activities: RecommendActivitiesResponse = await response.json();
       return activities;
     }
     return null;

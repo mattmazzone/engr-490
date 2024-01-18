@@ -111,9 +111,9 @@ def recommend():
     # set the index to place ids instead
     place_ids = nearby_places_df.index
     users_places_similarity_df = users_places_similarity_df.set_index(place_ids)
-    users_places_similarity_df = users_places_similarity_df.rename(columns={0 : "Similarity"})
+    users_places_similarity_df = users_places_similarity_df.rename(columns={0 : "similarity"})
     print(users_places_similarity_df)
-    return make_response(jsonify({"data": users_places_similarity_df.to_dict()}), 200)
+    return make_response(users_places_similarity_df.to_dict(), 200)
 
 # Start the server
 if __name__ == '__main__':
