@@ -99,6 +99,7 @@ def recommend():
     recent_places_summed = recent_places_df.groupby(lambda f: True).sum().reset_index().drop(["index"], axis=1)
     # Normalize the recent places table
     recent_places_normalized_df = recent_places_summed.apply(normalize, axis=1)
+    print(recent_places_normalized_df[['university','school','ramen_restaurant','japanese_restaurant','restaurant']])
     # Normalize the places table
     nearby_places_normalized_df = nearby_places_df.apply(normalize, axis=1)
     # Drop useless columns for calculations
@@ -112,7 +113,6 @@ def recommend():
     place_ids = nearby_places_df.index
     users_places_similarity_df = users_places_similarity_df.set_index(place_ids)
     users_places_similarity_df = users_places_similarity_df.rename(columns={0 : "similarity"})
-    print(users_places_similarity_df)
     return make_response(users_places_similarity_df.to_dict(), 200)
 
 # Start the server
