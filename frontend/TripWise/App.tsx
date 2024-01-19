@@ -44,11 +44,11 @@ function BottomTabNavigation() {
           borderTopColor: "white", // Top border color
           borderTopWidth: 2, // Top border width
           borderStyle: "solid", // Add solid border style
-          backgroundColor: "rgba(255, 255, 255, 0.2)", // Only the background is semi-transparent
+          backgroundColor: "rgba(255,255,255,0.9)", // Only the background is semi-transparent
           height: 100, // Set the height of the tab bar
         },
-        tabBarActiveTintColor: "grey",
-        tabBarInactiveTintColor: "white",
+        tabBarActiveTintColor: "black",
+        tabBarInactiveTintColor: "grey",
         tabBarLabelPosition: "beside-icon",
         tabBarLabelStyle: {
           fontSize: 16,

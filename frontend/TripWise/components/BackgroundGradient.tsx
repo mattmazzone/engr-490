@@ -19,33 +19,27 @@ const BackgroundGradient: React.FC<ContainerProps> = ({ children }) => {
   const LightTheme = ["#1F9346", "#B4C8B1"];
 
   return (
-    <LinearGradient
-      colors={isDarkMode ? DarkTheme : LightTheme}
-      style={styles.gradient}
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: "white",
+        // Paddings to handle safe area
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
+        paddingLeft: insets.left,
+        paddingRight: insets.right,
+      }}
     >
-      <View
-        style={{
-          flex: 1,
-
-          // Paddings to handle safe area
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
-        }}
-      >
-        {children}
-      </View>
-    </LinearGradient>
+      {children}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-  },
   container: {
     flex: 1,
+    backgroundColor: "white",
+    color: "black",
   },
 });
 

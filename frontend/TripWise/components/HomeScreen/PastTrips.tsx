@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   scrollView: {
     width: "100%",
     marginTop: 20,
-    marginBottom: 110, // Apply padding here
+    marginBottom: 20, // Apply padding here
   },
   content: {
     alignItems: "flex-start",
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "white",
+
     textAlign: "center",
   },
 });
