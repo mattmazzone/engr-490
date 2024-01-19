@@ -12,6 +12,8 @@ import {
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import * as UserService from "../../services/userServices";
 
+import generateUserData from "../../util/generateUserData";
+
 const testGoogleAPI = async () => {
   try {
     if (FIREBASE_AUTH.currentUser) {
@@ -47,6 +49,7 @@ const testGoogleAPI = async () => {
 };
 
 const About = ({ closeModal, navigation }: any) => {
+  generateUserData();
   return (
     <SafeAreaView style={styles.container}>
       <Text>About Modal</Text>

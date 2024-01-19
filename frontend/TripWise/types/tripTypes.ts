@@ -21,6 +21,7 @@ export type TripType = {
   tripEnd: Date;
   tripMeetings: Meeting[];
   freeSlots: FreeSlot[];
+  
 };
 
 export type FreeSlot = {
