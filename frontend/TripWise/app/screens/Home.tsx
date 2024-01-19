@@ -72,26 +72,27 @@ const Home = ({ navigation }: RouterProps) => {
           Welcome back, {userProfile?.firstName}!
           {currentTrip && " You have an ongoing trip!"}
         </Text>
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Trip")}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>
-            {currentTrip ? "View Trip Details" : "Start a Trip"}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={async () => {
-            setIsFetchingActivities(true);
-            const _activities = await recommendActivities();
-            setRecommenedActivities(_activities);
-            setIsFetchingActivities(false);
-          }}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}> Recommend activities</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Trip")}
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}>
+              {currentTrip ? "View Trip Details" : "Start a Trip"}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={async () => {
+              setIsFetchingActivities(true);
+              const _activities = await recommendActivities();
+              setRecommenedActivities(_activities);
+              setIsFetchingActivities(false);
+            }}
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}> Recommend activities</Text>
+          </TouchableOpacity>
+        </View>
         {isFetchingActivities && <Text>Loading activities...</Text>}
         {recommendedActivities && (
           <FlatList
@@ -124,21 +125,27 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "white",
     textAlign: "center",
     marginBottom: 20,
   },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    columnGap: 20,
+
+    width: "100%",
+    marginBottom: 20,
+  },
   button: {
-    backgroundColor: "rgba(0, 255, 85, 0.6)",
-    padding: 10,
-    width: "50%",
-    borderRadius: 3,
-    marginBottom: 40,
+    backgroundColor: "#2a5",
+    padding: 5,
+    width: "30%",
+    borderRadius: 10,
+    justifyContent: "center",
   },
   buttonText: {
-    color: "white",
     textAlign: "center",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 12,
   },
 });

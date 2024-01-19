@@ -28,7 +28,7 @@ const PastTripSkeleton = () => {
 
   const interpolateColor = animatedValue.interpolate({
     inputRange: [0.7, 1],
-    outputRange: ["#cccccc", "#ffffff"], // More contrasting colors
+    outputRange: ["#E8E8E8", "#ffffff"], // More contrasting colors
   });
   const interpolateOpacity = animatedValue.interpolate({
     inputRange: [0.7, 1],
@@ -41,8 +41,9 @@ const PastTripSkeleton = () => {
   };
   return (
     <View style={styles.skeletonContainer}>
-      <Animated.View style={[styles.skeletonLine, animatedStyle]} />
+      <Animated.View style={[styles.skeletonImage, animatedStyle]} />
       <Animated.View style={[styles.skeletonButton, animatedStyle]} />
+      <Animated.View style={[styles.skeletonLine, animatedStyle]} />
     </View>
   );
 };
@@ -50,23 +51,31 @@ const PastTripSkeleton = () => {
 const styles = StyleSheet.create({
   skeletonContainer: {
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 3,
+    backgroundColor: "#E8E8E8",
+    borderRadius: 5,
     marginBottom: 20,
     width: "100%",
-    paddingBottom: 40,
-    paddingTop: 10,
   },
   skeletonLine: {
-    width: "90%",
+    width: "60%",
     height: 20,
     borderRadius: 4,
     marginBottom: 10,
+    alignSelf: "flex-start",
+    marginLeft: 10,
   },
   skeletonButton: {
-    width: "50%",
+    width: "30%",
     height: 20,
-    borderRadius: 3,
+    borderRadius: 4,
+    marginBottom: 10,
+    alignSelf: "flex-start",
+    marginLeft: 10,
+  },
+  skeletonImage: {
+    width: "100%",
+    height: 100,
+    marginBottom: 10,
   },
 });
 
