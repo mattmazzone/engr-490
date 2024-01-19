@@ -22,6 +22,7 @@ import NotificationSettingsLogo from "../../components/SVGLogos/NotificationSett
 import TripWiseLogoSmall from "../../components/SVGLogos/TripWiseLogoSmall";
 import AppSettingsPage from "../../components/AccountScreen/AppSettings";
 import SettingOption from "../../components/AccountScreen/SettingOption";
+import BackupAndRestoreScreen from "../../components/AccountScreen/BackupAndRestoreScreen";
 import { UserSettings } from "../../types/userTypes";
 
 interface RouterProps {
@@ -40,10 +41,9 @@ const Account = ({ navigation }: RouterProps) => {
   });
 
   const [aboutModalVisible, setAboutModalVisible] = useState<boolean>(false);
-  const [notificationModalVisible, setNotificationModalVisible] =
-    useState<boolean>(false);
-  const [appSettingsVisible, setAppSettingsModalVisible] =
-    useState<boolean>(false);
+  const [notificationModalVisible, setNotificationModalVisible] = useState<boolean>(false);
+  const [appSettingsVisible, setAppSettingsModalVisible] = useState<boolean>(false);
+  const [backupAndRestoreModalVisible, setBackupAndRestoreModalVisible] = useState<boolean>(false);
 
   // Get user settings
   useEffect(() => {
@@ -114,7 +114,7 @@ const Account = ({ navigation }: RouterProps) => {
             icon: <BackupAndRestoreLogo focused={false} />,
             title: "Backup and Restore",
             onPress: () => {
-              console.log("Backup and Restore");
+              setBackupAndRestoreModalVisible(true);
             },
             hasBorder: true,
           })}
@@ -149,6 +149,13 @@ const Account = ({ navigation }: RouterProps) => {
           userSettings={userSettings}
           updateUserSettings={updateUserSettings}
           closeModal={() => setAppSettingsModalVisible(false)}
+        />
+
+        <BackupAndRestoreScreen
+          isVisible={backupAndRestoreModalVisible}
+          userSettings={userSettings}
+          updateUserSettings={updateUserSettings}
+          closeModal={() => setBackupAndRestoreModalVisible(false)}
         />
 
         <NotificationScreen

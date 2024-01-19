@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "95%",
     alignItems: "flex-start",
-    height: 50,
+    height: 650,
   },
   textSpace: {
     alignItems: "flex-start",
