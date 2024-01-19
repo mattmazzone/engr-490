@@ -87,6 +87,7 @@ const PastTrip = ({ pastTrip }: any) => {
             source={faker.image.urlLoremFlickr({
               category: "landscape",
             })}
+            
             style={{
               height: 100,
               borderTopLeftRadius: 5,
