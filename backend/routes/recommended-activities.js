@@ -108,9 +108,9 @@ router.post("/recommend-activities/:uid", authenticate, async (req, res) => {
     for (let i = 0; i < nearbyPlaces.places.length; i++) {
       const place = nearbyPlaces.places[i];
       let activity = place;
-      console.log(activity);
       activity.similarity = similarityScores[place.id];
       activities.push(activity);
+      console.log(activity);
     }
     res.status(200).json({ activities });
   } catch (e) {
