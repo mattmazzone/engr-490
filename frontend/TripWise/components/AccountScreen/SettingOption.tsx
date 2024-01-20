@@ -39,7 +39,6 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#fff",
     // Add flex: 1 if you want to ensure the text is aligned left and the TouchableOpacity fills the available space
     flex: 1,
   },
