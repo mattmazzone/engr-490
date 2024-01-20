@@ -222,13 +222,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "white",
     textAlign: "left",
     marginBottom: 20,
   },
   subTitle: {
     fontSize: 16,
-    color: "white",
     marginBottom: 20,
   },
   button: {

@@ -209,7 +209,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#ccc", // Placeholder color
   },
   profileName: {
-    color: "#fff",
     fontSize: 20,
     marginTop: 10,
     fontWeight: "bold",

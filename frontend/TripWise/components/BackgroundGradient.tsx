@@ -15,14 +15,11 @@ const BackgroundGradient: React.FC<ContainerProps> = ({ children }) => {
   const { theme } = useContext(ThemeContext);
   const isDarkMode = theme === "Dark";
 
-  const DarkTheme = ["#082B14", "#2BCD61"];
-  const LightTheme = ["#1F9346", "#B4C8B1"];
-
   return (
     <View
       style={{
         flex: 1,
-        backgroundColor: "white",
+        backgroundColor: isDarkMode ? "#000000" : "#FFFFFF",
         // Paddings to handle safe area
         paddingTop: insets.top,
         paddingBottom: insets.bottom,
