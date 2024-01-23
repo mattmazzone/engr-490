@@ -1,14 +1,22 @@
 import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {Meeting} from '../../types/tripTypes'; 
+import { CalendarTouchableOpacityProps, ICalendarEventBase } from 'react-native-big-calendar';
 
-const CustomCalendarEvent: React.FC<{ event: Meeting }> = ({ event }) => {
+//const CustomCalendarEvent = <T extends ICalendarEventBase>(event: T, touchableOpacityProps: CalendarTouchableOpacityProps) => {
+const CustomCalendarEvent = ({
+    title,
+    start,
+    end,
+    location,
+    touchableOpacityProps,
+    }: Meeting & { touchableOpacityProps: CalendarTouchableOpacityProps }) => {
     return (
-        <View style={styles.eventContainer}>
-            <Text style={styles.eventTitle}>{event.title}</Text>
-            <Text style={styles.eventTime}>{`${event.start} - ${event.end}`}</Text>
-            <Text style={styles.eventLocation}>{event.location}</Text>
-        </View>
+        <TouchableOpacity {... touchableOpacityProps} style={styles.eventContainer}>
+            <Text style={styles.eventTitle}>{title}</Text>
+            <Text style={styles.eventTime}>{`${start} - ${end}`}</Text>
+            <Text style={styles.eventLocation}>{location}</Text>
+        </TouchableOpacity>
     );
 };
 

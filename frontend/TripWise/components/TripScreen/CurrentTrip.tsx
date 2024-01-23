@@ -59,8 +59,8 @@ const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
                     backgroundColor: event.color,
                   };
                 }}
-                renderEvent={(event) => (
-                  <CustomCalendarEvent event={event} />
+                renderEvent={(event, touchableOpacityProps) => (
+                  <CustomCalendarEvent {...event} touchableOpacityProps = {touchableOpacityProps} />
                 )}
               />
             )}
