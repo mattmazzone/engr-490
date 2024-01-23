@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 import BackgroundGradient from "../BackgroundGradient";
 import { Calendar } from "react-native-big-calendar";
 import { TripType } from "../../types/tripTypes";
+import CustomCalendarEvent from "./CustomCalendarEvent";
 
 interface CurrentTripProps {
   currentTrip: TripType;
@@ -58,6 +59,9 @@ const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
                     backgroundColor: event.color,
                   };
                 }}
+                renderEvent={(event) => (
+                  <CustomCalendarEvent event={event} />
+                )}
               />
             )}
           </View>
