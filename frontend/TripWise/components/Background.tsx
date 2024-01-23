@@ -12,6 +12,7 @@ const Background: React.FC<ContainerProps> = ({ children }) => {
   const insets = useSafeAreaInsets();
   const { theme } = useContext(ThemeContext);
   const isDarkMode = theme === "Dark"; // True = Dark Mode, False = Light Mode
+  console.log("Background.tsx: isDarkMode = ", isDarkMode);
 
   return (
     <View
