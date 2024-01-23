@@ -14,7 +14,6 @@ if (Platform.OS === "android") {
   BASE_API_URL = "http://localhost:3000/api";
 }
 
-
 // Function to create a new user
 export const createUser = async (
   uid: string,
