@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, SafeAreaView } from "react-native";
-import BackgroundGradient from "../BackgroundGradient";
+import Background from "../Background";
 import { Calendar } from "react-native-big-calendar";
 import { TripType } from "../../types/tripTypes";
 
@@ -43,26 +43,26 @@ const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
   ];
 
   return (
-    <BackgroundGradient>
+    <Background>
       <SafeAreaView style={styles.currentTripContainer}>
-          <View style={styles.calendarContainer}>
-            {currentTrip.tripStart && currentTrip.tripEnd && (
-              <Calendar
-                events={calendarEvents}
-                date={new Date(currentTrip.tripStart)}
-                height={600}
-                mode="3days"
-                theme={calendartheme}
-                eventCellStyle={(event) => {
-                  return {
-                    backgroundColor: event.color,
-                  };
-                }}
-              />
-            )}
-          </View>
+        <View style={styles.calendarContainer}>
+          {currentTrip.tripStart && currentTrip.tripEnd && (
+            <Calendar
+              events={calendarEvents}
+              date={new Date(currentTrip.tripStart)}
+              height={600}
+              mode="3days"
+              theme={calendartheme}
+              eventCellStyle={(event) => {
+                return {
+                  backgroundColor: event.color,
+                };
+              }}
+            />
+          )}
+        </View>
       </SafeAreaView>
-    </BackgroundGradient>
+    </Background>
   );
 };
 

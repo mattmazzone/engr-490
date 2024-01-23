@@ -8,7 +8,7 @@ import {
   SafeAreaView,
   Switch,
 } from "react-native";
-import BackgroundGradient from "../BackgroundGradient";
+import Background from "../Background";
 
 const NotificationScreen = ({
   isVisible,
@@ -55,7 +55,7 @@ const NotificationScreen = ({
       visible={isVisible}
       onRequestClose={closeModal}
     >
-      <BackgroundGradient>
+      <Background>
         <SafeAreaView style={styles.container}>
           <View style={styles.titleView}>
             <Text style={styles.titleText}> Notification Settings </Text>
@@ -99,7 +99,7 @@ const NotificationScreen = ({
             </Pressable>
           </View>
         </SafeAreaView>
-      </BackgroundGradient>
+      </Background>
     </Modal>
   );
 };

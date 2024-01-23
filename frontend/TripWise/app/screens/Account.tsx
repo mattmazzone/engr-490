@@ -8,7 +8,7 @@ import {
   Image,
   Modal,
 } from "react-native";
-import BackgroundGradient from "../../components/BackgroundGradient";
+import Background from "../../components/Background";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import * as UserService from "../../services/userServices";
 import { NavigationProp } from "@react-navigation/native";
@@ -73,14 +73,14 @@ const Account = ({ navigation }: RouterProps) => {
   // TODO: REPLACE WITH COOL SPINNER
   if (isFetchingProfile) {
     return (
-      <BackgroundGradient>
+      <Background>
         <Text>Loading...</Text>
-      </BackgroundGradient>
+      </Background>
     );
   }
 
   return (
-    <BackgroundGradient>
+    <Background>
       <View style={styles.container}>
         <View style={styles.header}>
           {/* Profile image and name */}
@@ -177,7 +177,7 @@ const Account = ({ navigation }: RouterProps) => {
           <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
       </View>
-    </BackgroundGradient>
+    </Background>
   );
 };
 

@@ -6,7 +6,7 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
-import BackgroundGradient from "../../components/BackgroundGradient";
+import Background from "../../components/Background";
 import { UserProfile } from "../../types/userTypes";
 import * as UserService from "../../services/userServices";
 import { arraysEqual } from "../../util/arraysEqual";
@@ -89,8 +89,6 @@ const SelectInterests = () => {
     }
   };
 
-
-
   // Check if the selected interests are different from the user profile's interests
   const hasChangedInterests = () => {
     // If userProfile.interests doesn't exist or if arrays are not equal, return true
@@ -122,14 +120,14 @@ const SelectInterests = () => {
   // TODO: REPLACE WITH COOL SPINNER
   if (isFetching) {
     return (
-      <BackgroundGradient>
+      <Background>
         <Text>Loading...</Text>
-      </BackgroundGradient>
+      </Background>
     );
   }
 
   return (
-    <BackgroundGradient>
+    <Background>
       <ScrollView contentContainerStyle={styles.container}>
         <Text
           style={styles.welcomeText}
@@ -153,7 +151,7 @@ const SelectInterests = () => {
           <Text style={styles.buttonText}>Update Interests</Text>
         </TouchableOpacity>
       </ScrollView>
-    </BackgroundGradient>
+    </Background>
   );
 };
 

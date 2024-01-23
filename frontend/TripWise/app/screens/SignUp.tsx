@@ -14,7 +14,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import BackButton from "../../components/BackButton";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import BackgroundGradient from "../../components/BackgroundGradient";
+import Background from "../../components/Background";
 import * as UserService from "../../services/userServices";
 
 interface RouterProps {
@@ -67,7 +67,7 @@ const SignUp = ({ navigation }: RouterProps) => {
 
   return (
     <>
-      <BackgroundGradient>
+      <Background>
         {mobileRenderContent(
           <>
             <View>
@@ -107,7 +107,7 @@ const SignUp = ({ navigation }: RouterProps) => {
             </View>
           </>
         )}
-      </BackgroundGradient>
+      </Background>
     </>
   );
 };

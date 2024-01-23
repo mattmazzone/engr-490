@@ -11,7 +11,7 @@ import {
   Modal,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import BackgroundGradient from "../../components/BackgroundGradient";
+import Background from "../../components/Background";
 import DateRangePicker from "../../components/TripScreen/DateRangePicker";
 import { DateRange, Meeting, TripType } from "../../types/tripTypes";
 import MeetingCreator from "../../components/TripScreen/MeetingCreator";
@@ -127,12 +127,12 @@ const Trip = ({ navigation }: RouterProps) => {
 
   if (isFetching) {
     return (
-      <BackgroundGradient>
+      <Background>
         <SafeAreaView style={styles.container}>
           <Text style={styles.title}>Trip Planner</Text>
           <Text style={styles.subTitle}>Loading...</Text>
         </SafeAreaView>
-      </BackgroundGradient>
+      </Background>
     );
   }
 
@@ -141,7 +141,7 @@ const Trip = ({ navigation }: RouterProps) => {
   }
 
   return (
-    <BackgroundGradient>
+    <Background>
       <SafeAreaView style={styles.container}>
         <ScrollView style={styles.scrollView}>
           <Text style={styles.title}>Trip Planner</Text>
@@ -202,7 +202,7 @@ const Trip = ({ navigation }: RouterProps) => {
           </Modal>
         </ScrollView>
       </SafeAreaView>
-    </BackgroundGradient>
+    </Background>
   );
 };
 

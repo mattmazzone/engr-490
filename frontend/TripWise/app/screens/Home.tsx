@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
-import BackgroundGradient from "../../components/BackgroundGradient";
+import Background from "../../components/Background";
 
 import * as UserService from "../../services/userServices";
 import { TripType } from "../../types/tripTypes";
@@ -57,16 +57,16 @@ const Home = ({ navigation }: RouterProps) => {
 
   if (isFetchingProfile) {
     return (
-      <BackgroundGradient>
+      <Background>
         <View style={styles.container}>
           <Text style={styles.title}>Loading...</Text>
         </View>
-      </BackgroundGradient>
+      </Background>
     );
   }
 
   return (
-    <BackgroundGradient>
+    <Background>
       <View style={styles.container}>
         <Text style={styles.title}>
           Welcome back, {userProfile?.firstName}!
@@ -109,7 +109,7 @@ const Home = ({ navigation }: RouterProps) => {
           <PastTrips isFetching={isFetching} pastTrips={pastTrips} />
         )}
       </View>
-    </BackgroundGradient>
+    </Background>
   );
 };
 
