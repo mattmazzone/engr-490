@@ -6,7 +6,7 @@ const CustomCalendarEvent: React.FC<{ event: Meeting }> = ({ event }) => {
     return (
         <View style={styles.eventContainer}>
             <Text style={styles.eventTitle}>{event.title}</Text>
-            <Text style={styles.eventTime}>{'${event.start} - ${event.end}'}</Text>
+            <Text style={styles.eventTime}>{`${event.start} - ${event.end}`}</Text>
             <Text style={styles.eventLocation}>{event.location}</Text>
         </View>
     );
@@ -19,17 +19,17 @@ const styles = StyleSheet.create({
     eventContainer: {
         padding: 10,
         margin: 5,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#6185d0',
         borderRadius: 5,
     },
     eventTitle: {
-        fontSize: 18,
+        fontSize: 12,
         fontWeight: 'bold',
     },
     eventTime: {
-        fontSize: 14,
+        fontSize: 10,
     },
     eventLocation: {
-        fontSize: 14,
+        fontSize: 10,
     },
 });
