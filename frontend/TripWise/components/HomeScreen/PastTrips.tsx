@@ -1,19 +1,17 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  ScrollView,
-  SafeAreaView,
-} from "react-native";
+import React, { useContext } from "react";
+import { View, StyleSheet, ScrollView } from "react-native";
+import ThemeContext from "../../context/ThemeContext";
 import PastTrip from "./PastTrip";
 
-const PastTrips = ({ isFetching, pastTrips }: any) => {
+const PastTrips = ({ onScoll, isFetching, pastTrips }: any) => {
+  const { theme } = useContext(ThemeContext);
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Review your past Trips</Text>
-      <ScrollView style={styles.scrollView}>
+      <ScrollView
+        scrollEventThrottle={16} // Adjust as needed for performance
+        onScroll={onScoll}
+        style={styles.scrollView}
+      >
         <View style={styles.content}>
           {pastTrips.map((trip: any, index: any) => (
             <PastTrip key={index} pastTrip={trip} />
@@ -30,7 +28,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: "100%",
-    alignItems: "flex-start",
+    alignItems: "center",
   },
   scrollView: {
     width: "100%",
@@ -38,6 +36,7 @@ const styles = StyleSheet.create({
     marginBottom: 20, // Apply padding here
   },
   content: {
+    marginTop: 100,
     alignItems: "flex-start",
     marginBottom: 20,
   },
