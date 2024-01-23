@@ -55,7 +55,7 @@ const BackupAndRestoreScreen = ({
             <BackgroundGradient>
                 <SafeAreaView style={styles.container}>
                     <View style={styles.titleView}>
-                        <Text style={styles.titleText}>Backup & Restore Menu</Text>
+                        <Text style={styles.titleText}>Backup & Restore</Text>
                     </View>
                     <View style={{flexDirection:'row', height:650}}>
                         <View>
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     },
     titleView: {
         height: 60,
-        width: 430,
+        width: 315,
         alignItems: "center",
         marginTop: 16,
         marginBottom: 30,

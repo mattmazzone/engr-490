@@ -23,6 +23,7 @@ import TripWiseLogoSmall from "../../components/SVGLogos/TripWiseLogoSmall";
 import AppSettingsPage from "../../components/AccountScreen/AppSettings";
 import SettingOption from "../../components/AccountScreen/SettingOption";
 import BackupAndRestoreScreen from "../../components/AccountScreen/BackupAndRestoreScreen";
+import HelpAndSupportScreen from "../../components/AccountScreen/HelpAndSupportScreen";
 import { UserSettings } from "../../types/userTypes";
 
 interface RouterProps {
@@ -44,6 +45,7 @@ const Account = ({ navigation }: RouterProps) => {
   const [notificationModalVisible, setNotificationModalVisible] = useState<boolean>(false);
   const [appSettingsVisible, setAppSettingsModalVisible] = useState<boolean>(false);
   const [backupAndRestoreModalVisible, setBackupAndRestoreModalVisible] = useState<boolean>(false);
+  const [helpAndSupportModalVisible, setHelpAndSupportModalVisible] = useState<boolean>(false);
 
   // Get user settings
   useEffect(() => {
@@ -122,7 +124,7 @@ const Account = ({ navigation }: RouterProps) => {
             icon: <HelpAndSupportLogo focused={false} />,
             title: "Help and Support",
             onPress: () => {
-              console.log("Help and Support");
+              setHelpAndSupportModalVisible(true);
             },
             hasBorder: true,
           })}
@@ -163,6 +165,13 @@ const Account = ({ navigation }: RouterProps) => {
           userSettings={userSettings}
           updateUserSettings={updateUserSettings}
           closeModal={() => setNotificationModalVisible(false)}
+        />
+
+        <HelpAndSupportScreen
+          isVisible={helpAndSupportModalVisible}
+          userSettings={userSettings}
+          updateUserSettings={updateUserSettings}
+          closeModal={() => setHelpAndSupportModalVisible(false)}
         />
 
         <Modal
