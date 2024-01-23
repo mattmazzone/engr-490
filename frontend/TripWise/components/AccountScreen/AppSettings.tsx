@@ -8,7 +8,7 @@ import {
   SafeAreaView,
   Switch,
 } from "react-native";
-import BackgroundGradient from "../BackgroundGradient";
+import Background from "../Background";
 import ThemeContext from "../../context/ThemeContext";
 
 interface AppSettingsPageProps {
@@ -53,7 +53,7 @@ const AppSettingsPage = ({
       visible={isVisible}
       onRequestClose={closeModal}
     >
-      <BackgroundGradient>
+      <Background>
         <SafeAreaView style={styles.container}>
           <View style={styles.titleView}>
             <Text style={styles.titleText}> App Settings </Text>
@@ -83,7 +83,7 @@ const AppSettingsPage = ({
             </Pressable>
           </View>
         </SafeAreaView>
-      </BackgroundGradient>
+      </Background>
     </Modal>
   );
 };

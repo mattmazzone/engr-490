@@ -15,7 +15,7 @@ import { NavigationProp } from "@react-navigation/native";
 import LoginScreenButton from "../../components/Login/LoginScreenButton";
 import BackButton from "../../components/BackButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import BackgroundGradient from "../../components/BackgroundGradient";
+import Background from "../../components/Background";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -58,7 +58,7 @@ const Login = ({ navigation }: RouterProps) => {
 
   return (
     <>
-      <BackgroundGradient>
+      <Background>
         {mobileRenderContent(
           <>
             <View>
@@ -96,7 +96,7 @@ const Login = ({ navigation }: RouterProps) => {
             </View>
           </>
         )}
-      </BackgroundGradient>
+      </Background>
     </>
   );
 };
