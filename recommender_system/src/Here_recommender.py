@@ -8,7 +8,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 load_dotenv()
 
 def performSimilarity():
-    pastTrips_dict = getPastTripCategories('Here_pastTrips.json')
+    file_path = os.path.join(os.path.dirname(__file__), 'Here_pastTrips.json')
+    print(file_path)
+    pastTrips_dict = getPastTripCategories(file_path)
     nearbyRestaurants_dict = getRestaurants(45.501690, -73.567253)
 
     # Flatten the lists of ids to be suitable for vectorization
@@ -22,6 +24,8 @@ def performSimilarity():
     # Split back into pastTrips and nearbyRestaurants vectors
     pastTrips_vectors = all_vectors[:len(pastTrips_ids)]
     nearbyRestaurants_vectors = all_vectors[len(pastTrips_ids):]
+    print(pastTrips_vectors)
+    print(nearbyRestaurants_vectors)
 
     # Calculate cosine similarity
     similarity_matrix = cosine_similarity(pastTrips_vectors, nearbyRestaurants_vectors)
