@@ -1,38 +1,48 @@
 import { NavigationProp } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useState, useContext, useRef } from "react";
 import {
   Text,
   View,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
+  Animated,
 } from "react-native";
 import Background from "../../components/Background";
-
+import ThemeContext from "../../context/ThemeContext";
 import * as UserService from "../../services/userServices";
 import { TripType } from "../../types/tripTypes";
 import { useFocusEffect } from "@react-navigation/native";
 import PastTrips from "../../components/HomeScreen/PastTrips";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import { recommendActivities } from "../../services/recommenderService";
-import { RecommendActivitiesResponse } from "../../types/recommenderTypes";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
 const Home = ({ navigation }: RouterProps) => {
+  const { theme } = useContext(ThemeContext);
   const { userProfile, isFetchingProfile } = useUserProfile({
     refreshData: true,
   });
+  const scrollY = new Animated.Value(0);
+  const handleScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+    { useNativeDriver: false } // or false, depending on your animation
+  );
+
+  const headerTranslateY = scrollY.interpolate({
+    inputRange: [0, 50], // Adjust these numbers as needed
+    outputRange: [0, -75], // TranslateY value
+    extrapolate: "clamp",
+  });
+
+  const animatedStyle = {
+    transform: [{ translateY: headerTranslateY }],
+  };
 
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
   const [pastTrips, setPastTrips] = useState<TripType[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(true);
-  const [recommendedActivities, setRecommenedActivities] =
-    useState<RecommendActivitiesResponse | null>(null);
-  const [isFetchingActivities, setIsFetchingActivities] =
-    useState<boolean>(false);
 
   const loadTripData = async () => {
     try {
@@ -68,45 +78,39 @@ const Home = ({ navigation }: RouterProps) => {
   return (
     <Background>
       <View style={styles.container}>
-        <Text style={styles.title}>
-          Welcome back, {userProfile?.firstName}!
-          {currentTrip && " You have an ongoing trip!"}
-        </Text>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Trip")}
-            style={styles.button}
+        <Animated.View style={[styles.header, animatedStyle]}>
+          <Text
+            style={[
+              styles.title,
+              { color: theme === "Dark" ? "white" : "black" },
+            ]}
           >
-            <Text style={styles.buttonText}>
-              {currentTrip ? "View Trip Details" : "Start a Trip"}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={async () => {
-              setIsFetchingActivities(true);
-              const _activities = await recommendActivities();
-              setRecommenedActivities(_activities);
-              setIsFetchingActivities(false);
-            }}
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}> Recommend activities</Text>
-          </TouchableOpacity>
-        </View>
-        {isFetchingActivities && <Text>Loading activities...</Text>}
-        {recommendedActivities && (
-          <FlatList
-            data={recommendedActivities.activities}
-            renderItem={({ item }) => (
-              <Text>{`${item.displayName.text}: ${(
-                item.similarity * 100.0
-              ).toPrecision(4)}%`}</Text>
-            )}
-            keyExtractor={(item) => item.id}
-          ></FlatList>
-        )}
+            Welcome back, {userProfile?.firstName}!
+            {currentTrip && " You have an ongoing trip!"}
+          </Text>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Trip")}
+              style={styles.button}
+            >
+              <Text
+                style={[
+                  styles.buttonText,
+                  { color: theme === "Dark" ? "white" : "black" },
+                ]}
+              >
+                {currentTrip ? "View Trip Details" : "Plan a Trip"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+
         {!currentTrip && (
-          <PastTrips isFetching={isFetching} pastTrips={pastTrips} />
+          <PastTrips
+            onScoll={handleScroll}
+            isFetching={isFetching}
+            pastTrips={pastTrips}
+          />
         )}
       </View>
     </Background>
@@ -116,6 +120,14 @@ const Home = ({ navigation }: RouterProps) => {
 export default Home;
 
 const styles = StyleSheet.create({
+  header: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    backgroundColor: "rgba(255,255,255,0.9)",
+  },
   container: {
     flex: 1,
     alignItems: "flex-start",
@@ -131,16 +143,14 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "flex-start",
-    columnGap: 20,
-
+    columnGap: 15,
     width: "100%",
-    marginBottom: 20,
+    marginBottom: 10,
   },
   button: {
-    backgroundColor: "#2a5",
-    padding: 5,
-    width: "30%",
-    borderRadius: 10,
+    backgroundColor: "rgba(34, 170, 85, 1)",
+    padding: 10,
+    borderRadius: 25,
     justifyContent: "center",
   },
   buttonText: {
