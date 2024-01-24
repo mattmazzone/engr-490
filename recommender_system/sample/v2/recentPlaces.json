@@ -1,0 +1,59 @@
+[
+  {
+    "id": "ChIJNZYPUUYayUwRdK6kAJLa5N0",
+    "types": [
+      "park",
+      "tourist_attraction",
+      "point_of_interest",
+      "establishment"
+    ],
+    "rating": 5
+  },
+  {
+    "id": "ChIJKw8YUWoayUwRcBXZvsJ8Zww",
+    "types": [
+      "historical_landmark",
+      "store",
+      "point_of_interest",
+      "establishment"
+    ],
+    "rating": 5
+  },
+  {
+    "id": "ChIJp3MoHy4XyUwRkr_5bwBScNw",
+    "types": ["university", "point_of_interest", "establishment"],
+    "rating": 3
+  },
+  {
+    "id": "ChIJiygGYkQayUwRNGx7yJVcIjk",
+    "types": [
+      "event_venue",
+      "meal_takeaway",
+      "restaurant",
+      "point_of_interest",
+      "establishment"
+    ],
+    "rating": 4
+  },
+  {
+    "id": "ChIJV6VwVO4XyUwRNN5VaQGcqbA",
+    "types": ["hotel", "lodging", "point_of_interest", "establishment"],
+    "rating": 4
+  },
+  {
+    "id": "ChIJPwTjibEbyUwRgSbxsn_4-8Q",
+    "types": [
+      "bar",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ],
+    "rating": 5
+  },
+  {
+    "id": "ChIJK9Ax6msayUwRi8WlnK9BK18",
+    "types": ["school", "point_of_interest", "establishment"],
+    "rating": 3
+  }
+]

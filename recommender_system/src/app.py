@@ -113,6 +113,9 @@ def recommend():
     place_ids = nearby_places_df.index
     users_places_similarity_df = users_places_similarity_df.set_index(place_ids)
     users_places_similarity_df = users_places_similarity_df.rename(columns={0 : "similarity"})
+
+    
+
     return make_response(users_places_similarity_df.to_dict(), 200)
 
 # Start the server
