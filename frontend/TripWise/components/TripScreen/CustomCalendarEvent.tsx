@@ -24,7 +24,6 @@ const CustomCalendarEvent = ({
     >
       <Text style={styles.eventTime}>{`${formatTime(start)} - ${formatTime(end)}`}</Text>
       <Text style={styles.eventTitle}>{title}</Text>
-      
       <Text style={styles.eventLocation}>{location}</Text>
     </TouchableOpacity>
   );
@@ -40,15 +39,15 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   eventTitle: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "bold",
     marginBottom: 5,
   },
   eventTime: {
-    fontSize: 11,
+    fontSize: 12,
     marginBottom: 2,
   },
   eventLocation: {
-    fontSize: 11,
+    fontSize: 12,
   },
 });
