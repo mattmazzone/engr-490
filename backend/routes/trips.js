@@ -37,7 +37,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       tripMeetings,
       freeSlots,
     };
-
+    
     const tripRef = await db.collection("trips").add(tripData);
     const tripId = tripRef.id;
 

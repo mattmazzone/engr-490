@@ -1,0 +1,253 @@
+[
+  {
+    "id": "ChIJWTGPjmaAhYARxz6l1hOj92w",
+    "types": [
+      "historical_landmark",
+      "grocery_store",
+      "market",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ],
+    "displayName": {
+      "text": "Ferry Building",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJ1dIqa2OAhYAREimtEtfBLyc",
+    "types": ["point_of_interest", "establishment"],
+    "displayName": {
+      "text": "Salesforce Tower",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJX2AfTWGAhYARK51ADFAMZoQ",
+    "types": ["hotel", "lodging", "point_of_interest", "establishment"],
+    "displayName": {
+      "text": "Hyatt Regency San Francisco",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJO6755GOAhYARLShr6djVzyw",
+    "types": [
+      "light_rail_station",
+      "transit_station",
+      "point_of_interest",
+      "establishment"
+    ],
+    "displayName": {
+      "text": "Embarcadero Station",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJC9y2SGOAhYARSaejL5ecgmg",
+    "types": [
+      "park",
+      "tourist_attraction",
+      "point_of_interest",
+      "establishment"
+    ],
+    "displayName": {
+      "text": "Salesforce Park",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJ8UMb52OAhYARaIl1W3REq4g",
+    "types": [
+      "train_station",
+      "transit_station",
+      "point_of_interest",
+      "establishment"
+    ],
+    "displayName": {
+      "text": "Embarcadero",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJURDKN2eAhYARN0AMzUEaiKo",
+    "types": [
+      "seafood_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ],
+    "displayName": {
+      "text": "La Mar Cocina Peruana",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJZ4xOxGSAhYARXvksnJ83SGo",
+    "types": ["hotel", "lodging", "point_of_interest", "establishment"],
+    "displayName": {
+      "text": "Club Quarters Hotel Embarcadero, San Francisco",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJuZ83X2OAhYARG-npDtoP-Y8",
+    "types": [
+      "bus_stop",
+      "transit_station",
+      "point_of_interest",
+      "establishment"
+    ],
+    "displayName": {
+      "text": "Salesforce Transit Center",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJays-PGSAhYARAU-OE27Yrt8",
+    "types": ["point_of_interest", "establishment"],
+    "displayName": {
+      "text": "One Market Plaza",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJTel9dGCAhYARQGwrTfGZ07M",
+    "types": [
+      "greek_restaurant",
+      "meal_takeaway",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ],
+    "displayName": {
+      "text": "Kokkari Estiatorio",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJZ1SMEQeBhYAR8Y0suKMr48o",
+    "types": [
+      "chinese_restaurant",
+      "banquet_hall",
+      "seafood_restaurant",
+      "event_venue",
+      "meal_takeaway",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ],
+    "displayName": {
+      "text": "Harborview Restaurant & Bar",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJg7PyJ3GBhYARO29J0nraSd0",
+    "types": ["hotel", "lodging", "point_of_interest", "establishment"],
+    "displayName": {
+      "text": "1 Hotel San Francisco",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJT_wL4JaBhYARWPbuaMiu61I",
+    "types": ["parking", "point_of_interest", "establishment"],
+    "displayName": {
+      "text": "101 California Street",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJWTGPjmaAhYARgXpiJ-aACYM",
+    "types": [
+      "seafood_restaurant",
+      "bar",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ],
+    "displayName": {
+      "text": "Hog Island Oyster Co.",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJKfpyiGCAhYARNyu9cCeqEbk",
+    "types": [
+      "grocery_store",
+      "florist",
+      "bakery",
+      "supermarket",
+      "market",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ],
+    "displayName": {
+      "text": "Safeway",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJpWIX-mGAhYAR_4UYmLGOVxA",
+    "types": [
+      "hotel",
+      "wedding_venue",
+      "resort_hotel",
+      "lodging",
+      "event_venue",
+      "point_of_interest",
+      "establishment"
+    ],
+    "displayName": {
+      "text": "Four Seasons Hotel San Francisco at Embarcadero",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJVVVFsmOAhYAR6IYG7SSLZtk",
+    "types": ["point_of_interest", "establishment"],
+    "displayName": {
+      "text": "425 Market Street",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJDzBboWOAhYARKT5j0sGvFDU",
+    "types": [
+      "mediterranean_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ],
+    "displayName": {
+      "text": "Barcha Restaurant",
+      "languageCode": "en"
+    }
+  },
+  {
+    "id": "ChIJqVjXkGGAhYAR5X80yCKz9Wo",
+    "types": [
+      "seafood_restaurant",
+      "historical_landmark",
+      "bar",
+      "american_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ],
+    "displayName": {
+      "text": "Tadich Grill",
+      "languageCode": "en"
+    }
+  }
+]

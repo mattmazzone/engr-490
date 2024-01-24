@@ -18,7 +18,6 @@ const recommenderURL = `http://localhost:${recommenderPort}${recommenderRoute}`;
 router.post("/recommend-activities/:uid", authenticate, async (req, res) => {
   const { maxResultCount, numRecentTrips, latitude, longitude, radius } =
     req.body;
-  console.log(req.body);
   const uid = req.params.uid;
 
   const payload = {
@@ -89,10 +88,10 @@ router.post("/recommend-activities/:uid", authenticate, async (req, res) => {
 
     if (recentTripsPlaceDetails.length >= numRecentTrips) break;
   }
-
   // Finally pass data into the recommender system and get the activities
   const token = req.headers.authorization;
   try {
+    // Leave this
     const response = await axios.post(
       recommenderURL,
       { nearbyPlaces, recentTripsPlaceDetails },
@@ -103,6 +102,7 @@ router.post("/recommend-activities/:uid", authenticate, async (req, res) => {
         },
       }
     );
+    // Change this
     const similarityScores = response.data.similarity;
     let activities = [];
     for (let i = 0; i < nearbyPlaces.places.length; i++) {

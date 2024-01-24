@@ -1,5 +1,7 @@
 import copy
+from operator import index
 from sqlite3 import Row
+from textwrap import indent
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import numpy as np
@@ -265,6 +267,21 @@ def create_df(google_places_json) -> pd.DataFrame:
 
     places_df = pd.DataFrame(data, index=row_indices)
     return places_df
+
+def create_rating_df(recent_places) -> pd.DataFrame:
+    recent_places_ratings = []
+    for place in recent_places:
+        rating = {}
+        rating['id'] = place['id']
+        rating['rating'] = place['rating']
+        recent_places_ratings.append(rating)
+    data = []
+    row_indices = []
+    for place in recent_places_ratings:
+        data.append(place['rating'])
+        row_indices.append(place['id'])
+    
+    return pd.DataFrame(data, index=row_indices)
 
 def normalize(row: pd.Series) -> pd.Series:
     
