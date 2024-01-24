@@ -22,8 +22,9 @@ const CustomCalendarEvent = ({
       {...touchableOpacityProps}
       style={[styles.eventContainer, touchableOpacityProps.style]}
     >
-      <Text style={styles.eventTitle}>{title}</Text>
       <Text style={styles.eventTime}>{`${formatTime(start)} - ${formatTime(end)}`}</Text>
+      <Text style={styles.eventTitle}>{title}</Text>
+      
       <Text style={styles.eventLocation}>{location}</Text>
     </TouchableOpacity>
   );
@@ -41,13 +42,13 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 12,
     fontWeight: "bold",
-    marginBottom: 0,
-  },
-  eventTime: {
-    fontSize: 10,
     marginBottom: 5,
   },
+  eventTime: {
+    fontSize: 11,
+    marginBottom: 2,
+  },
   eventLocation: {
-    fontSize: 10,
+    fontSize: 11,
   },
 });

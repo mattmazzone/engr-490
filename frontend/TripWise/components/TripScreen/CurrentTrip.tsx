@@ -82,6 +82,6 @@ const styles = StyleSheet.create({
   calendarContainer: {
     flex: 1,
     width: "100%",
-    paddingBottom: 50, //padding so meetings stop at nav bar
+    paddingBottom: 70, //padding so meetings stop at nav bar
   },
 });
