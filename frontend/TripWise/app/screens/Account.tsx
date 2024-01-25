@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import {
   View,
@@ -23,12 +23,14 @@ import TripWiseLogoSmall from "../../components/SVGLogos/TripWiseLogoSmall";
 import AppSettingsPage from "../../components/AccountScreen/AppSettings";
 import SettingOption from "../../components/AccountScreen/SettingOption";
 import { UserSettings } from "../../types/userTypes";
+import ThemeContext from "../../context/ThemeContext";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
 const Account = ({ navigation }: RouterProps) => {
+  const { theme } = useContext(ThemeContext);
   const { userProfile, isFetchingProfile } = useUserProfile({
     refreshData: true,
   });
@@ -86,7 +88,12 @@ const Account = ({ navigation }: RouterProps) => {
           {/* Profile image and name */}
           <Image source={{}} style={styles.profileImage} />
           {userProfile && (
-            <Text style={styles.profileName}>
+            <Text
+              style={[
+                styles.profileName,
+                { color: theme === "Dark" ? "white" : "black" },
+              ]}
+            >
               {`${userProfile.firstName} ${userProfile.lastName}`}
             </Text>
           )}
@@ -94,54 +101,52 @@ const Account = ({ navigation }: RouterProps) => {
 
         <View style={styles.settings}>
           {/* Settings options with icons */}
-          {SettingOption({
-            icon: <AppSettingsLogo focused={false} />,
-            title: "App Settings",
-            onPress: () => {
-              setAppSettingsModalVisible(true);
-            },
-            hasBorder: true,
-          })}
-          {SettingOption({
-            icon: <PrivacySettingsLogo focused={false} />,
-            title: "Privacy Settings",
-            onPress: () => {
+          <SettingOption
+            icon={<AppSettingsLogo focused={false} />}
+            title="App Settings"
+            onPress={() => setAppSettingsModalVisible(true)}
+            hasBorder={true}
+          />
+          <SettingOption
+            icon={<PrivacySettingsLogo focused={false} />}
+            title="Privacy Settings"
+            onPress={() => {
               console.log("Privacy Settings");
-            },
-            hasBorder: true,
-          })}
-          {SettingOption({
-            icon: <BackupAndRestoreLogo focused={false} />,
-            title: "Backup and Restore",
-            onPress: () => {
+            }}
+            hasBorder={true}
+          />
+          <SettingOption
+            icon={<BackupAndRestoreLogo focused={false} />}
+            title="Backup and Restore"
+            onPress={() => {
               console.log("Backup and Restore");
-            },
-            hasBorder: true,
-          })}
-          {SettingOption({
-            icon: <HelpAndSupportLogo focused={false} />,
-            title: "Help and Support",
-            onPress: () => {
+            }}
+            hasBorder={true}
+          />
+          <SettingOption
+            icon={<HelpAndSupportLogo focused={false} />}
+            title="Help and Support"
+            onPress={() => {
               console.log("Help and Support");
-            },
-            hasBorder: true,
-          })}
-          {SettingOption({
-            icon: <NotificationSettingsLogo focused={false} />,
-            title: "Notification Settings",
-            onPress: () => {
+            }}
+            hasBorder={true}
+          />
+          <SettingOption
+            icon={<NotificationSettingsLogo focused={false} />}
+            title="Notification Settings"
+            onPress={() => {
               setNotificationModalVisible(true);
-            },
-            hasBorder: true,
-          })}
-          {SettingOption({
-            icon: <TripWiseLogoSmall />,
-            title: "About",
-            onPress: () => {
+            }}
+            hasBorder={true}
+          />
+          <SettingOption
+            icon={<TripWiseLogoSmall />}
+            title="About"
+            onPress={() => {
               setAboutModalVisible(true);
-            },
-            hasBorder: false,
-          })}
+            }}
+            hasBorder={false}
+          />
         </View>
 
         <AppSettingsPage
