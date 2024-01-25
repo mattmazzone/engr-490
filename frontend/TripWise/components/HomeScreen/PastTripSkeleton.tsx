@@ -1,8 +1,10 @@
 import React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useContext } from "react";
 import { View, Text, StyleSheet, Animated } from "react-native";
+import ThemeContext from "../../context/ThemeContext";
 
 const PastTripSkeleton = () => {
+  const { theme } = useContext(ThemeContext);
   const animatedValue = useRef(new Animated.Value(1)).current; // Use useRef to persist the value
 
   useEffect(() => {
@@ -28,7 +30,10 @@ const PastTripSkeleton = () => {
 
   const interpolateColor = animatedValue.interpolate({
     inputRange: [0.7, 1],
-    outputRange: ["#E8E8E8", "#ffffff"], // More contrasting colors
+    outputRange: [
+      theme === "Dark" ? "#707070" : "#E8E8E8",
+      theme === "Dark" ? "#505050" : "#ffffff",
+    ], // More contrasting colors
   });
   const interpolateOpacity = animatedValue.interpolate({
     inputRange: [0.7, 1],
@@ -40,7 +45,12 @@ const PastTripSkeleton = () => {
     opacity: interpolateOpacity,
   };
   return (
-    <View style={styles.skeletonContainer}>
+    <View
+      style={[
+        styles.skeletonContainer,
+        { backgroundColor: theme === "Dark" ? "#505050" : "#E8E8E8" },
+      ]}
+    >
       <Animated.View style={[styles.skeletonImage, animatedStyle]} />
       <Animated.View style={[styles.skeletonButton, animatedStyle]} />
       <Animated.View style={[styles.skeletonLine, animatedStyle]} />
@@ -51,7 +61,6 @@ const PastTripSkeleton = () => {
 const styles = StyleSheet.create({
   skeletonContainer: {
     alignItems: "center",
-    backgroundColor: "#E8E8E8",
     borderRadius: 5,
     marginBottom: 20,
     width: "100%",

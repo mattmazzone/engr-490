@@ -78,7 +78,13 @@ const Home = ({ navigation }: RouterProps) => {
   return (
     <Background>
       <View style={styles.container}>
-        <Animated.View style={[styles.header, animatedStyle]}>
+        <Animated.View
+          style={[
+            styles.header,
+            { backgroundColor: theme === "Dark" ? "black" : "white" },
+            animatedStyle,
+          ]}
+        >
           <Text
             style={[
               styles.title,
@@ -145,7 +151,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     columnGap: 15,
     width: "100%",
-    marginBottom: 10,
+    marginBottom: 20,
   },
   button: {
     backgroundColor: "rgba(34, 170, 85, 1)",

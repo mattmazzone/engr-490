@@ -5,6 +5,7 @@ import PastTrip from "./PastTrip";
 
 const PastTrips = ({ onScoll, isFetching, pastTrips }: any) => {
   const { theme } = useContext(ThemeContext);
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -12,7 +13,7 @@ const PastTrips = ({ onScoll, isFetching, pastTrips }: any) => {
         onScroll={onScoll}
         style={styles.scrollView}
       >
-        <View style={styles.content}>
+        <View style={[styles.content]}>
           {pastTrips.map((trip: any, index: any) => (
             <PastTrip key={index} pastTrip={trip} />
           ))}
