@@ -278,7 +278,7 @@ def create_rating_df(recent_places) -> pd.DataFrame:
     data = []
     row_indices = []
     for place in recent_places_ratings:
-        data.append(place['rating'])
+        data.append({'rating': place['rating']})
         row_indices.append(place['id'])
     
     return pd.DataFrame(data, index=row_indices)
