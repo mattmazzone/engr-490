@@ -7,7 +7,7 @@ import {
   Dimensions,
   Platform,
   Keyboard,
-  TouchableWithoutFeedback,
+  Pressable,
 } from "react-native";
 import LoginScreenButton from "../../components/Login/LoginScreenButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -24,7 +24,7 @@ interface RouterProps {
 const mobileRenderContent = (children: React.ReactNode) => {
   if (Platform.OS === "ios" || Platform.OS === "android") {
     return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <Pressable onPress={Keyboard.dismiss}>
         <KeyboardAwareScrollView
           style={{ flex: 1 }}
           contentContainerStyle={styles.container}
@@ -33,7 +33,7 @@ const mobileRenderContent = (children: React.ReactNode) => {
         >
           {children}
         </KeyboardAwareScrollView>
-      </TouchableWithoutFeedback>
+      </Pressable>
     );
   } else {
     return <View style={styles.container}>{children}</View>;
