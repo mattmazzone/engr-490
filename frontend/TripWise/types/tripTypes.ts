@@ -11,9 +11,10 @@ export type Meeting = {
   title: string;
   start: Date;
   end: Date;
-  id: number;
+  id?: number;
   providerId?: string;
-  location: string;
+  location?: string;
+  color?: string;
 };
 
 export type TripType = {
