@@ -108,8 +108,20 @@ const PastTrip = ({ pastTrip }: any) => {
               borderTopRightRadius: 5,
             }}
           />
-          <Text style={styles.city}>{faker.location.city()}</Text>
-          <Text style={styles.date}>
+          <Text
+            style={[
+              styles.city,
+              { color: theme === "Dark" ? "white" : "black" },
+            ]}
+          >
+            {faker.location.city()}
+          </Text>
+          <Text
+            style={[
+              styles.date,
+              { color: theme === "Dark" ? "white" : "black" },
+            ]}
+          >
             {formattedStartDate} - {formattedEndDate}
           </Text>
         </View>
