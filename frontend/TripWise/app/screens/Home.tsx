@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Animated,
+  Image,
 } from "react-native";
 import Background from "../../components/Background";
 import ThemeContext from "../../context/ThemeContext";
@@ -14,6 +15,7 @@ import { TripType } from "../../types/tripTypes";
 import { useFocusEffect } from "@react-navigation/native";
 import PastTrips from "../../components/HomeScreen/PastTrips";
 import { useUserProfile } from "../../hooks/useUserProfile";
+import TripWiseLogoHomePage from "../../components/SVGLogos/TripWiseLogoHomePage";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -24,15 +26,19 @@ const Home = ({ navigation }: RouterProps) => {
   const { userProfile, isFetchingProfile } = useUserProfile({
     refreshData: true,
   });
-  const scrollY = new Animated.Value(0);
+  const scrollY = useRef(new Animated.Value(0)).current; // Use useRef to persist the value across re-renders
+
   const handleScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
     { useNativeDriver: false } // or false, depending on your animation
   );
 
+  const headerHeight = 135; // Adjust based on your header's height
+  const hideHeaderOffset = 50; // The scroll offset at which the header hides
+
   const headerTranslateY = scrollY.interpolate({
-    inputRange: [0, 50], // Adjust these numbers as needed
-    outputRange: [0, -75], // TranslateY value
+    inputRange: [0, hideHeaderOffset, hideHeaderOffset + 1],
+    outputRange: [0, -headerHeight, -headerHeight],
     extrapolate: "clamp",
   });
 
@@ -85,6 +91,9 @@ const Home = ({ navigation }: RouterProps) => {
             animatedStyle,
           ]}
         >
+          <View style={styles.logoContainer}>
+            <TripWiseLogoHomePage />
+          </View>
           <Text
             style={[
               styles.title,
@@ -116,6 +125,7 @@ const Home = ({ navigation }: RouterProps) => {
             onScoll={handleScroll}
             isFetching={isFetching}
             pastTrips={pastTrips}
+            scrollY={scrollY}
           />
         )}
       </View>
@@ -134,11 +144,14 @@ const styles = StyleSheet.create({
     zIndex: 10,
     backgroundColor: "rgba(255,255,255,0.9)",
   },
+  logoContainer: {
+    alignItems: "center",
+  },
   container: {
     flex: 1,
     alignItems: "flex-start",
     marginHorizontal: 40,
-    marginTop: 40,
+    marginTop: 20,
   },
   title: {
     fontSize: 24,
