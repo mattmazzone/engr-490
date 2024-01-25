@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -12,8 +12,10 @@ import * as UserService from "../../services/userServices";
 import PastTripSkeleton from "./PastTripSkeleton";
 import { Image } from "expo-image";
 import { faker } from "@faker-js/faker";
+import ThemeContext from "../../context/ThemeContext";
 
 const PastTrip = ({ pastTrip }: any) => {
+  const { theme } = useContext(ThemeContext);
   const [pastTripData, setPastTripData] = useState<TripType | null>(null);
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [tripDetailsModalVisible, setTripDetailsModalVisible] =
@@ -81,13 +83,25 @@ const PastTrip = ({ pastTrip }: any) => {
       style={{ width: "100%" }}
       onPress={() => setTripDetailsModalVisible(true)}
     >
-      <Animated.View style={{ ...styles.container, opacity: fadeAnim }}>
-        <View style={styles.titleContainer}>
+      <Animated.View
+        style={[
+          styles.container,
+          {
+            opacity: fadeAnim,
+            backgroundColor: theme === "Dark" ? "#505050" : "#E8E8E8",
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.titleContainer,
+            { backgroundColor: theme === "Dark" ? "#505050" : "#E8E8E8" },
+          ]}
+        >
           <Image
             source={faker.image.urlLoremFlickr({
               category: "landscape",
             })}
-            
             style={{
               height: 100,
               borderTopLeftRadius: 5,
@@ -130,7 +144,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
     width: "100%",
-    backgroundColor: "#E8E8E8",
     borderRadius: 5,
     paddingBottom: 20,
   },
