@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 import BackgroundGradient from "../BackgroundGradient";
 import { Calendar } from "react-native-big-calendar";
 import { TripType } from "../../types/tripTypes";
+import CustomCalendarEvent from "./CustomCalendarEvent";
 
 interface CurrentTripProps {
   currentTrip: TripType;
@@ -58,6 +59,9 @@ const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
                     backgroundColor: event.color,
                   };
                 }}
+                renderEvent={(event, touchableOpacityProps) => (
+                  <CustomCalendarEvent {...event} touchableOpacityProps = {touchableOpacityProps} />
+                )}
               />
             )}
           </View>
@@ -78,6 +82,6 @@ const styles = StyleSheet.create({
   calendarContainer: {
     flex: 1,
     width: "100%",
-    paddingBottom: 50, //padding so meetings stop at nav bar
+    paddingBottom: 70, //padding so meetings stop at nav bar
   },
 });
