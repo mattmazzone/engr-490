@@ -1,10 +1,6 @@
 import copy
-from operator import index
-from sqlite3 import Row
-from textwrap import indent
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
-import numpy as np
 
 # https://developers.google.com/maps/documentation/places/web-service/place-types
 place_types = {
@@ -283,15 +279,9 @@ def create_rating_df(recent_places) -> pd.DataFrame:
     
     return pd.DataFrame(data, index=row_indices)
 
-def normalize(row: pd.Series) -> pd.Series:
-    
-    # compute the length of the vector using L2 normalization
-    norm = np.linalg.norm(row)
-    # print(f'Length of vector (norm) = {norm}')
-    #  row dtype (int64) incompatible with norm dtype (floating point dtype)
-    row = row.astype(norm.dtype)
-    if norm != 0:
-        row_normalized = row / norm
-        row.update(row_normalized)
-        return row
+def multiplyRating(row: pd.Series, recent_place_ratings) -> pd.Series:
+    rating: float = recent_place_ratings['rating'][row.name]
+    normalized_rating = rating / 5
+    row_weighted = row * normalized_rating
+    row.update(row_weighted)
     return row
