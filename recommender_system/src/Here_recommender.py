@@ -7,32 +7,40 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 load_dotenv()
 
-def performSimilarity():
-    pastTrips_dict = getPastTripCategories('Here_pastTrips.json')
-    nearbyRestaurants_dict = getRestaurants(45.501690, -73.567253)
+def performSimilarity(pasTripList, x_coord, y_coord):
+    pastTrips_dict = getPastTripCategories(pasTripList)
+    nearbyRestaurants_dict = getRestaurants(x_coord, y_coord)
 
     # Flatten the lists of ids to be suitable for vectorization
     pastTrips_ids = [' '.join(ids) for ids in pastTrips_dict.values()]
-    nearbyRestaurants_ids = [' '.join(ids) for ids in nearbyRestaurants_dict.values()]
+    nearbyRestaurants_ids = [' '.join(rest["ids"]) for rest in nearbyRestaurants_dict.values()]
 
     # Vectorize
     vectorizer = CountVectorizer()
     all_vectors = vectorizer.fit_transform(pastTrips_ids + nearbyRestaurants_ids)
 
-    # Split back into pastTrips and nearbyRestaurants vectors
+    # Aggregate pastTrips vectors into a single vector by averaging
     pastTrips_vectors = all_vectors[:len(pastTrips_ids)]
+    aggregated_pastTrips_vector = np.mean(pastTrips_vectors, axis=0)
+    aggregated_pastTrips_array = np.asarray(aggregated_pastTrips_vector).reshape(1, -1)
+
+    # Get nearbyRestaurants vectors
     nearbyRestaurants_vectors = all_vectors[len(pastTrips_ids):]
 
     # Calculate cosine similarity
-    similarity_matrix = cosine_similarity(pastTrips_vectors, nearbyRestaurants_vectors)
+    similarity_scores = cosine_similarity(aggregated_pastTrips_array, nearbyRestaurants_vectors).flatten()
+    # Construct the final dictionary with additional details
+    final_dict = {}
+    for rest_id, rest_details in nearbyRestaurants_dict.items():
+        similarity_score = similarity_scores[list(nearbyRestaurants_dict.keys()).index(rest_id)]
+        final_dict[rest_id] = {
+            "name": rest_details["name"],
+            "location": rest_details["location"],
+            "openingHours": rest_details["openingHours"],
+            "similarityScore": similarity_score
+        }
 
-    # Create a mapping of past trip IDs to their similarity scores
-    similarity_scores = {}
-    for i, trip_id in enumerate(pastTrips_dict.keys()):
-        scores = similarity_matrix[i, :]
-        similarity_scores[trip_id] = dict(zip(nearbyRestaurants_dict.keys(), scores))
-
-    return similarity_scores
+    return final_dict
 
 
 def getRestaurants(latitude, longitude):
@@ -45,7 +53,7 @@ def getRestaurants(latitude, longitude):
     params = {
         "at": f"{latitude},{longitude}",
         "q": 'restaurant',  # Use the joined categories string
-        "limit": 10,
+        "limit": 1,
         "apiKey": os.getenv('HERE_API_KEY')
     }
 
@@ -61,12 +69,21 @@ def getRestaurants(latitude, longitude):
         for item in data.get("items", []):
             # Extract placeId
             place_id = item.get("id", None)
+            place_name = item.get("title", "Unknown Place")
+            location = item.get("address", {}).get("label", "Unknown Location")
+            opening_hours = item.get("openingHours", [{"text": ["No information"]}])[0].get("text", ["No information"])
+
             if place_id:
                 # Extract categories.ids and foodTypes.ids and combine them
                 combined_ids = [category["id"] for category in item.get("categories", [])]
                 combined_ids.extend([foodType["id"] for foodType in item.get("foodTypes", [])])
-                # Add to the dictionary
-                restaurants_dict[place_id] = combined_ids
+            # Add additional details to the dictionary
+            restaurants_dict[place_id] = {
+                "name": place_name, 
+                "location": location, 
+                "openingHours": opening_hours, 
+                "ids": combined_ids
+            }
 
         return restaurants_dict
     else:
@@ -103,16 +120,14 @@ def lookupPlaceById(place_id):
         print(f"Error: {response.status_code}")
         return None
 
-def getPastTripCategories(jsonFile):
-    with open(jsonFile, 'r') as file:
-        data = json.load(file)
+def getPastTripCategories(pasTripList):
 
     # Initialize a dictionary to hold the combined data
     Trip_data = {}
 
-    for trip in data["PastTrips"]:
+    for trip in pasTripList:
         # Use lookupPlaceById to get details
-        trip_info = lookupPlaceById(trip["id"])
+        trip_info = lookupPlaceById(trip)
 
         # Check if the request was successful
         if 'title' in trip_info:
@@ -121,14 +136,15 @@ def getPastTripCategories(jsonFile):
             combined_ids.extend([cat['id'] for cat in trip_info.get('categories', [])])
 
             # Save the extracted information using placeId as key
-            Trip_data[trip["id"]] = combined_ids
+            Trip_data[trip] = combined_ids
         else:
-            print(f"Failed to retrieve information for place ID {trip['id']}")
+            print(f"Failed to retrieve information for place ID {trip}")
 
     return Trip_data
 
-sim = performSimilarity()
-print(sim)
 # Example usage
-#print(getRestaurants(45.501690, -73.567253))
-#print(lookupPlaceById("here:pds:place:124f25dv-8088f3b8fa254722bb293a233de1a289"))
+pasTripList = ['here:pds:place:124f25db-c9594d79654345e09194e54176d6ceb5', 'here:pds:place:124f25dv-6d8984ea7176486e9d3bf23caccc5b05', 'here:pds:place:124f25dv-e92178fec30846aca60dca4b6e7cf54a']
+sim = performSimilarity(pasTripList, 45.5019, -73.5674)
+print(sim)
+
+
