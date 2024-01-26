@@ -26,6 +26,8 @@ def performSimilarity(pasTripList, x_coord, y_coord):
 
     # Get nearbyRestaurants vectors
     nearbyRestaurants_vectors = all_vectors[len(pastTrips_ids):]
+    print(pastTrips_vectors)
+    print(nearbyRestaurants_vectors)
 
     # Calculate cosine similarity
     similarity_scores = cosine_similarity(aggregated_pastTrips_array, nearbyRestaurants_vectors).flatten()
