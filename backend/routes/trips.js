@@ -44,12 +44,24 @@ async function useGetNearbyPlacesSevice(
 
   if (successOrNot != REQUEST.SUCCESSFUL) {
     error = responseData;
-    console.error("Error getting nearby places");
-    res.status(400).json(error);
-    return;
+    throw new BadRequestException(error);
   }
 
   return responseData;
+}
+
+async function getCoords(meeting) {
+  const [successOrNot, responseData] = await getPlaceTextSearch(
+    meeting.location,
+    "places.location"
+  );
+  if (successOrNot != REQUEST.SUCCESSFUL) {
+    error = responseData;
+    throw new BadRequestException(error);
+  }
+
+  // should only be 1 result
+  return responseData.places[0].location;
 }
 
 // Route to create a new trip
@@ -97,9 +109,11 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     if (numMeetings == 1) {
       const meeting = tripMeetings[0];
+
+      const location = await getCoords(meeting);
       const responseData = useGetNearbyPlacesSevice(
-        meeting.latitude,
-        meeting.longitude,
+        location.latitude,
+        location.longitude,
         maxNearbyPlaces,
         nearByPlaceRadius
       );
@@ -109,9 +123,10 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       // Skips the 1st meeting, only get nearby places for the others
       for (let i = 1; i < numMeetings; i++) {
         const meeting = tripMeetings[i];
+        const location = await getCoords(meeting);
         const responseData = useGetNearbyPlacesSevice(
-          meeting.latitude,
-          meeting.longitude,
+          location.latitude,
+          location.longitude,
           maxNearbyPlaces,
           nearByPlaceRadius
         );
@@ -164,7 +179,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     const token = req.headers.authorization;
     const response = await axios.post(
       recommenderURL,
-      { nearbyPlaces, recentTripsPlaceDetails },
+      { nearbyPlaces, recentTripsPlaceDetails, freeSlots },
       {
         headers: {
           "Content-Type": "application/json",
@@ -172,20 +187,15 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         },
       }
     );
-    const similarityScores = response.data.similarity;
-
-    // TODO: Create schedule below and put it in variable called scheduledActivities
-    
-
-    // END TODO
-
+    const { similarity, scheduled_activities } = response.data;
     // Construct trip data for database
     const tripData = {
       tripStart,
       tripEnd,
       tripMeetings,
       freeSlots,
-      scheduledActivities
+      scheduledActivities: scheduled_activities,
+      similarity,
     };
 
     const tripRef = await db.collection("trips").add(tripData);

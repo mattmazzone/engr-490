@@ -8,7 +8,7 @@ from functools import wraps
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import numpy as np
-from utils import normalize, create_df
+from utils import normalize, create_df, create_rating_df, multiply_rating, create_scheduled_activities
 
 load_dotenv()
 
@@ -88,7 +88,51 @@ def recommend_cold_start():
 @app.route('/api/recommend', methods=['POST'])
 @authenticate
 def recommend():
-    pass
+    request_body = request.get_json()
+    nearby_places = request_body["nearbyPlaces"]
+    recent_places = request_body["recentTripsPlaceDetails"]
+    free_slots = request_body["freeSlots"]
+
+    # Create recent places df & user rating df for the recent places
+    # Doesn't ever change
+    recent_places_df = create_df(recent_places)
+    recent_place_ratings_df = create_rating_df(recent_places)
+
+    activities = []
+    # For each meeting location, get similarity scores for all nearby places in that location
+    for places in nearby_places:
+        # Create nearby places df
+        nearby_places_df = create_df(places)
+
+        #  drop useless index column (calcultion purposes)
+        recent_places_df_copy = recent_places_df.reset_index(drop=True)
+        nearby_places_df_copy = nearby_places_df.reset_index(drop=True)
+
+        # compute cosine similarity and convert back to df
+        similarity_df = cosine_similarity(recent_places_df_copy, nearby_places_df_copy)
+        similarity_df = pd.DataFrame(similarity_df)
+
+        # Rename columns and row indecies
+        recent_place_ids = recent_places_df.index
+        similarity_df = similarity_df.set_index(recent_place_ids)
+        cols = {}
+        for i in range(len(nearby_places_df.index)):
+            cols[i] = nearby_places_df.index[i]
+        similarity_df = similarity_df.rename(cols, axis=1)
+
+        # Weight all similarities by the normalized user rating (rating/5) of the recent place
+        recent_place_ratings = recent_place_ratings_df.to_dict()
+        weighted_similarity_df = similarity_df.apply(multiply_rating, axis=1, args=(recent_place_ratings,))
+        print(weighted_similarity_df);
+        activities.append(weighted_similarity_df.to_dict())
+    
+    scheduled_activities = create_scheduled_activities(activities, nearby_places, free_slots)
+
+    return make_response(jsonify({'scheduled_activities': activities}), 200)
+    
+
+
+
 
 # @app.route('/api/recommend', methods=['POST'])
 # @authenticate

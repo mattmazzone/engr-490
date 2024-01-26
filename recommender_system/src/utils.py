@@ -279,9 +279,12 @@ def create_rating_df(recent_places) -> pd.DataFrame:
     
     return pd.DataFrame(data, index=row_indices)
 
-def multiplyRating(row: pd.Series, recent_place_ratings) -> pd.Series:
+def multiply_rating(row: pd.Series, recent_place_ratings) -> pd.Series:
     rating: float = recent_place_ratings['rating'][row.name]
     normalized_rating = rating / 5
     row_weighted = row * normalized_rating
     row.update(row_weighted)
     return row
+
+def create_scheduled_activities(activities, nearby_places, free_slots):
+    pass
