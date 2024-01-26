@@ -95,9 +95,32 @@ async function getPlaceDetails(id, fieldMask) {
     return [REQUEST.ERROR, error];
   }
 }
+
+async function getPlaceTextSearch(address, fieldMask) {
+  try {
+    const response = await axios.post(
+      `https://places.googleapis.com/v1/places:searchText`,
+      {
+        textQuery: address,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": process.env.GOOGLE_MAPS_API_KEY,
+          "X-Goog-FieldMask": fieldMask,
+        },
+      }
+    );
+    return [REQUEST.SUCCESSFUL, response.data];
+  } catch (error) {
+    console.error(error);
+    return [REQUEST.ERROR, error];
+  }
+}
 module.exports = {
   REQUEST,
   getNearbyPlaces,
   getRecentTrips,
   getPlaceDetails,
+  getPlaceTextSearch,
 };
