@@ -30,7 +30,7 @@ const Home = ({ navigation }: RouterProps) => {
 
   const handleScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-    { useNativeDriver: false } // or false, depending on your animation
+    { useNativeDriver: true } // or false, depending on your animation
   );
 
   const headerHeight = 135; // Adjust based on your header's height
@@ -122,7 +122,7 @@ const Home = ({ navigation }: RouterProps) => {
 
         {!currentTrip && (
           <PastTrips
-            onScoll={handleScroll}
+            onScroll={handleScroll}
             isFetching={isFetching}
             pastTrips={pastTrips}
             scrollY={scrollY}

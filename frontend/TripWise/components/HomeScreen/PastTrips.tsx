@@ -10,26 +10,11 @@ import {
 import ThemeContext from "../../context/ThemeContext";
 import PastTrip from "./PastTrip";
 
-const PastTrips = ({ onScoll, isFetching, pastTrips, scrollY }: any) => {
+const PastTrips = ({ onScroll, isFetching, pastTrips, scrollY }: any) => {
   const { theme } = useContext(ThemeContext);
 
-  const [translationComplete, setTranslationComplete] = useState(false);
   const headerHeight = 135; // Adjust based on your header's height
   const translationThreshold = 50; // The scroll offset at which translation stops and normal scroll begins
-
-  // Custom onScroll handler
-  const handleScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-    {
-      listener: (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const offsetY = event.nativeEvent.contentOffset.y;
-        if (offsetY >= translationThreshold && !translationComplete) {
-          setTranslationComplete(true);
-        }
-      },
-      useNativeDriver: false,
-    }
-  );
 
   // Translate ScrollView upwards
   const translate = scrollY.interpolate({
@@ -38,17 +23,16 @@ const PastTrips = ({ onScoll, isFetching, pastTrips, scrollY }: any) => {
     extrapolate: "clamp",
   });
 
-  const animatedStyle = translationComplete
-    ? {}
-    : { transform: [{ translateY: translate }] };
+  const animatedStyle = {
+    transform: [{ translateY: translate }],
+  };
 
   return (
     <View style={styles.container}>
       <Animated.ScrollView
         scrollEventThrottle={16} // Adjust as needed for performance
-        onScroll={onScoll}
+        onScroll={onScroll}
         style={[styles.scrollView, animatedStyle]}
-        contentContainerStyle={[animatedStyle]}
       >
         <View style={[styles.content]}>
           {pastTrips.map((trip: any, index: any) => (
