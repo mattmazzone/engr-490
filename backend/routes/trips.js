@@ -5,6 +5,10 @@ const db = admin.firestore();
 const authenticate = require("../middlewares/authenticate");
 const { calculateFreeTimeSlots } = require("../utils/timeSlotCalculator");
 
+const recommenderPort = 4000;
+const recommenderRoute = "/api/scheduleActivities";
+const recommenderURL = `http://localhost:${recommenderPort}${recommenderRoute}`;
+
 // Route to create a new trip
 router.post("/create_trip/:uid", authenticate, async (req, res) => {
   try {
@@ -38,6 +42,28 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       freeSlots,
     };
 
+    //request to python server for recommendations
+    //post request and the body should be the trip data
+    const token = req.headers.authorization;
+    try{
+      //get an array for the response (array of recommendations) from the python
+      tripMeetings = await axios.post(recommenderURL, tripData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        }
+      );
+    }catch(error){
+      console.error(error)
+      res.status(500).send(error);
+    }
+    //add recommendations to tripData
+    
+    //create trip in database
+    tripData = {tripStart, tripEnd, tripMeetings}
+    
     const tripRef = await db.collection("trips").add(tripData);
     const tripId = tripRef.id;
 
