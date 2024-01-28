@@ -1,5 +1,4 @@
 from math import e
-import time
 from tracemalloc import start
 from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
@@ -9,7 +8,7 @@ from functools import wraps
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 from utils import normalize, create_df
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -120,6 +119,7 @@ def recommend():
 def scheduleActivities():
     print("Started python")
     request_body = request.get_json()
+    
     #Get the free time slots from the body
     freeTimeSlots = [{'start': '2024-02-04T08:00:00.000+00:00', 'end': '2024-02-05T23:00:00.000+00:00'}, 
                      {'start': '2024-02-05T08:00:00.000+00:00', 'end': '2024-02-06T23:00:00.000+00:00'}, 
@@ -163,16 +163,26 @@ def scheduleActivities():
         return timestamp
 
     # Define the time slots for brunch/breakfast_restaurant, restaurant, and dinner
-    breakfast_time_range = {"start": "08:00:00", "end": "10:00:00"}
-    lunch_time_range = {"start": "12:00:00", "end": "14:00:00"}
-    dinner_time_range = {"start": "18:00:00", "end": "20:00:00"}
+    breakfast_time_range = {"start": time(8,0,0), "end": time(10,0,0)}
+    lunch_time_range = {"start":   time(12,0,0), "end": time(14,0,0)}
+    dinner_time_range = {"start": time(18,0,0), "end": time(20,0,0)}
+    print("Time ranges")
+    print(breakfast_time_range['start'], breakfast_time_range['end'])
+    print(lunch_time_range['start'], lunch_time_range['end'])
+    print(dinner_time_range['start'], dinner_time_range['end'])
+
+    activites_Scheduled = []
 
     # Iterate through free time slots
     for slot in freeTimeSlots:
         #gather the start and end time of the slot with the date
-        start_time = timestamp_to_time(slot['start'])
-        end_time = timestamp_to_time(slot['end'])
+        start_time = datetime.strptime(timestamp_to_time(slot['start']), "%H:%M:%S").time()
+        end_time = datetime.strptime(timestamp_to_time(slot['end']), "%H:%M:%S").time()
         date = timestamp_to_date(slot['start'])
+        print("Time: ")
+        print("Start time: ", start_time)
+        print("End time: ", end_time)
+        print("Date: ", date)
 
         # Function to create meeting object based on free slot time
         def create_meeting(activity, start_time, end_time):
@@ -191,10 +201,15 @@ def scheduleActivities():
         #if the time slots is longer than 1 hour, split it into 1 hour slots to create multiple meetings within that long slot
         interval_duration = timedelta(hours=1)
         current_time = start_time
-        current_end_time = (datetime.strptime(start_time,"%H:%M:%S") + interval_duration).strftime("%H:%M:%S")
-
+        dummy_date = datetime(2000,1,1).date()
+        end_datetime = datetime.combine(dummy_date, current_time) + interval_duration
+        current_end_time = end_datetime.time()
+        print("Time of current and end current time:")
+        print(current_time)
+        print(current_end_time)
+        
         #while loop to fill all the time slots within the long slot
-        while datetime.strptime(current_end_time, "%H:%M:%S") <= datetime.strptime(end_time, "%H:%M:%S"):
+        while current_end_time < end_time:
             # look at previous meeting if restaurant, brunch_restaurant, breakfast_restaurant, then skip to activities type
             if previous_meeting_type not in ['restaurant', 'brunch_restaurant', 'breakfast_restaurant']:
                 # Determine the time range for the current slot
@@ -225,9 +240,14 @@ def scheduleActivities():
             #getting the type of previous meeting
             previous_meeting_type = activity['types']
 
-            # Increment the current time with its interval of 1 hour by the interval duration (1 hour)
-            current_time = (datetime.strptime(current_time,"%H:%M:%S")+interval_duration).strftime("%H:%M:%S")
-            current_end_time = (datetime.strptime(current_end_time,"%H:%M:%S")+interval_duration).strftime("%H:%M:%S")
+            # Increment the current time with its interval of 1 hour by the interval duration (1 hour)d
+            dummy_date = datetime(2000,1,1).date()
+            start_datetime = datetime.combine(dummy_date, current_time) + interval_duration
+            end_datetime = start_datetime + interval_duration
+            current_time = start_datetime.time()
+            current_end_time = end_datetime.time()
+            print(current_time)
+            print(current_end_time)
 
     print(tripMeetings)
     return make_response(jsonify({"meetings": tripMeetings}), 200)
