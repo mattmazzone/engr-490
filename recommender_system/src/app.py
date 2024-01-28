@@ -1,18 +1,15 @@
 from math import e
 import time
+from tracemalloc import start
 from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
 from firebase_admin import initialize_app, auth, credentials
-from dotenv import load_dotenv
 import requests, os, json
 from functools import wraps
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
-import numpy as np
 from utils import normalize, create_df
-from datetime import datetime
-
-load_dotenv()
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -121,9 +118,18 @@ def recommend():
 @app.route('/api/scheduleActivities', methods=['POST'])
 @authenticate
 def scheduleActivities():
+    print("Started python")
     request_body = request.get_json()
     #Get the free time slots from the body
-    freeTimeSlots = request_body["freeSlots"]
+    freeTimeSlots = [{'start': '2024-02-04T08:00:00.000+00:00', 'end': '2024-02-05T23:00:00.000+00:00'}, 
+                     {'start': '2024-02-05T08:00:00.000+00:00', 'end': '2024-02-06T23:00:00.000+00:00'}, 
+                     {'start': '2024-02-06T08:00:00.000+00:00', 'end': '2024-02-06T16:45:00.000+00:00'}, 
+                     {'start': '2024-02-06T18:45:00.000+00:00', 'end': '2024-02-07T23:00:00.000+00:00'}, 
+                     {'start': '2024-02-07T08:00:00.000+00:00', 'end': '2024-02-08T23:00:00.000+00:00'}, 
+                     {'start': '2024-02-08T08:00:00.000+00:00', 'end': '2024-02-09T23:00:00.000+00:00'}, 
+                     {'start': '2024-02-09T08:00:00.000+00:00', 'end': '2024-02-10T23:00:00.000+00:00'}, 
+                     {'start': '2024-02-10T08:00:00.000+00:00', 'end': '2024-02-11T23:00:00.000+00:00'}]
+    print(freeTimeSlots)
     
     #library test for activities and insert activities into the free time slots
     activities = [
@@ -151,7 +157,7 @@ def scheduleActivities():
         dt_object = datetime.fromisoformat(timestamp)
         return dt_object.strftime("%Y-%m-%d")
     
-    def datettime_to_timestamp(date_str, time_str):
+    def datetime_to_timestamp(date_str, time_str):
         dt_object = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M:%S")
         timestamp = dt_object.isoformat()
         return timestamp
@@ -163,6 +169,7 @@ def scheduleActivities():
 
     # Iterate through free time slots
     for slot in freeTimeSlots:
+        #gather the start and end time of the slot with the date
         start_time = timestamp_to_time(slot['start'])
         end_time = timestamp_to_time(slot['end'])
         date = timestamp_to_date(slot['start'])
@@ -170,8 +177,7 @@ def scheduleActivities():
         # Function to create meeting object based on free slot time
         def create_meeting(activity, start_time, end_time):
             return {
-                "name": activity['name'],
-                "type": activity['types'],
+                "location": activity['name'],
                 "start": start_time,
                 "end": end_time
             }
@@ -179,28 +185,52 @@ def scheduleActivities():
         # Initialize array to store trip meetings
         tripMeetings = []
 
-        # Determine the time range for the current slot
-        if breakfast_time_range['start'] <= start_time <= breakfast_time_range['end'] and breakfast_time_range['start'] <= end_time <= breakfast_time_range['end']:
-            #find the activity that fits the breakfast rule
-            activity = max([act for act in activities if act['types'] in ['brunch_restaurant', 'breakfast_restaurant']], key=lambda x: x['similarity'])
-            #create a meeting object and append it to the tripMeetings array
-            tripMeetings.append(create_meeting(activity, start_time, end_time))
-        elif lunch_time_range['start'] <= start_time <= lunch_time_range['end'] and lunch_time_range['start'] <= end_time <= lunch_time_range['end']:
-            #find the activity that fits the lunch rule
-            activity = max([act for act in activities if act['types'] == 'restaurant'], key=lambda x: x['similarity'])
-            #create a meeting object and append it to the tripMeetings array
-            tripMeetings.append(create_meeting(activity, start_time, end_time))
-        elif dinner_time_range['start'] <= start_time <= dinner_time_range['end'] and dinner_time_range['start'] <= end_time <= dinner_time_range['end']:
-            #find the activity that fits the dinner rule
-            activity = max([act for act in activities if act['types'] == 'restaurant'], key=lambda x: x['similarity'])
-            #create a meeting object and append it to the tripMeetings array
-            tripMeetings.append(create_meeting(activity, start_time, end_time))
-        else:
-            # For other time slots, select the highest similarity activity not of type restaurant, brunch, breakfast_restaurant
-            activity = max([act for act in activities if act['types'] not in ['restaurant', 'brunch_restaurant', 'breakfast_restaurant']], key=lambda x: x['similarity'])
-            tripMeetings.append(create_meeting(activity, datettime_to_timestamp(date,start_time), datettime_to_timestamp(date,end_time)))
+        # initializing previous meeting to none
+        previous_meeting_type = None
 
-    return make_response(tripMeetings,200)
+        #if the time slots is longer than 1 hour, split it into 1 hour slots to create multiple meetings within that long slot
+        interval_duration = timedelta(hours=1)
+        current_time = start_time
+        current_end_time = (datetime.strptime(start_time,"%H:%M:%S") + interval_duration).strftime("%H:%M:%S")
+
+        #while loop to fill all the time slots within the long slot
+        while datetime.strptime(current_end_time, "%H:%M:%S") <= datetime.strptime(end_time, "%H:%M:%S"):
+            # look at previous meeting if restaurant, brunch_restaurant, breakfast_restaurant, then skip to activities type
+            if previous_meeting_type not in ['restaurant', 'brunch_restaurant', 'breakfast_restaurant']:
+                # Determine the time range for the current slot
+                if breakfast_time_range['start'] <= current_time <= breakfast_time_range['end'] and breakfast_time_range['start'] <= current_end_time <= breakfast_time_range['end']:
+                    #find the activity that fits the breakfast rule
+                    activity = max([act for act in activities if act['types'] in ['brunch_restaurant', 'breakfast_restaurant']], key=lambda x: x['similarity'])
+                    #create a meeting object and append it to the tripMeetings array
+                    tripMeetings.append(create_meeting(activity, datetime_to_timestamp(date,current_time), datetime_to_timestamp(date,current_end_time)))
+                elif lunch_time_range['start'] <= current_time <= lunch_time_range['end'] and lunch_time_range['start'] <= current_end_time <= lunch_time_range['end']:
+                    #find the activity that fits the lunch rule
+                    activity = max([act for act in activities if act['types'] == 'restaurant'], key=lambda x: x['similarity'])
+                    #create a meeting object and append it to the tripMeetings array
+                    tripMeetings.append(create_meeting(activity, datetime_to_timestamp(date,current_time), datetime_to_timestamp(date,current_end_time)))
+                elif dinner_time_range['start'] <= current_time <= dinner_time_range['end'] and dinner_time_range['start'] <= current_end_time <= dinner_time_range['end']:
+                    #find the activity that fits the dinner rule
+                    activity = max([act for act in activities if act['types'] == 'restaurant'], key=lambda x: x['similarity'])
+                    #create a meeting object and append it to the tripMeetings array
+                    tripMeetings.append(create_meeting(activity, datetime_to_timestamp(date,current_time), datetime_to_timestamp(date,current_end_time)))
+                else:
+                    # For other time slots, select the highest similarity activity not of type restaurant, brunch, breakfast_restaurant
+                    activity = max([act for act in activities if act['types'] not in ['restaurant', 'brunch_restaurant', 'breakfast_restaurant']], key=lambda x: x['similarity'])
+                    tripMeetings.append(create_meeting(activity, datetime_to_timestamp(date,current_time), datetime_to_timestamp(date,current_end_time)))
+            else:
+                # For other time slots, select the highest similarity activity not of type restaurant, brunch, breakfast_restaurant
+                activity = max([act for act in activities if act['types'] not in ['restaurant', 'brunch_restaurant', 'breakfast_restaurant']], key=lambda x: x['similarity'])
+                tripMeetings.append(create_meeting(activity, datetime_to_timestamp(date,current_time), datetime_to_timestamp(date,current_end_time)))
+
+            #getting the type of previous meeting
+            previous_meeting_type = activity['types']
+
+            # Increment the current time with its interval of 1 hour by the interval duration (1 hour)
+            current_time = (datetime.strptime(current_time,"%H:%M:%S")+interval_duration).strftime("%H:%M:%S")
+            current_end_time = (datetime.strptime(current_end_time,"%H:%M:%S")+interval_duration).strftime("%H:%M:%S")
+
+    print(tripMeetings)
+    return make_response(jsonify({"meetings": tripMeetings}), 200)
 
 # Start the server
 if __name__ == '__main__':
