@@ -4,6 +4,7 @@ const admin = require("firebase-admin");
 const db = admin.firestore();
 const authenticate = require("../middlewares/authenticate");
 const { calculateFreeTimeSlots } = require("../utils/timeSlotCalculator");
+const axios = require("axios");
 
 const recommenderPort = 4000;
 const recommenderRoute = "/api/scheduleActivities";
@@ -35,7 +36,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     );
 
     // Construct trip data for database
-    const tripData = {
+    let tripData = {
       tripStart,
       tripEnd,
       tripMeetings,
@@ -47,7 +48,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     const token = req.headers.authorization;
     try{
       //get an array for the response (array of recommendations) from the python
-      tripMeetings = await axios.post(recommenderURL, tripData,
+      response = await axios.post(recommenderURL, tripData,
         {
           headers: {
             "Content-Type": "application/json",
@@ -60,9 +61,11 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       res.status(500).send(error);
     }
     //add recommendations to tripData
-    
+    let tripMeetingsUpdated = response.data.tripMeetings;
+    //print response of python code
+    console.log(tripMeetingsUpdated.data)
     //create trip in database
-    tripData = {tripStart, tripEnd, tripMeetings}
+    tripData = {tripStart, tripEnd, tripMeetingsUpdated, freeSlots}
     
     const tripRef = await db.collection("trips").add(tripData);
     const tripId = tripRef.id;
