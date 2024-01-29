@@ -18,6 +18,7 @@ const recommenderURL = `http://localhost:${recommenderPort}${recommenderRoute}`;
 router.post("/recommend-activities/:uid", authenticate, async (req, res) => {
   const { maxResultCount, numRecentTrips, latitude, longitude, radius } =
     req.body;
+  console.log(req.body);
   const uid = req.params.uid;
 
   const payload = {
@@ -37,7 +38,7 @@ router.post("/recommend-activities/:uid", authenticate, async (req, res) => {
   // Get nearby place ids and types
   let [successOrNot, responseData] = await getNearbyPlaces(
     payload,
-    "places.id,places.types"
+    "places.id,places.types,places.displayName,places.formattedAddress,places.priceLevel,places.rating,places.regularOpeningHours"
   );
 
   if (successOrNot != REQUEST.SUCCESSFUL) {
@@ -102,8 +103,16 @@ router.post("/recommend-activities/:uid", authenticate, async (req, res) => {
         },
       }
     );
-    const activities = response.data;
-    res.status(200).json(activities);
+    const similarityScores = response.data.similarity;
+    let activities = [];
+    for (let i = 0; i < nearbyPlaces.places.length; i++) {
+      const place = nearbyPlaces.places[i];
+      let activity = place;
+      console.log(activity);
+      activity.similarity = similarityScores[place.id];
+      activities.push(activity);
+    }
+    res.status(200).json({ activities });
   } catch (e) {
     console.error(e);
     res.status(500).send(e);

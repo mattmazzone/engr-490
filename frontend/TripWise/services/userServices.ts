@@ -3,6 +3,7 @@ import { FIREBASE_AUTH } from "../FirebaseConfig";
 import { UserProfile } from "../types/userTypes";
 import { UserSettings } from "../types/userTypes";
 import { Platform } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { Meeting, TripType } from "../types/tripTypes";
 
@@ -13,7 +14,6 @@ if (Platform.OS === "android") {
 } else {
   BASE_API_URL = "http://localhost:3000/api";
 }
-
 
 // Function to create a new user
 export const createUser = async (
@@ -86,6 +86,19 @@ export const updateUserSettings = async (
           body: JSON.stringify({ userSettings }),
         }
       );
+
+      const storedProfile = await AsyncStorage.getItem("userProfile");
+      if (storedProfile !== null) {
+        const parsedProfile = JSON.parse(storedProfile);
+        AsyncStorage.setItem(
+          "userProfile",
+          JSON.stringify({
+            ...parsedProfile,
+            settings: { ...parsedProfile.settings, ...userSettings },
+          })
+        );
+      }
+
       if (!response.ok) {
         throw new Error("Failed to update user notifications.");
       }

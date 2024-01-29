@@ -3,7 +3,7 @@ import {
   StyleSheet,
   TextInput,
   ActivityIndicator,
-  TouchableWithoutFeedback,
+  Pressable,
   Keyboard,
   Dimensions,
   Platform,
@@ -15,7 +15,7 @@ import { NavigationProp } from "@react-navigation/native";
 import LoginScreenButton from "../../components/Login/LoginScreenButton";
 import BackButton from "../../components/BackButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import BackgroundGradient from "../../components/BackgroundGradient";
+import Background from "../../components/Background";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -24,7 +24,7 @@ interface RouterProps {
 const mobileRenderContent = (children: React.ReactNode) => {
   if (Platform.OS === "ios" || Platform.OS === "android") {
     return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <Pressable onPress={Keyboard.dismiss}>
         <KeyboardAwareScrollView
           style={{ flex: 1 }}
           contentContainerStyle={styles.container}
@@ -33,7 +33,7 @@ const mobileRenderContent = (children: React.ReactNode) => {
         >
           {children}
         </KeyboardAwareScrollView>
-      </TouchableWithoutFeedback>
+      </Pressable>
     );
   } else {
     return <View style={styles.container}>{children}</View>;
@@ -58,7 +58,7 @@ const Login = ({ navigation }: RouterProps) => {
 
   return (
     <>
-      <BackgroundGradient>
+      <Background>
         {mobileRenderContent(
           <>
             <View>
@@ -96,7 +96,7 @@ const Login = ({ navigation }: RouterProps) => {
             </View>
           </>
         )}
-      </BackgroundGradient>
+      </Background>
     </>
   );
 };

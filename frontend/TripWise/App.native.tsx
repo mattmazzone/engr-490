@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { SafeAreaView, Platform, Dimensions, StatusBar } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
@@ -17,6 +17,7 @@ import AccountLogo from "./components/SVGLogos/AccountLogo";
 import HomeLogo from "./components/SVGLogos/HomeLogo";
 import TripLogo from "./components/SVGLogos/TripLogo";
 import ThemeProvider from "./context/ThemeProvider";
+import ThemeContext from "./context/ThemeContext";
 
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
@@ -27,6 +28,7 @@ const Tab = createBottomTabNavigator();
 
 // Tab Navigator
 function BottomTabNavigation() {
+  const { theme } = useContext(ThemeContext);
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -42,15 +44,17 @@ function BottomTabNavigation() {
         headerShown: false,
         tabBarStyle: {
           position: "absolute",
-          borderTopColor: "white", // Top border color
+          borderTopColor: theme === "Dark" ? "rgba(80, 80, 80, 1)" : "white", // Top border color
           borderTopWidth: 2, // Top border width
           borderStyle: "solid", // Add solid border style
-          backgroundColor: "rgba(255, 255, 255, 0.2)", // Only the background is semi-transparent
+          backgroundColor:
+            theme === "Dark"
+              ? "rgba(80, 80, 80, 0.9)"
+              : "rgba(255,255,255, 0.9)", // Only the background is semi-transparent
           height: 100, // Set the height of the tab bar
-          elevation: 0, // Set elevation to 0 to remove shadow (Android)
         },
-        tabBarActiveTintColor: "grey",
-        tabBarInactiveTintColor: "white",
+        tabBarActiveTintColor: theme === "Dark" ? "white" : "black",
+        tabBarInactiveTintColor: "grey",
         tabBarLabelPosition: "beside-icon",
         tabBarLabelStyle: {
           fontSize: 16,
