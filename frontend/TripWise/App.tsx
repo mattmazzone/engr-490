@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -15,6 +15,7 @@ import AccountLogo from "./components/SVGLogos/AccountLogo";
 import HomeLogo from "./components/SVGLogos/HomeLogo";
 import TripLogo from "./components/SVGLogos/TripLogo";
 import ThemeProvider from "./context/ThemeProvider";
+import ThemeContext from "./context/ThemeContext";
 
 // import your component here
 // import NotificationScreen from "./components/AccountScreen/NotificationScreen";
@@ -26,6 +27,7 @@ const Tab = createBottomTabNavigator();
 
 // Tab Navigator
 function BottomTabNavigation() {
+  const { theme } = useContext(ThemeContext);
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -41,14 +43,17 @@ function BottomTabNavigation() {
         headerShown: false,
         tabBarStyle: {
           position: "absolute",
-          borderTopColor: "white", // Top border color
+          borderTopColor: theme === "Dark" ? "rgba(80, 80, 80, 1)" : "white", // Top border color
           borderTopWidth: 2, // Top border width
           borderStyle: "solid", // Add solid border style
-          backgroundColor: "rgba(255, 255, 255, 0.2)", // Only the background is semi-transparent
+          backgroundColor:
+            theme === "Dark"
+              ? "rgba(80, 80, 80, 0.9)"
+              : "rgba(255,255,255, 0.9)", // Only the background is semi-transparent
           height: 100, // Set the height of the tab bar
         },
-        tabBarActiveTintColor: "grey",
-        tabBarInactiveTintColor: "white",
+        tabBarActiveTintColor: theme === "Dark" ? "white" : "black",
+        tabBarInactiveTintColor: "grey",
         tabBarLabelPosition: "beside-icon",
         tabBarLabelStyle: {
           fontSize: 16,

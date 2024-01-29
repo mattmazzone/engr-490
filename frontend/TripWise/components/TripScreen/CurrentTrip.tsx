@@ -1,31 +1,35 @@
 import React from "react";
 import { View, Text, StyleSheet, SafeAreaView } from "react-native";
-import BackgroundGradient from "../BackgroundGradient";
+import Background from "../Background";
 import { Calendar } from "react-native-big-calendar";
 import { TripType } from "../../types/tripTypes";
 import CustomCalendarEvent from "./CustomCalendarEvent";
+import ThemeContext from "../../context/ThemeContext";
+import { useContext } from "react";
 
 interface CurrentTripProps {
   currentTrip: TripType;
 }
 
-const calendartheme = {
-  palette: {
-    primary: {
-      main: "#6185d0",
-      contrastText: "#000",
-    },
-    gray: {
-      "100": "#333",
-      "200": "transparent",
-      "300": "#888",
-      "500": "#000",
-      "800": "#ccc",
-    },
-  },
-};
+
 
 const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
+  const {theme} = useContext(ThemeContext);
+  const calendartheme = {
+    palette: {
+      primary: {
+        main: "#22aa55",
+        contrastText: "#000",
+      },
+      gray: {
+        "100": "#333",
+        "200": "transparent",
+        "300": "#888",
+        "500": theme === "Dark" ? "#fff" : "#000",
+        "800": "#ccc",
+      },
+    },
+  };
   const calendarEvents = [
     ...currentTrip.tripMeetings.map((meeting) => ({
       title: meeting.title,
@@ -39,12 +43,12 @@ const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
       title: "Free Time",
       start: new Date(slot.start),
       end: new Date(slot.end),
-      color: "#76b852", // A distinct color for free slots
+      color: "#d3d3d3", // A distinct color for free slots
     })),
   ];
 
   return (
-    <BackgroundGradient>
+    <Background>
       <SafeAreaView style={styles.currentTripContainer}>
           <View style={styles.calendarContainer}>
             {currentTrip.tripStart && currentTrip.tripEnd && (
@@ -66,7 +70,7 @@ const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
             )}
           </View>
       </SafeAreaView>
-    </BackgroundGradient>
+    </Background>
   );
 };
 

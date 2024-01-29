@@ -8,7 +8,7 @@ import {
   SafeAreaView,
   Switch,
 } from "react-native";
-import BackgroundGradient from "../BackgroundGradient";
+import Background from "../Background";
 import ThemeContext from "../../context/ThemeContext";
 
 interface AppSettingsPageProps {
@@ -24,7 +24,7 @@ const AppSettingsPage = ({
   updateUserSettings,
   closeModal,
 }: AppSettingsPageProps) => {
-  const { setTheme } = useContext(ThemeContext);
+  const { theme, setTheme } = useContext(ThemeContext);
   const [isEnabled, setIsEnabled] = useState<boolean>(false);
 
   useEffect(() => {
@@ -53,16 +53,36 @@ const AppSettingsPage = ({
       visible={isVisible}
       onRequestClose={closeModal}
     >
-      <BackgroundGradient>
+      <Background>
         <SafeAreaView style={styles.container}>
           <View style={styles.titleView}>
-            <Text style={styles.titleText}> App Settings </Text>
+            <Text
+              style={[
+                styles.titleText,
+                { color: theme === "Dark" ? "white" : "black" },
+              ]}
+            >
+              App Settings
+            </Text>
           </View>
           <View style={styles.lineSpace}>
             <View>
-              <Text style={styles.textStyle}> Background Theme </Text>
+              <Text
+                style={[
+                  styles.textStyle,
+                  { color: theme === "Dark" ? "white" : "black" },
+                ]}
+              >
+                {" "}
+                Background Theme{" "}
+              </Text>
             </View>
-            <Text style={{ color: "white", fontSize: 20 }}>
+            <Text
+              style={{
+                color: theme === "Dark" ? "white" : "black",
+                fontSize: 20,
+              }}
+            >
               {isEnabled ? "Dark" : "Light"}
             </Text>
             <Switch
@@ -83,7 +103,7 @@ const AppSettingsPage = ({
             </Pressable>
           </View>
         </SafeAreaView>
-      </BackgroundGradient>
+      </Background>
     </Modal>
   );
 };
