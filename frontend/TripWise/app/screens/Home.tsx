@@ -1,13 +1,6 @@
 import { NavigationProp } from "@react-navigation/native";
 import React, { useState, useContext, useRef } from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Animated,
-  Image,
-} from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import Background from "../../components/Background";
 import ThemeContext from "../../context/ThemeContext";
 import * as UserService from "../../services/userServices";
@@ -26,25 +19,6 @@ const Home = ({ navigation }: RouterProps) => {
   const { userProfile, isFetchingProfile } = useUserProfile({
     refreshData: true,
   });
-  const scrollY = useRef(new Animated.Value(0)).current; // Use useRef to persist the value across re-renders
-
-  const handleScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-    { useNativeDriver: true } // or false, depending on your animation
-  );
-
-  const headerHeight = 135; // Adjust based on your header's height
-  const hideHeaderOffset = 50; // The scroll offset at which the header hides
-
-  const headerTranslateY = scrollY.interpolate({
-    inputRange: [0, hideHeaderOffset, hideHeaderOffset + 1],
-    outputRange: [0, -headerHeight, -headerHeight],
-    extrapolate: "clamp",
-  });
-
-  const animatedStyle = {
-    transform: [{ translateY: headerTranslateY }],
-  };
 
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
   const [pastTrips, setPastTrips] = useState<TripType[]>([]);
@@ -84,11 +58,10 @@ const Home = ({ navigation }: RouterProps) => {
   return (
     <Background>
       <View style={styles.container}>
-        <Animated.View
+        <View
           style={[
             styles.header,
             { backgroundColor: theme === "Dark" ? "black" : "white" },
-            animatedStyle,
           ]}
         >
           <View style={styles.logoContainer}>
@@ -118,15 +91,10 @@ const Home = ({ navigation }: RouterProps) => {
               </Text>
             </TouchableOpacity>
           </View>
-        </Animated.View>
+        </View>
 
         {!currentTrip && (
-          <PastTrips
-            onScroll={handleScroll}
-            isFetching={isFetching}
-            pastTrips={pastTrips}
-            scrollY={scrollY}
-          />
+          <PastTrips isFetching={isFetching} pastTrips={pastTrips} />
         )}
       </View>
     </Background>
@@ -137,11 +105,8 @@ export default Home;
 
 const styles = StyleSheet.create({
   header: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
+    width: "100%",
+    alignItems: "center",
     backgroundColor: "rgba(255,255,255,0.9)",
   },
   logoContainer: {

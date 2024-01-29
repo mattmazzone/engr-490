@@ -197,14 +197,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+
     borderRadius: 3,
   },
   profileImage: {
@@ -220,14 +213,6 @@ const styles = StyleSheet.create({
   },
   settings: {
     backgroundColor: "rgba(255, 255, 255, 0.2)",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
     borderRadius: 3,
   },
 
@@ -237,14 +222,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 10,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
     borderRadius: 3,
   },
   logoutButtonText: {
