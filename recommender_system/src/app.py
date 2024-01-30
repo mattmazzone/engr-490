@@ -92,13 +92,14 @@ def recommend():
     nearby_places = request_body["nearbyPlaces"]
     recent_places = request_body["recentTripsPlaceDetails"]
     free_slots = request_body["freeSlots"]
+    trip_meetings = request_body["tripMeetings"]
 
     # Create recent places df & user rating df for the recent places
     # Doesn't ever change
     recent_places_df = create_df(recent_places)
     recent_place_ratings_df = create_rating_df(recent_places)
 
-    activities = []
+    similarity_tables = []
     # For each meeting location, get similarity scores for all nearby places in that location
     for places in nearby_places:
         # Create nearby places df
@@ -123,12 +124,10 @@ def recommend():
         # Weight all similarities by the normalized user rating (rating/5) of the recent place
         recent_place_ratings = recent_place_ratings_df.to_dict()
         weighted_similarity_df = similarity_df.apply(multiply_rating, axis=1, args=(recent_place_ratings,))
-        print(weighted_similarity_df);
-        activities.append(weighted_similarity_df.to_dict())
+        similarity_tables.append(weighted_similarity_df)
     
-    scheduled_activities = create_scheduled_activities(activities, nearby_places, free_slots)
-
-    return make_response(jsonify({'scheduledActivities': activities}), 200)
+    scheduled_activities = create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings)
+    return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
     
 
 
