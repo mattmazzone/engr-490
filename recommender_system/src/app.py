@@ -8,7 +8,7 @@ from functools import wraps
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import numpy as np
-from utils import normalize, create_df, create_rating_df, multiply_rating, create_scheduled_activities
+from utils import  create_df, create_rating_df, multiply_rating, create_scheduled_activities
 
 load_dotenv()
 
@@ -128,7 +128,7 @@ def recommend():
     
     scheduled_activities = create_scheduled_activities(activities, nearby_places, free_slots)
 
-    return make_response(jsonify({'scheduled_activities': activities}), 200)
+    return make_response(jsonify({'scheduledActivities': activities}), 200)
     
 
 
