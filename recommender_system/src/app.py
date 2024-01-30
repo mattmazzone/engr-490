@@ -167,10 +167,7 @@ def scheduleActivities():
             # Add more activities as needed
         ]
 
-    # Function to convert timestamp to time string
-    def timestamp_to_date(timestamp):
-        dt_object = datetime.fromisoformat(timestamp)
-        return dt_object.strftime("%Y-%m-%d")
+    #funcitons to get the timestamp and date string
     def timestamp_to_string(timestamp):
         dt_object = datetime.fromisoformat(timestamp)
         return dt_object.strftime("%Y-%m-%d %H:%M:%S")
@@ -179,6 +176,7 @@ def scheduleActivities():
         timestamp = date_str.isoformat()
         return timestamp
     
+    #function to find the highest similarity activity and take into account the activities already scheduled
     def find_highest_similarity_activity(activities_scheduled, types, restaurant):
         sorted_activities = sorted(activities, key=lambda x: x['similarity'], reverse=True)
         if restaurant == True:
@@ -197,6 +195,7 @@ def scheduleActivities():
     lunch_time_range = {"start":   time(12,0,0), "end": time(14,0,0)}
     dinner_time_range = {"start": time(18,0,0), "end": time(20,0,0)}
 
+    # Initialize array to store scheduled activities
     activities_Scheduled = []
 
     # Initialize array to store trip meetings
