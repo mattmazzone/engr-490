@@ -187,15 +187,14 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         },
       }
     );
-    const { similarity, scheduled_activities } = response.data;
+    const { scheduledActivities } = response.data;
     // Construct trip data for database
     const tripData = {
       tripStart,
       tripEnd,
       tripMeetings,
       freeSlots,
-      scheduledActivities: scheduled_activities,
-      similarity,
+      scheduledActivities,
     };
 
     const tripRef = await db.collection("trips").add(tripData);
