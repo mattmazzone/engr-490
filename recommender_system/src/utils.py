@@ -1,4 +1,5 @@
 import copy
+from datetime import date, datetime, timedelta
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 
@@ -286,5 +287,59 @@ def multiply_rating(row: pd.Series, recent_place_ratings) -> pd.Series:
     row.update(row_weighted)
     return row
 
-def create_scheduled_activities(activities, nearby_places, free_slots):
-    pass
+def is_same_day(date1: datetime, date2: datetime) -> bool:
+    return date1.year == date2.year and date1.month == date2.month and date1.day == date2.day
+
+def find_relavent_meeting(trip_meetings, time):
+    for meeting in trip_meetings:
+        if meeting['start'] >= time:
+            return meeting
+    
+    return trip_meetings[-1]
+
+def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings):
+
+        
+    format_trips = '%Y-%m-%dT%H:%M:%S%z'
+    format_slots = '%Y-%m-%dT%H:%M:%S.%f%z'
+    activity_duration = timedelta(hours=2)
+    broken_up_free_slots = []
+
+    for i in range(len(similarity_tables)):
+        trip_meetings[i]['nearby_place_similarities'] = similarity_tables[i]
+    
+    for meeting in trip_meetings:
+        meeting['start'] = datetime.strptime(meeting['start'], format_trips)
+        meeting['end'] = datetime.strptime(meeting['end'], format_trips)
+
+    trip_meetings.sort(key= lambda x: x['start'])
+
+    for slot in free_slots:
+        start  = datetime.strptime(slot['start'], format_slots)
+        end  = datetime.strptime(slot['end'],  format_slots)
+        current_datetime = start
+        while current_datetime < end:
+            next_datetime = current_datetime + activity_duration
+            if next_datetime > end:
+                next_datetime = end
+            broken_up_free_slots.append([current_datetime, next_datetime])
+            current_datetime = next_datetime
+    print(broken_up_free_slots)
+    for slot in broken_up_free_slots:
+        relevant_meeting = find_relavent_meeting(trip_meetings, slot[1])
+        slot.append(relevant_meeting['nearby_place_similarities'])
+    
+    nearby_places_picked = set()
+    for slot in broken_up_free_slots:
+        for activity in slot[2]:
+            if activity not in nearby_places_picked:
+                slot[2] = activity
+                nearby_places_picked.add(activity)
+                break
+        else:
+            slot[2] = "free time"
+    print(broken_up_free_slots)
+    
+    return broken_up_free_slots
+
+

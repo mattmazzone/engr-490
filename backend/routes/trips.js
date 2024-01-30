@@ -9,6 +9,7 @@ const {
   getRecentTrips,
   REQUEST,
   getPlaceDetails,
+  getPlaceTextSearch,
 } = require("../utils/services");
 const axios = require("axios");
 
@@ -30,7 +31,7 @@ async function useGetNearbyPlacesSevice(
           latitude,
           longitude,
         },
-        nearByPlaceRadius,
+        radius: nearByPlaceRadius,
       },
     },
   };
@@ -111,12 +112,14 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       const meeting = tripMeetings[0];
 
       const location = await getCoords(meeting);
-      const responseData = useGetNearbyPlacesSevice(
+      const responseData = await useGetNearbyPlacesSevice(
         location.latitude,
         location.longitude,
         maxNearbyPlaces,
         nearByPlaceRadius
       );
+
+      console.log(responseData);
 
       nearbyPlaces.push(responseData.places);
     } else {
@@ -124,7 +127,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       for (let i = 1; i < numMeetings; i++) {
         const meeting = tripMeetings[i];
         const location = await getCoords(meeting);
-        const responseData = useGetNearbyPlacesSevice(
+        const responseData = await useGetNearbyPlacesSevice(
           location.latitude,
           location.longitude,
           maxNearbyPlaces,
@@ -168,6 +171,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         }
 
         const placeDetails = responsePlaceDetails;
+        placeDetails.rating = place.rating;
         recentTripsPlaceDetails.push(placeDetails);
 
         if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
@@ -175,11 +179,12 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
       if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
     }
+
     // Finally pass data into the recommender system and get the activities
     const token = req.headers.authorization;
     const response = await axios.post(
       recommenderURL,
-      { nearbyPlaces, recentTripsPlaceDetails, freeSlots },
+      { nearbyPlaces, recentTripsPlaceDetails, freeSlots, tripMeetings },
       {
         headers: {
           "Content-Type": "application/json",
@@ -194,7 +199,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       tripEnd,
       tripMeetings,
       freeSlots,
-      scheduledActivities,
     };
 
     const tripRef = await db.collection("trips").add(tripData);
