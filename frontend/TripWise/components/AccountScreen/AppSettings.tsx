@@ -139,13 +139,14 @@ const styles = StyleSheet.create({
   },
   lineSpace: {
     flexDirection: "row",
-    width: "95%",
+    width: "100%",
     alignItems: "flex-start",
-    height: 50,
+    height: 70,
+    justifyContent: 'center',
   },
   textSpace: {
     alignItems: "flex-start",
-    height: 50,
+    height: 70,
   },
   button: {
     backgroundColor: "#006400",
