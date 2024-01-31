@@ -63,6 +63,8 @@ def getRestaurants(latitude, longitude):
     response = requests.get(url, params=params)
     restaurants_dict = {}
 
+   
+
     # Check if the request was successful
     if response.status_code == 200:
         data = response.json()
@@ -92,6 +94,65 @@ def getRestaurants(latitude, longitude):
         # Print an error message
         print(f"Error: {response.status_code}")
         return None
+
+#overloading getRestaurants with userInterests
+def getRestaurants(latitude, longitude, userInterests):
+    # Filter out all the non restaurant user interests
+    # looping through all user interests, checking if restaurant is in the interest, if it is, added to array
+    filteredRestaurantInterests = [interest for interest in userInterests if "restaurant" in interest]
+
+    # print(os.getenv("HERE_API_KEY"))
+    # Assuming user interests contain only restaurant category
+    # Define the API endpoint
+    url = "https://discover.search.hereapi.com/v1/discover"
+    result = " ".join(filteredRestaurantInterests)
+    # Define the parameters for the GET request
+    params = {
+        "at": f"{latitude},{longitude}",
+        "q": result ,  # Use the joined categories string
+        "limit": 5,
+        "apiKey": "D2RGIJC24kjvBLfKGhocoWS9o9bU6ZeunI86NRFfZ5g"
+    }
+
+
+
+    # Make the GET request
+    response = requests.get(url, params=params)
+    restaurants_dict = {}
+
+    if response.status_code == 200: # if we get a correct response, parsing the response, turns string into json, then print data object
+        data = response.json()
+        print(data)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        data = response.json()
+
+        # Loop through each item in the response
+        for item in data.get("items", []):
+            # Extract placeId
+            place_id = item.get("id", None)
+            place_name = item.get("title", "Unknown Place")
+            location = item.get("address", {}).get("label", "Unknown Location")
+            opening_hours = item.get("openingHours", [{"text": ["No information"]}])[0].get("text", ["No information"])
+
+            if place_id:
+                # Extract categories.ids and foodTypes.ids and combine them
+                combined_ids = [category["id"] for category in item.get("categories", [])]
+                combined_ids.extend([foodType["id"] for foodType in item.get("foodTypes", [])])
+            # Add additional details to the dictionary
+            restaurants_dict[place_id] = {
+                "name": place_name, 
+                "location": location, 
+                "openingHours": opening_hours, 
+                "ids": combined_ids
+            }
+
+        return restaurants_dict
+    else:
+        # Print an error message
+        print(f"Error: {response.status_code}")
+        return None        
 
  
 def lookupPlaceById(place_id):
@@ -145,8 +206,22 @@ def getPastTripCategories(pasTripList):
     return Trip_data
 
 # Example usage
-pasTripList = ['here:pds:place:124f25db-c9594d79654345e09194e54176d6ceb5', 'here:pds:place:124f25dv-6d8984ea7176486e9d3bf23caccc5b05', 'here:pds:place:124f25dv-e92178fec30846aca60dca4b6e7cf54a']
-sim = performSimilarity(pasTripList, 45.5019, -73.5674)
-print(sim)
+# pasTripList = ['here:pds:place:124f25db-c9594d79654345e09194e54176d6ceb5', 'here:pds:place:124f25dv-6d8984ea7176486e9d3bf23caccc5b05', 'here:pds:place:124f25dv-e92178fec30846aca60dca4b6e7cf54a']
+# sim = performSimilarity(pasTripList, 45.5019, -73.5674)
+# print(sim)
+
+user_interests = [
+    "art_gallery",
+    "museum",
+    "performing_arts_theater",
+    "aquarium",
+    "banquet_hall",
+    "bowling_alley",
+    "barbecue_restaurant",
+    "brazilian_restaurant",
+    "breakfast_restaurant",
+    "brunch_restaurant"
+]
+getRestaurants(45.5019, -73.5674, user_interests)
 
 
