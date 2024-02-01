@@ -16,6 +16,7 @@ import HomeLogo from "./components/SVGLogos/HomeLogo";
 import TripLogo from "./components/SVGLogos/TripLogo";
 import ThemeProvider from "./context/ThemeProvider";
 import ThemeContext from "./context/ThemeContext";
+import * as UserService from "./services/userServices";
 
 // import your component here
 // import NotificationScreen from "./components/AccountScreen/NotificationScreen";
@@ -61,11 +62,8 @@ function BottomTabNavigation() {
         },
       })}
     >
-      {/*Change back to Home when done*/}
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Trip" component={Trip} />
-      {/* Dont display in nav */}
-
       <Tab.Screen name="Account" component={Account} />
       {/* <Tab.Screen name="SelectInterests" component={SelectInterests} /> */}
     </Tab.Navigator>
@@ -88,25 +86,39 @@ function LoggedInStack() {
 }
 
 // Root navigator to switch between authentication and main app
-function RootNavigator({ user }: any) {
+function RootNavigator({
+  user,
+  onUserCreationComplete,
+  isUserCreated,
+  userHasInterests,
+}: any) {
   return (
     <RootStack.Navigator>
-      {user ? (
-        <>
-          <RootStack.Group>
-            <RootStack.Screen
-              name="LoggedInStack"
-              component={LoggedInStack}
-              options={{ headerShown: false }}
-            />
-          </RootStack.Group>
-        </>
+      {user && isUserCreated ? (
+        userHasInterests ? (
+          <>
+            <RootStack.Group>
+              <RootStack.Screen
+                name="LoggedInStack"
+                component={LoggedInStack}
+                options={{ headerShown: false }}
+              />
+            </RootStack.Group>
+          </>
+        ) : (
+          <RootStack.Screen
+            name="SelectInterests"
+            component={SelectInterests}
+            options={{ headerShown: false }}
+          />
+        )
       ) : (
         <>
           <RootStack.Screen
             name="SelectLogin"
             component={SelectLogin}
             options={{ headerShown: false }}
+            initialParams={{ onUserCreationComplete }}
           />
           <RootStack.Screen
             name="Login"
@@ -126,20 +138,47 @@ function RootNavigator({ user }: any) {
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [isUserCreated, setIsUserCreated] = useState(false);
+  const [userHasInterests, setUserHasInterests] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user: any) => {
       setUser(user);
+      if (FIREBASE_AUTH.currentUser) {
+        setIsUserCreated(true);
+        // Check if user has interests
+        checkUserInterests();
+      }
     });
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
+  const onUserCreationComplete = () => {
+    setIsUserCreated(true);
+  };
+
+  const checkUserInterests = async () => {
+    // Check if user has interests
+    UserService.fetchUserProfile().then((profile) => {
+      console.log("Profile");
+      console.log(profile);
+      profile &&
+        profile.interests.length &&
+        setUserHasInterests(profile.interests.length > 0);
+    });
+  };
+
   return (
     <ThemeProvider>
       <NavigationContainer>
-        <RootNavigator user={user} />
+        <RootNavigator
+          user={user}
+          onUserCreationComplete={onUserCreationComplete}
+          isUserCreated={isUserCreated}
+          userHasInterests={userHasInterests}
+        />
       </NavigationContainer>
     </ThemeProvider>
   );
