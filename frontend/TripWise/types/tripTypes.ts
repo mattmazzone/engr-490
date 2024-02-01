@@ -20,10 +20,18 @@ export type TripType = {
   tripStart: Date;
   tripEnd: Date;
   tripMeetings: Meeting[];
-  freeSlots: FreeSlot[];
+  // scheduledActivities[0] = activity start timestamp as string
+  // scheduledActivities[1] = activity end timestamp as string
+  scheduledActivities: ScheduledActivity[];
 };
 
-export type FreeSlot = {
-  start: Date;
-  end: Date;
+export type ScheduledActivity = {
+  end: string;
+  place_similarity: PlaceSimilarity;
+  start: string;
 };
+
+export interface PlaceSimilarity {
+  place_id: string;
+  score: number;
+}

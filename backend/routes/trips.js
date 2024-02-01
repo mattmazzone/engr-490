@@ -197,8 +197,9 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       tripStart,
       tripEnd,
       tripMeetings,
-      freeSlots,
+      scheduledActivities,
     };
+    console.log(JSON.stringify(tripData, null, 4));
 
     const tripRef = await db.collection("trips").add(tripData);
     const tripId = tripRef.id;
@@ -208,7 +209,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     return res.status(200).json({ trip: tripData });
   } catch (error) {
-    console.error("Error creating trip", error);
+    console.error("Error creating trip\n", error);
     res.status(500).send(error.message);
   }
 });
