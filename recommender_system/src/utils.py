@@ -1,5 +1,6 @@
 import copy
 from datetime import date, datetime, timedelta
+import time
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 
@@ -317,25 +318,26 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
     for i in range(len(similarity_tables)):
         trip_meetings[i]['nearby_place_similarities'] = similarity_tables[i]
 
+    timeout = time.time() + 5
     for slot in free_slots:
         start = datetime.strptime(slot['start'], format_slots)
         end = datetime.strptime(slot['end'],  format_slots)
-        current_datetime = start
-        while current_datetime < end:
-            next_datetime = current_datetime + activity_duration
-            if next_datetime > end:
-                next_datetime = end
-            broken_up_free_slots.append([current_datetime, next_datetime])
-            current_datetime = next_datetime
+        next_datetime = start + activity_duration
+        while next_datetime < end or time.time() < timeout:
+            current_datetime = next_datetime - activity_duration
+            broken_up_free_slots.append(
+                {"start": current_datetime, "end": next_datetime})
+        next_datetime = next_datetime + activity_duration
 
     for slot in broken_up_free_slots:
-        relevant_meeting = find_relavent_meeting(trip_meetings, slot[1])
-        slot.append(relevant_meeting['nearby_place_similarities'])
+        relevant_meeting = find_relavent_meeting(trip_meetings, slot['end'])
+        slot['place_similarity'] = (
+            relevant_meeting['nearby_place_similarities'])
 
     nearby_places_picked = set()
 
     for slot in broken_up_free_slots:
-        similarity_table: pd.DataFrame = slot[2]
+        similarity_table: pd.DataFrame = slot['place_similarity']
         best_place = similarity_table['similarity'].idxmax()
         similarity = similarity_table['similarity'].max()
         while (best_place in nearby_places_picked):
@@ -344,11 +346,10 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
                 best_place = similarity_table['similarity'].idxmax()
                 similarity = similarity_table['similarity'].max()
             except Exception:
-                slot[2] = "free time"
+                slot['place_similarity'] = {
+                    'place_id': "Free time", 'score': None}
         nearby_places_picked.add(best_place)
-        slot[2] = {'place_id': best_place, 'score': similarity}
+        slot['place_similarity'] = {
+            'place_id': best_place, 'score': similarity}
 
-    print(broken_up_free_slots)
-
-    raise NotImplementedError('WIP')
-    # return broken_up_free_slots
+    return broken_up_free_slots
