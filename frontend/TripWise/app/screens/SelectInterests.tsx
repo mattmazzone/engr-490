@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
 import Background from "../../components/Background";
 import { UserProfile } from "../../types/userTypes";
@@ -7,6 +7,7 @@ import { arraysEqual } from "../../util/arraysEqual";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ThemeContext from "../../context/ThemeContext";
 import { NavigationProp } from "@react-navigation/native";
+import CategoryView from "../../components/SelectInterestScreen/CategoryView";
 
 interface Item {
   id: string;
@@ -135,18 +136,16 @@ interface RouterProps {
 const SelectInterests = ({ route, navigation }: RouterProps) => {
   const { theme } = useContext(ThemeContext);
   const { setUserInterests } = route.params || {};
-  // A state to keep track of selected interests
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isFetching, setIsFetching] = useState<boolean>(true); // To track the fetching state
+  const [isFetching, setIsFetching] = useState<boolean>(true);
 
   // Fetch user profile and initialize component state on mount
   useEffect(() => {
-    const initializeUserProfile = async () => {
+    const fetchAndSetUserProfile = async () => {
       try {
         const profile = await UserService.fetchUserProfile();
         setUserProfile(profile);
-        // If the user has interests, set the selected interests to the user's interests
         const storedInterests = await AsyncStorage.getItem("selectedInterests");
         setSelectedInterests(
           storedInterests
@@ -160,17 +159,17 @@ const SelectInterests = ({ route, navigation }: RouterProps) => {
       }
     };
 
-    initializeUserProfile();
+    fetchAndSetUserProfile();
   }, []);
 
-  const handleSelectInterest = (categoryId: string, subcategoryId: string) => {
-    setSelectedInterests((prevSelected) => {
-      const isSelected = prevSelected.includes(subcategoryId);
+  const handleSelectInterest = useCallback((subcategoryId: string) => {
+    setSelectedInterests((prev) => {
+      const isSelected = prev.includes(subcategoryId);
       return isSelected
-        ? prevSelected.filter((item) => item !== subcategoryId)
-        : [...prevSelected, subcategoryId];
+        ? prev.filter((item) => item !== subcategoryId)
+        : [...prev, subcategoryId];
     });
-  };
+  }, []);
 
   // Function to handle updating interests
   const handleUpdateInterests = async () => {
@@ -226,62 +225,13 @@ const SelectInterests = ({ route, navigation }: RouterProps) => {
     }
   };
 
-  // Check if the selected interests are different from the user profile's interests
-  function hasChangedInterests() {
-    // If userProfile.interests doesn't exist or if arrays are not equal, return true
+  const hasChangedInterests = useCallback(() => {
     return (
       !userProfile?.interests ||
       !arraysEqual(selectedInterests, userProfile.interests)
     );
-  }
-  // Function to render interest buttons based on the lookup table
+  }, [userProfile, selectedInterests]);
 
-  const renderInterestButtons = () => {
-    return (
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {categories.map((category) => (
-          <View key={category.name} style={styles.categoryContainer}>
-            <Text
-              style={[
-                styles.categoryTitle,
-                { color: theme === "Dark" ? "white" : "black" },
-              ]}
-            >
-              {category.name}
-            </Text>
-            <View style={styles.interestsRow}>
-              {category.items.map((subcategory) => (
-                <Pressable
-                  key={subcategory.id}
-                  style={[
-                    styles.interestButton,
-                    selectedInterests.includes(subcategory.id)
-                      ? {
-                          ...styles.selectedInterestButton,
-                          backgroundColor: "#2a5",
-                        }
-                      : {},
-                  ]}
-                  onPress={() =>
-                    handleSelectInterest(category.name, subcategory.id)
-                  }
-                >
-                  <Text
-                    style={[
-                      styles.interestButtonText,
-                      { color: theme === "Dark" ? "white" : "black" },
-                    ]}
-                  >
-                    {subcategory.id}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        ))}
-      </ScrollView>
-    );
-  };
   // TODO: REPLACE WITH COOL SPINNER
   if (isFetching) {
     return (
@@ -312,7 +262,17 @@ const SelectInterests = ({ route, navigation }: RouterProps) => {
         >
           Please select the interests that best describe you.
         </Text>
-        <View style={styles.interestsWrapper}>{renderInterestButtons()}</View>
+        <View style={styles.interestsWrapper}>
+          {categories.map((category) => (
+            <CategoryView
+              key={category.name}
+              category={category}
+              selectedInterests={selectedInterests}
+              onSelectInterest={handleSelectInterest}
+              theme={theme}
+            />
+          ))}
+        </View>
         {/* Update Interests Button */}
         <Pressable
           onPress={handleUpdateInterests}
@@ -352,19 +312,6 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-  interestButton: {
-    padding: 10,
-    borderWidth: 2,
-    backgroundColor: "white",
-    borderRadius: 20,
-    margin: 5,
-  },
-  selectedInterestButton: {
-    backgroundColor: "#2a5",
-  },
-  interestButtonText: {
-    textAlign: "center",
-  },
   button: {
     padding: 15,
     borderRadius: 25,
@@ -378,18 +325,6 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     backgroundColor: "#aaa", // or any other color that indicates the button is disabled
-  },
-  categoryContainer: {
-    marginBottom: 20,
-  },
-  categoryTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  interestsRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
   },
 });
 
