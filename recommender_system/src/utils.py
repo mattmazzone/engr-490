@@ -337,16 +337,18 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
     for slot in broken_up_free_slots:
         similarity_table: pd.DataFrame = slot[2]
         best_place = similarity_table['similarity'].idxmax()
-
+        similarity = similarity_table['similarity'].max()
         while (best_place in nearby_places_picked):
             similarity_table = similarity_table.drop([best_place])
             try:
                 best_place = similarity_table['similarity'].idxmax()
+                similarity = similarity_table['similarity'].max()
             except Exception:
                 slot[2] = "free time"
         nearby_places_picked.add(best_place)
-        slot[2] = best_place
+        slot[2] = {'place_id': best_place, 'score': similarity}
 
+    print(broken_up_free_slots)
 
     raise NotImplementedError('WIP')
     # return broken_up_free_slots
