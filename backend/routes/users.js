@@ -26,6 +26,7 @@ router.post("/signup", authenticate, async (req, res) => {
         lastName,
         currentTrip: "",
         pastTrips: [],
+        interests: [],
         settings: {
           backgroundTheme: false,
           pushNotification: false,
