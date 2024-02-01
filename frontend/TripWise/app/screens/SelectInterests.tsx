@@ -6,6 +6,7 @@ import * as UserService from "../../services/userServices";
 import { arraysEqual } from "../../util/arraysEqual";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ThemeContext from "../../context/ThemeContext";
+import { NavigationProp } from "@react-navigation/native";
 
 interface Item {
   id: string;
@@ -127,9 +128,13 @@ const categories: Category[] = [
     ],
   },
 ];
-
-const SelectInterests = () => {
+interface RouterProps {
+  route: any;
+  navigation: NavigationProp<any, any>;
+}
+const SelectInterests = ({ route, navigation }: RouterProps) => {
   const { theme } = useContext(ThemeContext);
+  const { setUserInterests } = route.params || {};
   // A state to keep track of selected interests
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -204,6 +209,12 @@ const SelectInterests = () => {
           // Update local state or context with the new profile data
           setUserProfile(updatedProfile);
           // Optionally, show a success message to the user
+          if (setUserInterests) {
+            setUserInterests(true);
+          } else {
+            // If setUserInterests is not provided, navigate to the home screen
+            navigation.navigate("Home");
+          }
         } else {
           // The fetched interests don't match the expected values.
           // Handle the mismatch, possibly by showing an error message

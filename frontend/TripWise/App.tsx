@@ -91,6 +91,7 @@ function RootNavigator({
   onUserCreationComplete,
   isUserCreated,
   userHasInterests,
+  setUserInterests,
 }: any) {
   return (
     <RootStack.Navigator>
@@ -110,6 +111,7 @@ function RootNavigator({
             name="SelectInterests"
             component={SelectInterests}
             options={{ headerShown: false }}
+            initialParams={{ setUserInterests }}
           />
         )
       ) : (
@@ -169,6 +171,9 @@ export default function App() {
         setUserHasInterests(profile.interests.length > 0);
     });
   };
+  const setUserInterests = (hasInterests: boolean) => {
+    setUserHasInterests(hasInterests);
+  };
 
   return (
     <ThemeProvider>
@@ -178,6 +183,7 @@ export default function App() {
           onUserCreationComplete={onUserCreationComplete}
           isUserCreated={isUserCreated}
           userHasInterests={userHasInterests}
+          setUserInterests={setUserInterests}
         />
       </NavigationContainer>
     </ThemeProvider>
