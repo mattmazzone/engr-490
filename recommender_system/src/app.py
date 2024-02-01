@@ -3,12 +3,14 @@ from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
 from firebase_admin import initialize_app, auth, credentials
 from dotenv import load_dotenv
-import requests, os, json
+import requests
+import os
+import json
 from functools import wraps
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import numpy as np
-from utils import  create_df, create_rating_df, multiply_rating, create_scheduled_activities
+from utils import create_df, create_rating_df, multiply_rating, create_scheduled_activities
 
 load_dotenv()
 
@@ -36,6 +38,8 @@ interests_dict = {
 }
 
 # Authentication middleware
+
+
 def authenticate(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -51,13 +55,14 @@ def authenticate(f):
             return make_response(jsonify({"error": e}), 500)
     return decorated_function
 
+
 @app.route('/api/recommend-cold-start', methods=['POST'])
 def recommend_cold_start():
     # Get nearby places and user interests array from POST body
     content_type = request.headers.get('Content-Type')
     if (content_type != 'application/json'):
         return make_response(jsonify({"error": "Content type not application/json"}), 500)
-    
+
     request_body = request.json
     # Array
     nearby_places = request_body["nearbyPlaces"]["results"]
@@ -70,7 +75,7 @@ def recommend_cold_start():
         if category in interests_dict:
             # Concat the two lists together
             relevant_interests += interests_dict[category]
-    
+
     filtered_place_ids = {}
     for place_info in nearby_places:
         types = place_info["types"]
@@ -78,12 +83,15 @@ def recommend_cold_start():
         matching_interests = list(set(relevant_interests) & set(types))
         num_matching_interests = len(matching_interests)
         if (num_matching_interests in filtered_place_ids):
-            filtered_place_ids[num_matching_interests].append(place_info["place_id"])
+            filtered_place_ids[num_matching_interests].append(
+                place_info["place_id"])
         else:
-            filtered_place_ids[num_matching_interests] = [place_info["place_id"]]
+            filtered_place_ids[num_matching_interests] = [
+                place_info["place_id"]]
 
     # Return filtered list
     return filtered_place_ids
+
 
 @app.route('/api/recommend', methods=['POST'])
 @authenticate
@@ -110,7 +118,8 @@ def recommend():
         nearby_places_df_copy = nearby_places_df.reset_index(drop=True)
 
         # compute cosine similarity and convert back to df
-        similarity_df = cosine_similarity(recent_places_df_copy, nearby_places_df_copy)
+        similarity_df = cosine_similarity(
+            recent_places_df_copy, nearby_places_df_copy)
         similarity_df = pd.DataFrame(similarity_df)
 
         # Rename columns and row indecies
@@ -123,14 +132,16 @@ def recommend():
 
         # Weight all similarities by the normalized user rating (rating/5) of the recent place
         recent_place_ratings = recent_place_ratings_df.to_dict()
-        weighted_similarity_df = similarity_df.apply(multiply_rating, axis=1, args=(recent_place_ratings,))
-        similarity_tables.append(weighted_similarity_df)
-    
-    scheduled_activities = create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings)
+        weighted_similarity_df = similarity_df.apply(
+            multiply_rating, axis=1, args=(recent_place_ratings,))
+
+        mean_vals_df = weighted_similarity_df.mean(axis=0).to_frame().rename(columns={
+            0: 'similarity'}, errors='raise')
+        similarity_tables.append(mean_vals_df)
+
+    scheduled_activities = create_scheduled_activities(
+        similarity_tables, nearby_places, free_slots, trip_meetings)
     return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
-    
-
-
 
 
 # @app.route('/api/recommend', methods=['POST'])
@@ -143,7 +154,7 @@ def recommend():
 #     # Calculate user vectors from database from recent trips
 #     recent_trips = request_body["recentTripsPlaceDetails"]
 #     recent_places_df = create_df(recent_trips)
-#     # Aggregate ALL rows and sum all the rows to make a one row dataframe 
+#     # Aggregate ALL rows and sum all the rows to make a one row dataframe
 #     recent_places_summed = recent_places_df.groupby(lambda f: True).sum().reset_index().drop(["index"], axis=1)
 #     # Normalize the recent places table
 #     recent_places_normalized_df = recent_places_summed.apply(normalize, axis=1)
@@ -162,10 +173,7 @@ def recommend():
 #     users_places_similarity_df = users_places_similarity_df.set_index(place_ids)
 #     users_places_similarity_df = users_places_similarity_df.rename(columns={0 : "similarity"})
 
-    
-
 #     return make_response(users_places_similarity_df.to_dict(), 200)
-
 # Start the server
 if __name__ == '__main__':
     app.run(port=4000, debug=True)

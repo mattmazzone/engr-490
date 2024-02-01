@@ -123,8 +123,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
       nearbyPlaces.push(responseData.places);
     } else {
-      // Skips the 1st meeting, only get nearby places for the others
-      for (let i = 1; i < numMeetings; i++) {
+      for (let i = 0; i < numMeetings; i++) {
         const meeting = tripMeetings[i];
         const location = await getCoords(meeting);
         const responseData = await useGetNearbyPlacesSevice(
