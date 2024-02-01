@@ -1,3 +1,4 @@
+from ast import Raise
 import copy
 from datetime import date, datetime, timedelta
 import time
@@ -318,13 +319,12 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
     for i in range(len(similarity_tables)):
         trip_meetings[i]['nearby_place_similarities'] = similarity_tables[i]
 
-    timeout = time.time() + 5
     for slot in free_slots:
         start = datetime.strptime(slot['start'], format_slots)
         end = datetime.strptime(slot['end'],  format_slots)
-        next_datetime = start + activity_duration
-        while next_datetime < end or time.time() < timeout:
-            current_datetime = next_datetime - activity_duration
+        next_datetime = start
+        while next_datetime < end:
+            current_datetime = next_datetime
             broken_up_free_slots.append(
                 {"start": current_datetime, "end": next_datetime})
         next_datetime = next_datetime + activity_duration
