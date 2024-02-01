@@ -324,10 +324,10 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
         end = datetime.strptime(slot['end'],  format_slots)
         next_datetime = start
         while next_datetime < end:
-            current_datetime = next_datetime
+            current_datetime = next_datetime - activity_duration
             broken_up_free_slots.append(
                 {"start": current_datetime, "end": next_datetime})
-        next_datetime = next_datetime + activity_duration
+            next_datetime = next_datetime + activity_duration
 
     for slot in broken_up_free_slots:
         relevant_meeting = find_relavent_meeting(trip_meetings, slot['end'])
