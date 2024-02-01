@@ -14,12 +14,12 @@ const PastTripSkeleton = () => {
           Animated.timing(animatedValue, {
             toValue: 0.7,
             duration: 1000,
-            useNativeDriver: false, // Set to false if you encounter issues with native driver
+            useNativeDriver: true, // Set to false if you encounter issues with native driver
           }),
           Animated.timing(animatedValue, {
             toValue: 1,
             duration: 1000,
-            useNativeDriver: false, // Set to false if you encounter issues with native driver
+            useNativeDriver: true, // Set to false if you encounter issues with native driver
           }),
         ])
       ).start();

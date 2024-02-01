@@ -5,7 +5,7 @@ interface Props {
   focused: boolean;
 }
 
-const NotificationSettingsLogo = ({ focused }: Props) => {
+const NotificationSettingsLogo = () => {
   const { theme } = React.useContext(ThemeContext);
   return (
     <Svg width="27" height="37" viewBox="0 0 27 37" fill="none">

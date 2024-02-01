@@ -7,9 +7,12 @@ import Background from "../../components/Background";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
+  route: any;
 }
 
-const SelectLogin = ({ navigation }: RouterProps) => {
+const SelectLogin = ({ navigation, route }: RouterProps) => {
+  const { onUserCreationComplete } = route.params;
+
   return (
     <Background>
       <View style={styles.container}>
@@ -19,9 +22,21 @@ const SelectLogin = ({ navigation }: RouterProps) => {
           </View>
         </View>
         <View style={styles.loginProviders}>
-          <LoginProviderButton provider={"email"} navigation={navigation} />
-          <LoginProviderButton provider={"google"} navigation={navigation} />
-          <LoginProviderButton provider={"apple"} navigation={navigation} />
+          <LoginProviderButton
+            provider={"email"}
+            navigation={navigation}
+            onUserCreationComplete={onUserCreationComplete}
+          />
+          <LoginProviderButton
+            provider={"google"}
+            navigation={navigation}
+            onUserCreationComplete={onUserCreationComplete}
+          />
+          <LoginProviderButton
+            provider={"apple"}
+            navigation={navigation}
+            onUserCreationComplete={onUserCreationComplete}
+          />
         </View>
       </View>
     </Background>

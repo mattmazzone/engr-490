@@ -1,6 +1,13 @@
 import { NavigationProp } from "@react-navigation/native";
 import React, { useState, useContext, useRef } from "react";
-import { Text, View, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Pressable,
+} from "react-native";
 import Background from "../../components/Background";
 import ThemeContext from "../../context/ThemeContext";
 import * as UserService from "../../services/userServices";
@@ -77,7 +84,7 @@ const Home = ({ navigation }: RouterProps) => {
             {currentTrip && " You have an ongoing trip!"}
           </Text>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity
+            <Pressable
               onPress={() => navigation.navigate("Trip")}
               style={styles.button}
             >
@@ -89,7 +96,7 @@ const Home = ({ navigation }: RouterProps) => {
               >
                 {currentTrip ? "View Trip Details" : "Plan a Trip"}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </View>
 
