@@ -307,7 +307,7 @@ def find_relavent_meeting(trip_meetings, end_time):
 def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings):
     format_trips = '%Y-%m-%dT%H:%M:%S%z'
     format_slots = '%Y-%m-%dT%H:%M:%S.%f%z'
-    activity_duration = timedelta(hours=2)
+    activity_duration = timedelta(hours=1)
     broken_up_free_slots = []
 
     for meeting in trip_meetings:
@@ -322,7 +322,7 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
     for slot in free_slots:
         start = datetime.strptime(slot['start'], format_slots)
         end = datetime.strptime(slot['end'],  format_slots)
-        next_datetime = start
+        next_datetime = start + activity_duration
         while next_datetime < end:
             current_datetime = next_datetime - activity_duration
             broken_up_free_slots.append(
