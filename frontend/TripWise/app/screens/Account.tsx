@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import {
   View,
+  ScrollView,
   Text,
   StyleSheet,
   TouchableOpacity,
@@ -13,7 +14,6 @@ import { useUserProfile } from "../../hooks/useUserProfile";
 import * as UserService from "../../services/userServices";
 import { NavigationProp } from "@react-navigation/native";
 import About from "../../components/AccountScreen/About";
-import NotificationScreen from "../../components/AccountScreen/NotificationScreen";
 import AppSettingsLogo from "../../components/SVGLogos/AppSettingsLogo";
 import PrivacySettingsLogo from "../../components/SVGLogos/PrivacySettingsLogo";
 import BackupAndRestoreLogo from "../../components/SVGLogos/BackupAndRestoreLogo";
@@ -99,7 +99,7 @@ const Account = ({ navigation }: RouterProps) => {
           )}
         </View>
 
-        <View style={styles.settings}>
+        <ScrollView style={styles.settings}>
           {/* Settings options with icons */}
           <SettingOption
             icon={<AppSettingsLogo focused={false} />}
@@ -132,14 +132,6 @@ const Account = ({ navigation }: RouterProps) => {
             hasBorder={true}
           />
           <SettingOption
-            icon={<NotificationSettingsLogo focused={false} />}
-            title="Notification Settings"
-            onPress={() => {
-              setNotificationModalVisible(true);
-            }}
-            hasBorder={true}
-          />
-          <SettingOption
             icon={<TripWiseLogoSmall />}
             title="About"
             onPress={() => {
@@ -147,20 +139,17 @@ const Account = ({ navigation }: RouterProps) => {
             }}
             hasBorder={false}
           />
-        </View>
+          {/* Logout button */}
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutButtonText}>Logout</Text>
+          </TouchableOpacity>
+        </ScrollView>
 
         <AppSettingsPage
           isVisible={appSettingsVisible}
           userSettings={userSettings}
           updateUserSettings={updateUserSettings}
           closeModal={() => setAppSettingsModalVisible(false)}
-        />
-
-        <NotificationScreen
-          isVisible={notificationModalVisible}
-          userSettings={userSettings}
-          updateUserSettings={updateUserSettings}
-          closeModal={() => setNotificationModalVisible(false)}
         />
 
         <Modal
@@ -177,10 +166,7 @@ const Account = ({ navigation }: RouterProps) => {
           />
         </Modal>
 
-        {/* Logout button */}
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Logout</Text>
-        </TouchableOpacity>
+
       </View>
     </Background>
   );
@@ -189,6 +175,7 @@ const Account = ({ navigation }: RouterProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingBottom: 70,
   },
   header: {
     flexDirection: "row",
