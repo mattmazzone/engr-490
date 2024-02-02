@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 18,
-    marginRight: 30, // add some space between text and logo
+    marginRight: 30,
   },
   logo: {
     width: 25,

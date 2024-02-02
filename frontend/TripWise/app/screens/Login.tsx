@@ -7,6 +7,7 @@ import {
   Keyboard,
   Dimensions,
   Platform,
+  Text,
 } from "react-native";
 import React, { useState } from "react";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
@@ -16,6 +17,7 @@ import LoginScreenButton from "../../components/Login/LoginScreenButton";
 import BackButton from "../../components/BackButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Background from "../../components/Background";
+import TripWiseLogo from "../../components/SVGLogos/TripWiseLogo";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -61,17 +63,23 @@ const Login = ({ navigation }: RouterProps) => {
       <Background>
         {mobileRenderContent(
           <>
-            <View>
+            <View style={styles.backButtonContainer}>
               <BackButton />
             </View>
 
+            <Text style={styles.title}>Login</Text>
             <View style={styles.loginContainer}>
+              <View style={styles.logo}>
+                <TripWiseLogo />
+              </View>
+              <View style={styles.loginInputContainer}>
               <TextInput
                 value={email}
                 style={styles.input}
                 placeholder="Email"
                 autoCapitalize="none"
                 onChangeText={(text) => setEmail(text)}
+                placeholderTextColor={'#c7c7c7'}
               ></TextInput>
               <TextInput
                 secureTextEntry={true}
@@ -80,17 +88,21 @@ const Login = ({ navigation }: RouterProps) => {
                 placeholder="Password"
                 autoCapitalize="none"
                 onChangeText={(text) => setPassword(text)}
+                placeholderTextColor={'#c7c7c7'}
               ></TextInput>
+              </View>
 
               {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
               ) : (
                 <>
                   <LoginScreenButton onPress={signIn} title="Login" />
-                  <LoginScreenButton
-                    onPress={() => navigation.navigate("SignUp")}
-                    title="Don't have an account? Sign Up"
-                  />
+                  <Text style={styles.signupText}>
+                    Don’t have an account?{' '}
+                    <Pressable onPress={() => navigation.navigate("SignUp")}>
+                      <Text style={styles.signupButton}>Sign Up</Text>
+                    </Pressable>
+                  </Text>
                 </>
               )}
             </View>
@@ -104,19 +116,41 @@ const Login = ({ navigation }: RouterProps) => {
 export default Login;
 
 const styles = StyleSheet.create({
+  backButtonContainer :{
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    margin: 20,
+  },
+  title: {
+    fontSize: 35,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: 20,
+  },
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
+    paddingTop: 60,
   },
   loginContainer: {
-    justifyContent: "flex-end",
     width: "100%",
     alignItems: "center",
+    marginBottom: 10,
+  },
+  logo: {
+    marginTop: 20,
+    marginBottom: 60,
+  },
+  loginInputContainer: {
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 10,
   },
   input: {
     marginVertical: 10,
-    width: Dimensions.get("window").width * 0.8, // 80% of screen width
+    width: 300,
     height: 45, // Adjusted height
     borderRadius: 10, // Rounded corners
     padding: 10,
@@ -131,5 +165,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+  },
+  signupText: {
+    fontSize: 16,
+    color: 'black',
+    marginTop: 15,
+  },
+  signupButton: {
+    fontWeight: 'bold',
+    color: 'rgba(34, 170, 85, 1)',
   },
 });
