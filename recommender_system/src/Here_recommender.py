@@ -106,6 +106,7 @@ def getRestaurants(latitude, longitude, userInterests):
     # Define the API endpoint
     url = "https://discover.search.hereapi.com/v1/discover"
     result = " ".join(filteredRestaurantInterests)
+        
     # Define the parameters for the GET request
     params = {
         "at": f"{latitude},{longitude}",
@@ -120,9 +121,28 @@ def getRestaurants(latitude, longitude, userInterests):
     response = requests.get(url, params=params)
     restaurants_dict = {}
 
+
     if response.status_code == 200: # if we get a correct response, parsing the response, turns string into json, then print data object
         data = response.json()
-        print(data)
+        # format data
+        #Format data to only print the restaurant name, street, and food types they serve
+        # Format data to handle missing fields
+        for item in data['items']:
+            restaurant_name = item.get('title', 'Unknown Restaurant')
+            street = item.get('address', {}).get('street', 'Unknown Street')
+            food_types_list = item.get('foodTypes', [])
+            food_types = ", ".join(food_type.get('name', 'Unknown') for food_type in food_types_list)
+            
+            # Only print if there's meaningful information available
+            if restaurant_name != 'Unknown Restaurant' or street != 'Unknown Street' or food_types != 'Unknown':
+                print(f"{restaurant_name} located at {street} serves: {food_types}")
+            else:
+                print("Restaurant information is incomplete.")
+
+
+
+
+
 
     # Check if the request was successful
     if response.status_code == 200:
@@ -214,14 +234,13 @@ user_interests = [
     "art_gallery",
     "museum",
     "performing_arts_theater",
-    "aquarium",
+    "aquarium",``
     "banquet_hall",
     "bowling_alley",
-    "barbecue_restaurant",
-    "brazilian_restaurant",
-    "breakfast_restaurant",
-    "brunch_restaurant"
+    "pokebowl_restaurant",
+    "finedining_restaurant"
 ]
 getRestaurants(45.5019, -73.5674, user_interests)
+
 
 
