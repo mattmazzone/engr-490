@@ -65,7 +65,7 @@ const About = ({ closeModal, navigation }: any) => {
       </Pressable>
 
       <Pressable style={styles.button} onPress={UserService.endCurrentTrip}>
-        <Text>End Current Trip</Text>
+        <Text style={styles.buttonText}>End Current Trip</Text>
       </Pressable>
 
       <Pressable onPress={closeModal} style={styles.button}>
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    backgroundColor: "#1E90FF",
+    backgroundColor: "#2a5",
     flexDirection: "row",
     width: "55%",
     height: 45,
@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     marginRight: 30, // add some space between text and logo
+    color: "white",
   },
 });
 
