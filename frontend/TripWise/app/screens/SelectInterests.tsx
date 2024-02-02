@@ -212,7 +212,7 @@ const SelectInterests = ({ route, navigation }: RouterProps) => {
             setUserInterests(true);
           } else {
             // If setUserInterests is not provided, navigate to the home screen
-            navigation.navigate("Home");
+            navigation.navigate('Home');
           }
         } else {
           // The fetched interests don't match the expected values.
@@ -240,10 +240,9 @@ const SelectInterests = ({ route, navigation }: RouterProps) => {
       </Background>
     );
   }
-  const buttonText =
-    userProfile?.interests.length === 0
-      ? "Thanks for sharing your interests"
-      : "Update Interests";
+  const buttonText = (userProfile?.interests?.length ?? 0) > 0
+      ? "Update Interests"
+      : "Thanks for sharing your interests";
   // Render the main component structure with user information and interest buttons
   return (
     <Background>
@@ -275,13 +274,11 @@ const SelectInterests = ({ route, navigation }: RouterProps) => {
         </View>
         {/* Update Interests Button */}
         <Pressable
-          onPress={handleUpdateInterests}
+          onPress={() =>handleUpdateInterests()}
           disabled={selectedInterests.length < 4 || !hasChangedInterests()}
           style={[
             styles.button,
-            selectedInterests.length < 4 || !hasChangedInterests()
-              ? styles.buttonDisabled
-              : {},
+            selectedInterests.length < 4 || !hasChangedInterests() ? styles.buttonDisabled : {},
           ]}
         >
           <Text style={styles.buttonText}>{buttonText}</Text>
@@ -320,7 +317,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     textAlign: "center",
-    color: "#green",
+    color: "white",
     fontWeight: "bold",
   },
   buttonDisabled: {

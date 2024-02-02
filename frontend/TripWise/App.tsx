@@ -166,9 +166,15 @@ export default function App() {
     UserService.fetchUserProfile().then((profile) => {
       console.log("Profile");
       console.log(profile);
-      profile &&
-        profile.interests.length &&
-        setUserHasInterests(profile.interests.length > 0);
+      //profile &&
+        //profile.interests.length &&
+        //setUserHasInterests(profile.interests.length > 0);
+        if (profile && Array.isArray(profile.interests)){
+          setUserHasInterests(profile.interests.length > 0);
+        }
+        else{
+          setUserHasInterests(false);
+        }
     });
   };
   const setUserInterests = (hasInterests: boolean) => {
