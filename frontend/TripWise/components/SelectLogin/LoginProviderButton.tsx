@@ -119,13 +119,13 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#1E90FF",
     flexDirection: "row",
-    width: "75%",
     height: 45,
     borderRadius: 7,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 10,
     paddingLeft: 30,
+    marginVertical: 2,
   },
   buttonText: {
     fontSize: 18,

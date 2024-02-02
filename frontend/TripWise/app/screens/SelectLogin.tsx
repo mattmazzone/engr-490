@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, useColorScheme } from "react-native";
+import { View, StyleSheet, useColorScheme, Text } from "react-native";
 import TripWiseLogo from "../../components/SVGLogos/TripWiseLogo";
 import LoginProviderButton from "../../components/SelectLogin/LoginProviderButton";
 import { NavigationProp } from "@react-navigation/native";
@@ -17,6 +17,9 @@ const SelectLogin = ({ navigation }: RouterProps) => {
           <View style={styles.logo}>
             <TripWiseLogo />
           </View>
+          <Text style ={styles.title}>
+            TripWise
+          </Text>
         </View>
         <View style={styles.loginProviders}>
           <LoginProviderButton provider={"email"} navigation={navigation} />
@@ -39,14 +42,17 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   logo: {
-    marginTop: "25%", // Adjust this value to position the logo within the top third
+    marginTop: 60,
+  },
+  title: {
+    fontSize: 35,
+    fontWeight: "bold",
+    textAlign: "center",
   },
   loginProviders: {
     flex: 1,
     justifyContent: "flex-end",
-    marginBottom: "35%", // Adjust this value to position the content within the bottom third
-    width: "100%",
-    alignItems: "center",
+    marginBottom: 250,
   },
 });
 
