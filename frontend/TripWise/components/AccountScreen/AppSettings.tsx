@@ -36,10 +36,31 @@ const AppSettingsPage = ({
     setIsEnabled(!isEnabled);
     setTheme(newTheme); // Update global theme
   };
+  const [isEmailEnabled, setIsEmailEnabled] = useState<boolean>(
+    userSettings?.emailNotification || false
+  );
+  const toggleEmailSwitch = () =>
+    setIsEmailEnabled((previousState: boolean) => !previousState);
+
+  const [isPushEnabled, setIsPushEnabled] = useState<boolean>(
+    userSettings?.pushNotification || false
+  );
+  const togglePushSwitch = () => {
+    setIsPushEnabled((previousState: boolean) => !previousState);
+  };
+
+  useEffect(() => {
+    if (userSettings) {
+      setIsEmailEnabled(userSettings.emailNotification);
+      setIsPushEnabled(userSettings.pushNotification);
+    }
+  }, [userSettings]);
 
   const handleAppSettingsPreferences = async () => {
     const newSettings = {
       ...userSettings,
+      emailNotification: isEmailEnabled,
+      pushNotification: isPushEnabled,
       backgroundTheme: isEnabled,
     };
     await updateUserSettings(newSettings);
@@ -65,33 +86,56 @@ const AppSettingsPage = ({
               App Settings
             </Text>
           </View>
-          <View style={styles.lineSpace}>
-            <View>
-              <Text
-                style={[
-                  styles.textStyle,
-                  { color: theme === "Dark" ? "white" : "black" },
-                ]}
-              >
-                {" "}
-                Background Theme{" "}
-              </Text>
-            </View>
+          <View style={styles.notificationChoice}>
             <Text
-              style={{
-                color: theme === "Dark" ? "white" : "black",
-                fontSize: 20,
-              }}
+              style={[
+                styles.typeNotificationText,
+                { color: theme === "Dark" ? "white" : "black" },
+              ]}
             >
-              {isEnabled ? "Dark" : "Light"}
+              Background Theme
             </Text>
             <Switch
               style={{ height: 25 }}
-              trackColor={{ false: "#767577", true: "#00ff00" }}
+              trackColor={{ false: "#767577", true: "rgba(34, 170, 85, 1)" }}
               thumbColor={isEnabled ? "#32cd32" : "#f4f3f4"}
               ios_backgroundColor="#3e3e3e"
               onValueChange={toggleBackgroundSwitch}
               value={isEnabled}
+            />
+          </View>
+          <Text
+            style={[
+              styles.subtitleText,
+              { color: theme === "Dark" ? "white" : "black" },
+            ]}
+          >
+            Notification Settings
+          </Text>
+          <View style={styles.notificationChoice}>
+            <Text style={[styles.typeNotificationText, { color: theme === "Dark" ? "#fff" : "#000", }]}>
+              E-Mail Notifications
+            </Text>
+            <Switch
+              style={{ height: 25 }}
+              trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
+              thumbColor={isEmailEnabled ? "#32cd32" : "#f4f3f4"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleEmailSwitch}
+              value={isEmailEnabled}
+            />
+          </View>
+          <View style={styles.notificationChoice}>
+            <Text style={[styles.typeNotificationText, { color: theme === "Dark" ? "#fff" : "#000", }]}>
+              Push Notifications
+            </Text>
+            <Switch
+              style={{ height: 25 }}
+              trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
+              thumbColor={"#f4f3f4"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={togglePushSwitch}
+              value={isPushEnabled}
             />
           </View>
           <View>
@@ -106,12 +150,19 @@ const AppSettingsPage = ({
       </Background>
     </Modal>
   );
+
 };
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+  },
+  settingItem: {
+    flexDirection: 'row', // Align children horizontally
+    alignItems: 'center', // Center items vertically in the container
+    marginBottom: 10, // Optional: add some space between this setting item and the next
   },
   titleView: {
     flexDirection: "row",
@@ -127,6 +178,13 @@ const styles = StyleSheet.create({
     marginTop: 3,
     fontWeight: "bold",
     marginBottom: 16,
+  },
+  subtitleText: {
+    color: "white",
+    alignSelf: "center",
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 32,
   },
   textStyle: {
     color: "white",
@@ -148,8 +206,25 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     height: 70,
   },
+  typeNotificationText: {
+    color: "white",
+    alignSelf: "center",
+    fontSize: 20,
+    fontWeight: "bold",
+    width: 315, //325
+    marginBottom: 32,
+  },
+  notificationSpaces: {
+    alignItems: "flex-start",
+    height: 120,
+  },
+  notificationChoice: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    height: 50,
+  },
   button: {
-    backgroundColor: "#006400",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     flexDirection: "row",
     width: "75%",
     height: 45,
