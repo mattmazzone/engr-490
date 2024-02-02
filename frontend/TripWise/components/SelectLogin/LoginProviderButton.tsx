@@ -56,6 +56,7 @@ interface ProviderDetails {
   onPress: (navigation: NavigationProp<any, any>) => void;
   bgColor: string;
   textColor: string;
+  borderColor?: string;
 }
 
 interface LoginProviderButtonProps {
@@ -70,8 +71,9 @@ const providerMap: Record<string, ProviderDetails> = {
     onPress: (navigation) => {
       navigation.navigate("Login");
     },
-    bgColor: "#D9D9D9",
+    bgColor: "#FFFFFF",
     textColor: "#000000",
+    borderColor: "#000000",
   },
   google: {
     title: "Continue with Google",
@@ -79,8 +81,9 @@ const providerMap: Record<string, ProviderDetails> = {
     onPress: () => {
       handleGoogleSignUp();
     },
-    bgColor: "#DB4437",
-    textColor: "#FFFFFF",
+    bgColor: "#FFFFFF",
+    textColor: "#000000",
+    borderColor: "#000000",
   },
   apple: {
     title: "Continue with Apple",
@@ -90,6 +93,7 @@ const providerMap: Record<string, ProviderDetails> = {
     },
     bgColor: "#FFFFFF",
     textColor: "#000000",
+    borderColor: "#000000",
   },
 };
 
@@ -97,13 +101,13 @@ const LoginScreenButton = ({
   provider,
   navigation,
 }: LoginProviderButtonProps) => {
-  const { title, logo, onPress, bgColor, textColor } =
+  const { title, logo, onPress, bgColor, textColor, borderColor } =
     providerMap[provider.toLowerCase()] || providerMap["email"];
 
   return (
     <TouchableOpacity
       onPress={() => onPress(navigation)}
-      style={[styles.button, { backgroundColor: bgColor }]}
+      style={[styles.button, { backgroundColor: bgColor, borderColor: borderColor, borderWidth: borderColor ? 1 : 0,}]}
     >
       <Image source={logo} style={styles.logo} />
       <Text style={[styles.buttonText, { color: textColor }]}>{title}</Text>
