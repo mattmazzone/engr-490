@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   },
   input: {
     marginVertical: 10,
-    width: Dimensions.get("window").width * 0.8, // 80% of screen width
+    width: 300,
     height: 45, // Adjusted height
     borderRadius: 10, // Rounded corners
     padding: 10,
