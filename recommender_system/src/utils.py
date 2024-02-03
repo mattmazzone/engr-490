@@ -1,7 +1,6 @@
 from ast import Raise
 import copy
-from datetime import date, datetime, timedelta
-import time
+from datetime import date, datetime, timedelta, time
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 
@@ -297,11 +296,21 @@ def is_same_day(date1: datetime, date2: datetime) -> bool:
 
 
 def find_relavent_meeting(trip_meetings, end_time):
-    for meeting in trip_meetings:
+    for i in range(len(trip_meetings)):
+        meeting = trip_meetings[i]
         if meeting['start'] >= end_time:
-            return meeting
+            return i
 
-    return trip_meetings[-1]
+    return -1
+
+
+def addHighestPlace(places, nearby_places_picked, slot):
+    for place in places:
+        best_place_id = place['info']['id']
+        if best_place_id not in nearby_places_picked:
+            nearby_places_picked.add(best_place_id)
+            slot['place_similarity'] = {
+                'place_id': best_place_id, 'score': place['similarity']}
 
 
 def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings):
@@ -330,26 +339,51 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
             next_datetime = next_datetime + activity_duration
 
     for slot in broken_up_free_slots:
-        relevant_meeting = find_relavent_meeting(trip_meetings, slot['end'])
-        slot['place_similarity'] = (
-            relevant_meeting['nearby_place_similarities'])
+        index = find_relavent_meeting(trip_meetings, slot['end'])
+        relevant_meeting = trip_meetings[index]
+        slot['place_similarity'] = relevant_meeting['nearby_place_similarities']
+        slot['places_dict'] = nearby_places[index]
 
     nearby_places_picked = set()
+    breakfast_time_range = {"start": time(8, 0, 0), "end": time(10, 0, 0)}
+    lunch_time_range = {"start":   time(12, 0, 0), "end": time(14, 0, 0)}
+    dinner_time_range = {"start": time(18, 0, 0), "end": time(20, 0, 0)}
 
-    for slot in broken_up_free_slots:
+    for i in range(len(broken_up_free_slots)):
+        slot = broken_up_free_slots[i]
+        slot_start = slot['start']
+        slot_end = slot['end']
         similarity_table: pd.DataFrame = slot['place_similarity']
-        best_place = similarity_table['similarity'].idxmax()
-        similarity = similarity_table['similarity'].max()
-        while (best_place in nearby_places_picked):
-            similarity_table = similarity_table.drop([best_place])
-            try:
-                best_place = similarity_table['similarity'].idxmax()
-                similarity = similarity_table['similarity'].max()
-            except Exception:
-                slot['place_similarity'] = {
-                    'place_id': "Free time", 'score': None}
-        nearby_places_picked.add(best_place)
-        slot['place_similarity'] = {
-            'place_id': best_place, 'score': similarity}
+        places_dict = slot['places_dict']
 
+        breakfast_places = []
+        restaurant_places = []
+        other_places = []
+
+        for place in places_dict:
+            obj = {
+                "info": place, "similarity": similarity_table.loc[place['id'], 'similarity']}
+            if 'breakfast_restaurant' in place['types'] or 'coffee_shop' in place['types'] or 'cafe' in place['types'] or 'brunch_restaurant' in place['types']:
+                breakfast_places.append(obj)
+            elif 'restaurant' in place['types']:
+                restaurant_places.append(obj)
+            else:
+                other_places.append(obj)
+
+        breakfast_places = sorted(
+            breakfast_places, key=lambda x: x['similarity'], reverse=True)
+        restaurant_places = sorted(
+            breakfast_places, key=lambda x: x['similarity'], reverse=True)
+        other_places = sorted(
+            breakfast_places, key=lambda x: x['similarity'], reverse=True)
+
+        if breakfast_time_range['start'] <= slot_start.time() and slot_end.time() <= breakfast_time_range['end']:
+            addHighestPlace(breakfast_places, nearby_places_picked, slot)
+        elif (lunch_time_range['start'] <= slot_start.time() and slot_end.time() <= lunch_time_range['end']) or (dinner_time_range['start'] <= slot_start.time() and slot_end.time() <= dinner_time_range['end']):
+            addHighestPlace(restaurant_places, nearby_places_picked, slot)
+        else:
+            addHighestPlace(other_places, nearby_places_picked, slot)
+        print(slot)
+
+    # raise NotImplemented('WIP')
     return broken_up_free_slots
