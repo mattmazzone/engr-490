@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
 import Login from "./app/screens/Login";
 import SignUp from "./app/screens/SignUp";
@@ -17,14 +17,17 @@ import TripLogo from "./components/SVGLogos/TripLogo";
 import ThemeProvider from "./context/ThemeProvider";
 import ThemeContext from "./context/ThemeContext";
 import * as UserService from "./services/userServices";
+import { RootStackParamList } from "./types/navigationTypes";
+import { MainStackParamList } from "./types/navigationTypes";
+import { BottomTabParamList } from "./types/navigationTypes";
 
 // import your component here
 // import NotificationScreen from "./components/AccountScreen/NotificationScreen";
 
 // Declare your stacks
-const RootStack = createNativeStackNavigator();
-const MainStack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
+const MainStack = createNativeStackNavigator<MainStackParamList>();
+const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 // Tab Navigator
 function BottomTabNavigation() {
@@ -92,7 +95,13 @@ function RootNavigator({
   isUserCreated,
   userHasInterests,
   setUserInterests,
-}: any) {
+}: {
+  user: User | null;
+  onUserCreationComplete: () => void;
+  isUserCreated: boolean;
+  userHasInterests: boolean;
+  setUserInterests: (hasInterests: boolean) => void;
+}) {
   return (
     <RootStack.Navigator>
       {user && isUserCreated ? (
@@ -139,42 +148,39 @@ function RootNavigator({
 }
 
 export default function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isUserCreated, setIsUserCreated] = useState(false);
   const [userHasInterests, setUserHasInterests] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user: any) => {
-      setUser(user);
-      if (FIREBASE_AUTH.currentUser) {
-        setIsUserCreated(true);
-        // Check if user has interests
-        checkUserInterests();
+    const unsubscribe = onAuthStateChanged(
+      FIREBASE_AUTH,
+      (user: User | null) => {
+        setUser(user);
+        if (FIREBASE_AUTH.currentUser) {
+          setIsUserCreated(true);
+          // Check if user has interests
+          checkUserInterests();
+        }
       }
-    });
+    );
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
-  const onUserCreationComplete = () => {
+  const onUserCreationComplete: () => void = () => {
     setIsUserCreated(true);
   };
 
   const checkUserInterests = async () => {
     // Check if user has interests
     UserService.fetchUserProfile().then((profile) => {
-      console.log("Profile");
-      console.log(profile);
-      //profile &&
-        //profile.interests.length &&
-        //setUserHasInterests(profile.interests.length > 0);
-        if (profile && Array.isArray(profile.interests)){
-          setUserHasInterests(profile.interests.length > 0);
-        }
-        else{
-          setUserHasInterests(false);
-        }
+      if (profile && Array.isArray(profile.interests)) {
+        setUserHasInterests(profile.interests.length > 0);
+      } else {
+        setUserHasInterests(false);
+      }
     });
   };
   const setUserInterests = (hasInterests: boolean) => {

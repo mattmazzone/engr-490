@@ -11,7 +11,8 @@ interface RouterProps {
 }
 
 const SelectLogin = ({ navigation, route }: RouterProps) => {
-  const { onUserCreationComplete } = route.params;
+  const { onUserCreationComplete }: { onUserCreationComplete: () => void } =
+    route.params;
 
   return (
     <Background>
