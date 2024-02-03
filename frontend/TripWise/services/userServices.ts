@@ -10,7 +10,7 @@ import { Meeting, TripType } from "../types/tripTypes";
 // Base API URL
 let BASE_API_URL: string;
 
-if (process.env.NODE_ENV = 'production') {
+if (process.env.NODE_ENV === 'production') {
   BASE_API_URL = "https://api.tripwise.cloud/api"
 }
 else {
