@@ -1,5 +1,5 @@
 import { NavigationProp } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   Text,
   View,
@@ -24,6 +24,7 @@ import {
 } from "../../services/userServices";
 import CalendarConfirmModal from "../../components/TripScreen/CalendarConfimModal";
 import CurrentTrip from "../../components/TripScreen/CurrentTrip";
+import ThemeContext from "../../context/ThemeContext";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -53,6 +54,7 @@ const Trip = ({ navigation }: RouterProps) => {
   const [confirmTripModalVisible, setConfirmTripModalVisible] = useState(false);
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
+  const {theme} = useContext(ThemeContext);
 
   // useFocusEffect is used to run code when the screen is focused
   useFocusEffect(
@@ -144,7 +146,7 @@ const Trip = ({ navigation }: RouterProps) => {
     <Background>
       <SafeAreaView style={styles.container}>
         <ScrollView style={styles.scrollView}>
-          <Text style={styles.title}>Trip Planner</Text>
+          <Text style={[styles.title, {color: theme === "Dark" ? "#fff" : "#000",}]}>Trip Planner</Text>
 
           <DateRangePicker onData={getDateRange} />
 
