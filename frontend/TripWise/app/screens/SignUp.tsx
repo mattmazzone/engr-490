@@ -16,9 +16,10 @@ import BackButton from "../../components/BackButton";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import Background from "../../components/Background";
 import * as UserService from "../../services/userServices";
+import { RootStackParamList } from "../../types/navigationTypes";
 
 interface RouterProps {
-  navigation: NavigationProp<any, any>;
+  navigation: NavigationProp<RootStackParamList, "SignUp">;
 }
 
 const mobileRenderContent = (children: React.ReactNode) => {

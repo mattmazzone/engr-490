@@ -6,8 +6,12 @@ import * as UserService from "../../services/userServices";
 import { arraysEqual } from "../../util/arraysEqual";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ThemeContext from "../../context/ThemeContext";
-import { NavigationProp } from "@react-navigation/native";
+import { NavigationProp, RouteProp } from "@react-navigation/native";
 import CategoryView from "../../components/SelectInterestScreen/CategoryView";
+import {
+  MainStackParamList,
+  RootStackParamList,
+} from "../../types/navigationTypes";
 
 interface Item {
   id: string;
@@ -130,10 +134,14 @@ const categories: Category[] = [
   },
 ];
 interface RouterProps {
-  route: any;
-  navigation: NavigationProp<any, any>;
+  navigation:
+    | NavigationProp<MainStackParamList, "SelectInterests">
+    | NavigationProp<RootStackParamList, "SelectInterests">;
+  route:
+    | RouteProp<MainStackParamList, "SelectInterests">
+    | RouteProp<RootStackParamList, "SelectInterests">;
 }
-const SelectInterests = ({ route, navigation }: RouterProps) => {
+const SelectInterests = ({ navigation, route }: RouterProps) => {
   const { theme } = useContext(ThemeContext);
   const { setUserInterests } = route.params || {};
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
@@ -212,7 +220,9 @@ const SelectInterests = ({ route, navigation }: RouterProps) => {
             setUserInterests(true);
           } else {
             // If setUserInterests is not provided, navigate to the home screen
-            navigation.navigate('Home');
+            (navigation as NavigationProp<MainStackParamList>).navigate(
+              "BottomTabNavigation"
+            );
           }
         } else {
           // The fetched interests don't match the expected values.
@@ -240,7 +250,8 @@ const SelectInterests = ({ route, navigation }: RouterProps) => {
       </Background>
     );
   }
-  const buttonText = (userProfile?.interests?.length ?? 0) > 0
+  const buttonText =
+    (userProfile?.interests?.length ?? 0) > 0
       ? "Update Interests"
       : "Thanks for sharing your interests";
   // Render the main component structure with user information and interest buttons
@@ -274,11 +285,13 @@ const SelectInterests = ({ route, navigation }: RouterProps) => {
         </View>
         {/* Update Interests Button */}
         <Pressable
-          onPress={() =>handleUpdateInterests()}
+          onPress={() => handleUpdateInterests()}
           disabled={selectedInterests.length < 4 || !hasChangedInterests()}
           style={[
             styles.button,
-            selectedInterests.length < 4 || !hasChangedInterests() ? styles.buttonDisabled : {},
+            selectedInterests.length < 4 || !hasChangedInterests()
+              ? styles.buttonDisabled
+              : {},
           ]}
         >
           <Text style={styles.buttonText}>{buttonText}</Text>

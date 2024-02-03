@@ -17,9 +17,10 @@ import AppSettingsPage from "../../components/AccountScreen/AppSettings";
 import SettingOption from "../../components/AccountScreen/SettingOption";
 import { UserSettings } from "../../types/userTypes";
 import ThemeContext from "../../context/ThemeContext";
+import { BottomTabParamList } from "../../types/navigationTypes";
 
 interface RouterProps {
-  navigation: NavigationProp<any, any>;
+  navigation: NavigationProp<BottomTabParamList, "Account">;
 }
 
 const Account = ({ navigation }: RouterProps) => {
@@ -52,7 +53,7 @@ const Account = ({ navigation }: RouterProps) => {
   }, [userProfile]); // Update settings when userProfile changes
 
   // Function to update user settings
-  const updateUserSettings = async (newSettings: any) => {
+  const updateUserSettings = async (newSettings: UserSettings) => {
     try {
       await UserService.updateUserSettings(newSettings);
       setUserSettings(newSettings); // Update state with new settings
