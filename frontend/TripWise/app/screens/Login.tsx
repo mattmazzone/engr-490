@@ -16,9 +16,10 @@ import LoginScreenButton from "../../components/Login/LoginScreenButton";
 import BackButton from "../../components/BackButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Background from "../../components/Background";
+import { RootStackParamList } from "../../types/navigationTypes";
 
 interface RouterProps {
-  navigation: NavigationProp<any, any>;
+  navigation: NavigationProp<RootStackParamList, "Login">;
 }
 
 const mobileRenderContent = (children: React.ReactNode) => {

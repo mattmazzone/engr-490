@@ -1,13 +1,6 @@
 import { NavigationProp } from "@react-navigation/native";
-import React, { useState, useContext, useRef } from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  Pressable,
-} from "react-native";
+import React, { useState, useContext } from "react";
+import { Text, View, StyleSheet, Pressable } from "react-native";
 import Background from "../../components/Background";
 import ThemeContext from "../../context/ThemeContext";
 import * as UserService from "../../services/userServices";
@@ -16,9 +9,10 @@ import { useFocusEffect } from "@react-navigation/native";
 import PastTrips from "../../components/HomeScreen/PastTrips";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import TripWiseLogoHomePage from "../../components/SVGLogos/TripWiseLogoHomePage";
+import { BottomTabParamList } from "../../types/navigationTypes";
 
 interface RouterProps {
-  navigation: NavigationProp<any, any>;
+  navigation: NavigationProp<BottomTabParamList, "Home">;
 }
 
 const Home = ({ navigation }: RouterProps) => {

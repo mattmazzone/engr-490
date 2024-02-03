@@ -1,13 +1,14 @@
 import React from "react";
-import { View, StyleSheet, useColorScheme } from "react-native";
+import { View, StyleSheet } from "react-native";
 import TripWiseLogo from "../../components/SVGLogos/TripWiseLogo";
 import LoginProviderButton from "../../components/SelectLogin/LoginProviderButton";
-import { NavigationProp } from "@react-navigation/native";
+import { NavigationProp, RouteProp } from "@react-navigation/native";
 import Background from "../../components/Background";
+import { RootStackParamList } from "../../types/navigationTypes";
 
 interface RouterProps {
-  navigation: NavigationProp<any, any>;
-  route: any;
+  navigation: NavigationProp<RootStackParamList, "SelectLogin">;
+  route: RouteProp<RootStackParamList, "SelectLogin">;
 }
 
 const SelectLogin = ({ navigation, route }: RouterProps) => {
