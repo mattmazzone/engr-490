@@ -81,35 +81,57 @@ const SignUp = ({ navigation }: RouterProps) => {
               <View style={styles.logo}>
                 <TripWiseLogo />
               </View>
-              <TextInput
-                placeholder="First Name"
-                style={styles.input}
-                value={firstName}
-                onChangeText={setFirstName}
-                placeholderTextColor={'#c7c7c7'}
-              />
-              <TextInput
-                placeholder="Last Name"
-                style={styles.input}
-                value={lastName}
-                onChangeText={setLastName}
-                placeholderTextColor={'#c7c7c7'}
-              />
-              <TextInput
-                placeholder="Email"
-                style={styles.input}
-                value={email}
-                onChangeText={setEmail}
-                placeholderTextColor={'#c7c7c7'}
-              />
-              <TextInput
-                placeholder="Password"
-                style={styles.input}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                placeholderTextColor={'#c7c7c7'}
-              />
+              <View style={styles.loginInputContainer}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputTitles}>
+                    First Name
+                  </Text>
+                  <TextInput
+                    placeholder="Enter your first name"
+                    style={styles.input}
+                    value={firstName}
+                    onChangeText={setFirstName}
+                    placeholderTextColor={'#c7c7c7'}
+                  />
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputTitles}>
+                    Last Name
+                  </Text>
+                  <TextInput
+                    placeholder="Enter your last name"
+                    style={styles.input}
+                    value={lastName}
+                    onChangeText={setLastName}
+                    placeholderTextColor={'#c7c7c7'}
+                  />
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputTitles}>
+                    Email
+                  </Text>
+                  <TextInput
+                    placeholder="Enter your email"
+                    style={styles.input}
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholderTextColor={'#c7c7c7'}
+                  />
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputTitles}>
+                    Password
+                  </Text>
+                  <TextInput
+                    placeholder="Enter your password"
+                    style={styles.input}
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                    placeholderTextColor={'#c7c7c7'}
+                  />
+                </View>
+              </View>
               <LoginScreenButton title="Sign Up" onPress={handleSignUp} />
               <Text style={styles.loginText}>
                 Already have an account?{' '}
@@ -138,7 +160,7 @@ const styles = StyleSheet.create({
     fontSize: 35,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 20,
+    marginVertical: 20,
   },
   container: {
     flex: 1,
@@ -152,26 +174,31 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   logo: {
-    marginTop: 20,
-    marginBottom: 100,
+    marginBottom: 60,
+  },
+  loginInputContainer: {
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  inputGroup : {
+    maxWidth: 300, // Set a max-width for large screens
+    alignSelf: 'center',
+    width: '100%',
+  },
+  inputTitles : {
+    fontSize: 15,
+    color: 'black',
+    paddingLeft: 5,
   },
   input: {
-    marginVertical: 10,
+    marginTop: 10,
+    marginBottom: 20,
     width: 300,
     height: 45, // Adjusted height
     borderRadius: 10, // Rounded corners
     padding: 10,
-    backgroundColor: "#fff",
-    borderColor: "#ccc", // Subtle border
-    borderWidth: 1,
-    shadowColor: "#000", // Optional shadow for a "lifted" effect
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    backgroundColor: "#f5f7fa",
   },
   loginText: {
     fontSize: 16,
