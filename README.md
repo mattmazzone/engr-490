@@ -2,6 +2,7 @@
 # TripWise
 TripWise is a mobile application that helps you optimize your free time during your business trip by recommending activities and restaurants based on your interests. 
 
+# Production Test
 ## Installation
 
 1- Clone the repository \
