@@ -33,5 +33,7 @@ export type ScheduledActivity = {
 
 export interface PlaceSimilarity {
   place_id: string;
+  place_name: string;
+  address: string;
   score: number;
 }

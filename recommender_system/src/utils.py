@@ -309,7 +309,7 @@ def addHighestPlace(places, nearby_places_picked):
         best_place_id = place['info']['id']
         if best_place_id not in nearby_places_picked:
             nearby_places_picked.add(best_place_id)
-            return {'place_id': best_place_id, 'score': place['similarity']}
+            return {'place_id': best_place_id, 'place_name': place['info']['displayName']['text'], 'address': place['info']['formattedAddress'], 'score': place['similarity']}
 
 
 def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings):

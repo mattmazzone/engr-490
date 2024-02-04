@@ -35,7 +35,9 @@ const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
       color: "#6185d0", // Color for meetings
     })),
     ...currentTrip.scheduledActivities.map((slot) => ({
-      title: `Place id: ${slot.place_similarity.place_id}; Similarity: ${slot.place_similarity.score}`,
+      title: `${slot.place_similarity.place_name}\n${
+        slot.place_similarity.address
+      }\nSimilarity: ${slot.place_similarity.score * 100}%`,
       start: new Date(slot.start),
       end: new Date(slot.end),
       color: "#76b852", // A distinct color for free slots
@@ -45,22 +47,22 @@ const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
   return (
     <BackgroundGradient>
       <SafeAreaView style={styles.currentTripContainer}>
-          <View style={styles.calendarContainer}>
-            {currentTrip.tripStart && currentTrip.tripEnd && (
-              <Calendar
-                events={calendarEvents}
-                date={new Date(currentTrip.tripStart)}
-                height={600}
-                mode="3days"
-                theme={calendartheme}
-                eventCellStyle={(event) => {
-                  return {
-                    backgroundColor: event.color,
-                  };
-                }}
-              />
-            )}
-          </View>
+        <View style={styles.calendarContainer}>
+          {currentTrip.tripStart && currentTrip.tripEnd && (
+            <Calendar
+              events={calendarEvents}
+              date={new Date(currentTrip.tripStart)}
+              height={600}
+              mode="3days"
+              theme={calendartheme}
+              eventCellStyle={(event) => {
+                return {
+                  backgroundColor: event.color,
+                };
+              }}
+            />
+          )}
+        </View>
       </SafeAreaView>
     </BackgroundGradient>
   );
