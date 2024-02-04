@@ -18,7 +18,6 @@ import BackButton from "../../components/BackButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Background from "../../components/Background";
 import TripWiseLogo from "../../components/SVGLogos/TripWiseLogo";
-import LoginTextInput from "../../components/Login/LoginTextInput";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -142,8 +141,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "flex-start",
-    paddingTop: 60,
+    justifyContent: "center",
   },
   loginContainer: {
     width: "100%",
