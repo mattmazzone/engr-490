@@ -304,19 +304,18 @@ def find_relavent_meeting(trip_meetings, end_time):
     return -1
 
 
-def addHighestPlace(places, nearby_places_picked, slot):
+def addHighestPlace(places, nearby_places_picked):
     for place in places:
         best_place_id = place['info']['id']
         if best_place_id not in nearby_places_picked:
             nearby_places_picked.add(best_place_id)
-            slot['place_similarity'] = {
-                'place_id': best_place_id, 'score': place['similarity']}
+            return {'place_id': best_place_id, 'score': place['similarity']}
 
 
 def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings):
     format_trips = '%Y-%m-%dT%H:%M:%S%z'
     format_slots = '%Y-%m-%dT%H:%M:%S.%f%z'
-    activity_duration = timedelta(hours=1)
+    activity_duration = timedelta(hours=1.5)
     broken_up_free_slots = []
 
     for meeting in trip_meetings:
@@ -331,12 +330,13 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
     for slot in free_slots:
         start = datetime.strptime(slot['start'], format_slots)
         end = datetime.strptime(slot['end'],  format_slots)
-        next_datetime = start + activity_duration
-        while next_datetime < end:
-            current_datetime = next_datetime - activity_duration
+        current_end = start + activity_duration
+        while current_end <= end:
+            current_start = current_end - activity_duration
             broken_up_free_slots.append(
-                {"start": current_datetime, "end": next_datetime})
-            next_datetime = next_datetime + activity_duration
+                {"start": current_start, "end": current_end})
+            current_end = current_end + activity_duration
+    print(len(broken_up_free_slots))
 
     for slot in broken_up_free_slots:
         index = find_relavent_meeting(trip_meetings, slot['end'])
@@ -361,8 +361,8 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
         other_places = []
 
         for place in places_dict:
-            obj = {
-                "info": place, "similarity": similarity_table.loc[place['id'], 'similarity']}
+            sim = similarity_table.loc[place['id'], 'similarity']
+            obj = {"info": place, "similarity": sim}
             if 'breakfast_restaurant' in place['types'] or 'coffee_shop' in place['types'] or 'cafe' in place['types'] or 'brunch_restaurant' in place['types']:
                 breakfast_places.append(obj)
             elif 'restaurant' in place['types']:
@@ -373,17 +373,25 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
         breakfast_places = sorted(
             breakfast_places, key=lambda x: x['similarity'], reverse=True)
         restaurant_places = sorted(
-            breakfast_places, key=lambda x: x['similarity'], reverse=True)
+            restaurant_places, key=lambda x: x['similarity'], reverse=True)
         other_places = sorted(
-            breakfast_places, key=lambda x: x['similarity'], reverse=True)
+            other_places, key=lambda x: x['similarity'], reverse=True)
 
-        if breakfast_time_range['start'] <= slot_start.time() and slot_end.time() <= breakfast_time_range['end']:
-            addHighestPlace(breakfast_places, nearby_places_picked, slot)
-        elif (lunch_time_range['start'] <= slot_start.time() and slot_end.time() <= lunch_time_range['end']) or (dinner_time_range['start'] <= slot_start.time() and slot_end.time() <= dinner_time_range['end']):
-            addHighestPlace(restaurant_places, nearby_places_picked, slot)
+        # print(len(breakfast_places))
+        # print(len(restaurant_places))
+        # print(len(other_places))
+        # print()
+
+        if len(breakfast_places) > 0 and breakfast_time_range['start'] <= slot_start.time() and slot_end.time() <= breakfast_time_range['end']:
+            slot['place_similarity'] = addHighestPlace(
+                breakfast_places, nearby_places_picked)
+        elif len(restaurant_places) > 0 and (lunch_time_range['start'] <= slot_start.time() and slot_end.time() <= lunch_time_range['end']) or (dinner_time_range['start'] <= slot_start.time() and slot_end.time() <= dinner_time_range['end']):
+            slot['place_similarity'] = addHighestPlace(
+                restaurant_places, nearby_places_picked)
         else:
-            addHighestPlace(other_places, nearby_places_picked, slot)
-        print(slot)
+            slot['place_similarity'] = addHighestPlace(
+                other_places, nearby_places_picked)
+        del slot['places_dict']
 
     # raise NotImplemented('WIP')
     return broken_up_free_slots
