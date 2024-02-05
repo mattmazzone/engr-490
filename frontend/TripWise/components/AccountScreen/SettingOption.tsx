@@ -8,14 +8,17 @@ interface SettingOptionProps {
   title: string;
   onPress: () => void;
   hasBorder?: boolean;
+  isActive?: boolean;
 }
 
-const SettingOption = ({ icon, title, onPress, hasBorder }: SettingOptionProps) => {
+const SettingOption = ({ icon, title, onPress, hasBorder, isActive }: SettingOptionProps) => {
   const { theme } = useContext(ThemeContext);
 
   return (
     <View>
-      <TouchableOpacity style={[styles.settingOption, hasBorder && styles.settingOptionBorder]} onPress={onPress}>
+      <TouchableOpacity style={[styles.settingOption, hasBorder && styles.settingOptionBorder, 
+      isActive && { backgroundColor: theme === 'Dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)' } // Highlight active option
+    ]} onPress={onPress}>
         <View style={styles.settingIconContainer}>{icon}</View>
         <Text style={[styles.settingTitle, { color: theme === 'Dark' ? 'white' : 'black' }]}>
           {title}
@@ -44,7 +47,7 @@ const styles = StyleSheet.create({
   settingOption: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    padding: 20,
+    padding: 10,
     alignItems: 'center',
   },
   settingIconContainer: {
@@ -55,7 +58,7 @@ const styles = StyleSheet.create({
   },
   settingTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight:'500',
     flex: 1,
   },
   arrowStyle: {

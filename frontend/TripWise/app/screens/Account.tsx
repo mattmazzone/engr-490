@@ -1,3 +1,4 @@
+// SettingsScreen.js
 import React, { useEffect, useState, useContext } from "react";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import {
@@ -6,30 +7,40 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  useWindowDimensions,
   Image,
   Modal,
 } from "react-native";
-import Background from "../../components/Background";
-import { useUserProfile } from "../../hooks/useUserProfile";
+import SettingOption from '../../components/AccountScreen/SettingOption';
+import { UserSettings } from "../../types/userTypes";
 import * as UserService from "../../services/userServices";
 import { NavigationProp } from "@react-navigation/native";
-import About from "../../components/AccountScreen/About";
+import { useUserProfile } from "../../hooks/useUserProfile";
 import AppSettingsLogo from "../../components/SVGLogos/AppSettingsLogo";
 import PrivacySettingsLogo from "../../components/SVGLogos/PrivacySettingsLogo";
 import BackupAndRestoreLogo from "../../components/SVGLogos/BackupAndRestoreLogo";
 import HelpAndSupportLogo from "../../components/SVGLogos/HelpAndSupportLogo";
-import NotificationSettingsLogo from "../../components/SVGLogos/NotificationSettingsLogo";
+import AccountLogo from "../../components/SVGLogos/AccountLogo";
+import LogoutLogo from "../../components/SVGLogos/LogoutLogo"
+import AccountPage from "../../components/AccountScreen/AccountPage";
+import AppSettingsPage from '../../components/AccountScreen/AppSettings'
+import About from '../../components/AccountScreen/About';
+import NotificationScreen from '../../components/AccountScreen/NotificationScreen'; // Your SettingOption component
+import ThemeContext from '../../context/ThemeContext';
 import TripWiseLogoSmall from "../../components/SVGLogos/TripWiseLogoSmall";
-import AppSettingsPage from "../../components/AccountScreen/AppSettings";
-import SettingOption from "../../components/AccountScreen/SettingOption";
-import { UserSettings } from "../../types/userTypes";
-import ThemeContext from "../../context/ThemeContext";
+import Background from "../../components/Background";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
-const Account = ({ navigation }: RouterProps) => {
+const SettingsScreen = ({ navigation }: RouterProps) => {
+
+  const { width } = useWindowDimensions();
+  const isLargeScreen = width >= 1157;
+  const isMedScreen = width < 1157 && width >= 766;
+  const [activeSetting, setActiveSetting] = useState('app');
+
   const { theme } = useContext(ThemeContext);
   const { userProfile, isFetchingProfile } = useUserProfile({
     refreshData: true,
@@ -46,6 +57,7 @@ const Account = ({ navigation }: RouterProps) => {
     useState<boolean>(false);
   const [appSettingsVisible, setAppSettingsModalVisible] =
     useState<boolean>(false);
+  const [accountSettingsVisible, setAccountSettingsVisible] = useState<boolean>(false)
 
   // Get user settings
   useEffect(() => {
@@ -72,42 +84,41 @@ const Account = ({ navigation }: RouterProps) => {
     FIREBASE_AUTH.signOut();
   };
 
-  // TODO: REPLACE WITH COOL SPINNER
-  if (isFetchingProfile) {
-    return (
-      <Background>
-        <Text>Loading...</Text>
-      </Background>
-    );
-  }
+  const renderContent = () => {
+    switch (activeSetting) {
+      case 'app':
+        return <AccountPage/>
+      case 'settings':
+        return <AppSettingsPage isVisible={true} userSettings={userSettings} updateUserSettings={updateUserSettings} closeModal={() => setActiveSetting('')} useModal={false} />;
+      case 'notification':
+        return <NotificationScreen/>
+      case 'about':
+        return <About/>
+      default:
+        return <View />;
+    }
+  };
+
+  if (isLargeScreen) {
 
   return (
-    <Background>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          {/* Profile image and name */}
-          <Image source={{}} style={styles.profileImage} />
-          {userProfile && (
-            <Text
-              style={[
-                styles.profileName,
-                { color: theme === "Dark" ? "white" : "black" },
-              ]}
-            >
-              {`${userProfile.firstName} ${userProfile.lastName}`}
-            </Text>
-          )}
-        </View>
-
-        <ScrollView style={styles.settings}>
-          {/* Settings options with icons */}
-          <SettingOption
+    <View style={styles.container}>
+      <View style={[styles.sidebar, {backgroundColor: theme === 'Dark'? 'rgba(12, 12, 12, 0.8)' : 'white'}]}>
+      <SettingOption
+            icon={<AccountLogo focused={false} />}
+            title="Account Settings"
+            onPress={() => setActiveSetting('app')}
+            hasBorder={true}
+            isActive={activeSetting === 'app'}
+          />
+      <SettingOption
             icon={<AppSettingsLogo focused={false} />}
             title="App Settings"
-            onPress={() => setAppSettingsModalVisible(true)}
+            onPress={() => setActiveSetting('settings')}
             hasBorder={true}
+            isActive={activeSetting === 'settings'}
           />
-          <SettingOption
+      <SettingOption
             icon={<PrivacySettingsLogo focused={false} />}
             title="Privacy Settings"
             onPress={() => {
@@ -131,59 +142,131 @@ const Account = ({ navigation }: RouterProps) => {
             }}
             hasBorder={true}
           />
-          <SettingOption
-            icon={<TripWiseLogoSmall />}
-            title="About"
-            onPress={() => {
-              setAboutModalVisible(true);
-            }}
-            hasBorder={false}
-          />
-          {/* Logout button */}
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.logoutButtonText}>Logout</Text>
-          </TouchableOpacity>
-        </ScrollView>
-
-        <AppSettingsPage
-          isVisible={appSettingsVisible}
-          userSettings={userSettings}
-          updateUserSettings={updateUserSettings}
-          closeModal={() => setAppSettingsModalVisible(false)}
+        <SettingOption
+          title="About"
+          onPress={() => setActiveSetting('about')}
+          icon={<TripWiseLogoSmall />}
+          hasBorder={true}
+          isActive={activeSetting === 'about'}
         />
-
-        <Modal
-          animationType="slide"
-          transparent={false}
-          visible={aboutModalVisible}
-          onRequestClose={() => {
-            setAboutModalVisible(!aboutModalVisible);
-          }}
-        >
-          <About
-            closeModal={() => setAboutModalVisible(false)}
-            navigation={navigation}
-          />
-        </Modal>
-
-
+        <SettingOption
+          title="Sign Out"
+          onPress={handleLogout}
+          icon={<LogoutLogo size={20}/>}
+          hasBorder={false}
+        />
       </View>
-    </Background>
+      <View style={styles.contentArea}>
+        {renderContent()}
+      </View>
+    </View>
   );
+
+}
+else {
+  return (
+    <Background>
+    <View style={styles.container}>
+
+      <ScrollView style={styles.settings}>
+        {/* Settings options with icons */}
+        <SettingOption
+          icon={<AccountLogo focused={false} />}
+          title="Account Settings"
+          onPress={() => setAccountSettingsVisible(true)}
+          hasBorder={true}
+        />
+        <SettingOption
+          icon={<AppSettingsLogo focused={false} />}
+          title="App Settings"
+          onPress={() => setAppSettingsModalVisible(true)}
+          hasBorder={true}
+        />
+        <SettingOption
+          icon={<PrivacySettingsLogo focused={false} />}
+          title="Privacy Settings"
+          onPress={() => {
+            console.log("Privacy Settings");
+          }}
+          hasBorder={true}
+        />
+        <SettingOption
+          icon={<BackupAndRestoreLogo focused={false} />}
+          title="Backup and Restore"
+          onPress={() => {
+            console.log("Backup and Restore");
+          }}
+          hasBorder={true}
+        />
+        <SettingOption
+          icon={<HelpAndSupportLogo focused={false} />}
+          title="Help and Support"
+          onPress={() => {
+            console.log("Help and Support");
+          }}
+          hasBorder={true}
+        />
+        <SettingOption
+          icon={<TripWiseLogoSmall />}
+          title="About"
+          onPress={() => {
+            setAboutModalVisible(true);
+          }}
+          hasBorder={false}
+        />
+        {/* Logout button */}
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
+      </ScrollView>
+      
+
+      <AppSettingsPage
+        isVisible={appSettingsVisible}
+        userSettings={userSettings}
+        updateUserSettings={updateUserSettings}
+        closeModal={() => setAppSettingsModalVisible(false)}
+        useModal = {true}
+      />
+
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={aboutModalVisible}
+        onRequestClose={() => {
+          setAboutModalVisible(!aboutModalVisible);
+        }}
+      >
+        <About
+          closeModal={() => setAboutModalVisible(false)}
+          navigation={navigation}
+        />
+      </Modal>
+
+
+    </View>
+  </Background>
+  );
+}
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingBottom: 70,
-    paddingHorizontal: 70,
+    flexDirection: 'row',
+  },
+  sidebar: {
+    width: "25%", // Adjust the width of the sidebar as needed
+    borderRightWidth: 1,
+  },
+  contentArea: {
+    flex: 1,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     gap: 20,
     padding: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
     marginBottom: 20,
 
     borderRadius: 3,
@@ -203,14 +286,17 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderRadius: 3,
   },
-
   logoutButton: {
     backgroundColor: "rgba(255, 0, 0, 0.8)",
     padding: 10,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: 'center',
     marginTop: 10,
     borderRadius: 3,
+    flexDirection: 'row',
+  },
+  logoutIcon: {
+    justifyContent: 'flex-start',
   },
   logoutButtonText: {
     color: "#fff",
@@ -218,4 +304,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Account;
+export default SettingsScreen;

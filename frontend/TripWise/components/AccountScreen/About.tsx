@@ -67,10 +67,6 @@ const About = ({ closeModal, navigation }: any) => {
       <Pressable style={styles.button} onPress={UserService.endCurrentTrip}>
         <Text style={styles.buttonText}>End Current Trip</Text>
       </Pressable>
-
-      <Pressable onPress={closeModal} style={styles.button}>
-        <Text style={styles.buttonText}>Close Modal</Text>
-      </Pressable>
     </SafeAreaView>
   );
 };
