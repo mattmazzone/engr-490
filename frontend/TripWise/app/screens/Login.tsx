@@ -73,23 +73,33 @@ const Login = ({ navigation }: RouterProps) => {
                 <TripWiseLogo />
               </View>
               <View style={styles.loginInputContainer}>
-              <TextInput
-                value={email}
-                style={styles.input}
-                placeholder="Email"
-                autoCapitalize="none"
-                onChangeText={(text) => setEmail(text)}
-                placeholderTextColor={'#c7c7c7'}
-              ></TextInput>
-              <TextInput
-                secureTextEntry={true}
-                value={password}
-                style={styles.input}
-                placeholder="Password"
-                autoCapitalize="none"
-                onChangeText={(text) => setPassword(text)}
-                placeholderTextColor={'#c7c7c7'}
-              ></TextInput>
+                <View style={styles.inputGroup}>
+                <Text style={styles.inputTitles}>
+                  Email
+                </Text>
+                <TextInput
+                  value={email}
+                  style={styles.input}
+                  placeholder="Enter your email"
+                  autoCapitalize="none"
+                  onChangeText={(text) => setEmail(text)}
+                  placeholderTextColor={'#c7c7c7'}
+                ></TextInput>
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputTitles}>
+                    Password
+                  </Text>
+                  <TextInput
+                    secureTextEntry={true}
+                    value={password}
+                    style={styles.input}
+                    placeholder="Enter your password"
+                    autoCapitalize="none"
+                    onChangeText={(text) => setPassword(text)}
+                    placeholderTextColor={'#c7c7c7'}
+                  ></TextInput>
+                </View>
               </View>
 
               {loading ? (
@@ -131,8 +141,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "flex-start",
-    paddingTop: 60,
+    justifyContent: "center",
   },
   loginContainer: {
     width: "100%",
@@ -140,7 +149,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   logo: {
-    marginTop: 20,
     marginBottom: 60,
   },
   loginInputContainer: {
@@ -148,23 +156,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
+  inputGroup : {
+    maxWidth: 300, // Set a max-width for large screens
+    alignSelf: 'center',
+    width: '100%',
+  },
+  inputTitles : {
+    fontSize: 15,
+    color: 'black',
+    paddingLeft: 5,
+  },
   input: {
-    marginVertical: 10,
+    marginTop: 10,
+    marginBottom: 20,
     width: 300,
     height: 45, // Adjusted height
     borderRadius: 10, // Rounded corners
     padding: 10,
-    backgroundColor: "#fff",
-    borderColor: "#ccc", // Subtle border
-    borderWidth: 1,
-    shadowColor: "#000", // Optional shadow for a "lifted" effect
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    backgroundColor: "#f5f7fa",
   },
   signupText: {
     fontSize: 16,
