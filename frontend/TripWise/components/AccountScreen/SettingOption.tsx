@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import { TouchableOpacity, Text, View, StyleSheet } from "react-native";
+import ThemeContext from "../../context/ThemeContext";
 
 interface SettingOptionProps {
   icon: JSX.Element;
@@ -13,15 +14,29 @@ const SettingOption = ({
   title,
   onPress,
   hasBorder,
-}: SettingOptionProps) => (
-  <TouchableOpacity
-    style={[styles.settingOption, hasBorder ? styles.settingOptionBorder : {}]}
-    onPress={onPress}
-  >
-    <View style={styles.settingIconContainer}>{icon}</View>
-    <Text style={styles.settingTitle}>{title}</Text>
-  </TouchableOpacity>
-);
+}: SettingOptionProps) => {
+  const { theme } = useContext(ThemeContext);
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.settingOption,
+        hasBorder ? styles.settingOptionBorder : {},
+      ]}
+      onPress={onPress}
+    >
+      <View style={styles.settingIconContainer}>{icon}</View>
+      <Text
+        style={[
+          styles.settingTitle,
+          { color: theme === "Dark" ? "white" : "black" },
+        ]}
+      >
+        {title}
+      </Text>
+    </TouchableOpacity>
+  );
+};
 
 const styles = StyleSheet.create({
   settingOption: {
@@ -39,7 +54,6 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#fff",
     // Add flex: 1 if you want to ensure the text is aligned left and the TouchableOpacity fills the available space
     flex: 1,
   },
