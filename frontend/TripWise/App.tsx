@@ -184,6 +184,7 @@ export default function App() {
     });
   };
   const setUserInterests = (hasInterests: boolean) => {
+    console.log('Updating userInterests to:', hasInterests);
     setUserHasInterests(hasInterests);
   };
 

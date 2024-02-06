@@ -201,6 +201,7 @@ const SelectInterests = ({ navigation, route }: RouterProps) => {
           "selectedInterests",
           JSON.stringify(selectedInterests)
         );
+        setUserInterests?.(true);
 
         // Fetch the updated profile to ensure the data was updated successfully
         const updatedProfile = await UserService.fetchUserProfile();
