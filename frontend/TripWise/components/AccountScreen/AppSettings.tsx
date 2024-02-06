@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import Background from "../Background";
 import ThemeContext from "../../context/ThemeContext";
+import BackButton from "../BackButton";
 
 interface AppSettingsPageProps {
   isVisible: boolean;
@@ -19,6 +20,24 @@ interface AppSettingsPageProps {
   closeModal: any;
   useModal: boolean;
 }
+const useResponsiveScreen = (breakpoint: number) => {
+  const [isScreenSmall, setIsScreenSmall] = useState(Dimensions.get('window').width < breakpoint);
+
+  useEffect(() => {
+    const updateScreenSize = () => {
+      const screenWidth = Dimensions.get('window').width;
+      setIsScreenSmall(screenWidth < breakpoint);
+    };
+
+    // Add event listener
+    const subscription = Dimensions.addEventListener('change', updateScreenSize);
+
+    // Remove event listener on cleanup
+    return () => subscription.remove();
+  }, [breakpoint]);
+
+  return isScreenSmall;
+};
 
 const AppSettingsPage = ({
   isVisible = true,
@@ -73,10 +92,13 @@ const AppSettingsPage = ({
       closeModal();
     }
   };
+  const isScreenSmall = useResponsiveScreen(768);
 
   const content = (
     <Background>
+      
       <SafeAreaView style={styles.container}>
+      {isScreenSmall && <BackButton onPress={() => closeModal()}/>} {/* Conditionally render the Back Button */}
         <View style={styles.titleView}>
           <Text
             style={[
@@ -251,6 +273,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     width: 150,
     height: 50,
+  },
+  backButtonContainer :{
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    margin: 20,
   },
 });
 
