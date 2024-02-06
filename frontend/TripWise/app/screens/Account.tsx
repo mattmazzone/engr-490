@@ -102,7 +102,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
 
     return (
       <View style={[styles.container, { backgroundColor: theme === 'Dark' ? '#171F21' : 'white' }]}>
-        <View style={[styles.sidebar, { backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }]}>
+        <ScrollView style={[styles.sidebar, { backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }]}>
           <View style={styles.header}>
             {/* Profile image and name */}
             <Image source={{}} style={styles.profileImage} />
@@ -168,7 +168,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             icon={<LogoutLogo size={20} />}
             hasBorder={false}
           />
-        </View>
+        </ScrollView>
         <View style={styles.contentArea}>
           {renderContent()}
         </View>
@@ -288,6 +288,7 @@ const styles = StyleSheet.create({
 
   },
   sidebar: {
+    flexGrow: 0,
     width: 280, // Adjust the width of the sidebar as needed
     marginBottom: 90,
     padding: 20, // Adjust padding to your preference

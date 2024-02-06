@@ -133,11 +133,11 @@ const AccountPage = ({
     }
     Alert.alert('Success', 'Profile updated successfully');
   };
-  //For Testing Purposes
+  //TODO: REMOVE: For Testing Purposes
   const [isLoading, setIsLoading] = useState(true);
   setTimeout(() => setIsLoading(false), 1000);
 
-  if (isLoading || isFetchingProfile) {
+  if (!isScreenSmall && (isLoading || isFetchingProfile)) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: "center", backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }}>
         <ActivityIndicator size="large" color="rgba(34, 170, 85, 1)" />
@@ -149,15 +149,15 @@ const AccountPage = ({
 
   const content = (
     <Background>
-      <View style={[styles.container, { backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }]}>
+      <View style={[styles.container, { backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }, isScreenSmall ? { margin: 10, alignItems: 'center', alignSelf: 'center', width: '90%' } : { margin: 80, alignSelf: 'flex-start' },]}>
         <Text style={[styles.header, { color: theme === 'Dark' ? 'white' : 'black' }]}>
           Account
         </Text >
         <Text style={[styles.smallHeader, { color: '#6B7280', fontSize: 16 }]}>
           Manage your account details
         </Text>
-        <View style={isScreenSmall ? styles.containerSmall : styles.containerLarge}>
-          <View >
+        <View style={[isScreenSmall ? styles.containerSmall : styles.containerLarge]}>
+          <View style={styles.inputWrapper}>
             <Text style={[styles.inputTitles, { color: theme === 'Dark' ? 'white' : 'black' }]}>
               First Name
             </Text>
@@ -171,7 +171,7 @@ const AccountPage = ({
               underlineColorAndroid="transparent"
             />
           </View>
-          <View >
+          <View style={styles.inputWrapper}>
             <Text style={[styles.inputTitles, { color: theme === 'Dark' ? 'white' : 'black' }]}>
               Last Name
             </Text>
@@ -185,7 +185,7 @@ const AccountPage = ({
               underlineColorAndroid="transparent"
             />
           </View>
-          <View>
+          <View style={styles.inputWrapper}>
             <Text style={[styles.inputTitles, { color: theme === 'Dark' ? 'white' : 'black' }]}>
               Phone <Text style={{ color: "rgba(34, 170, 85, 1)", fontWeight: '500'! }}>(Optional)</Text>
             </Text>
@@ -224,18 +224,18 @@ const AccountPage = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'column'!, // Arrange children in a column
-    flexWrap: 'wrap',
-    margin: 80, // Reduce the margin as needed
-    alignSelf: 'flex-start', // Center the container on the screen
+    maxWidth: 1000, // Adjust as needed
     borderRadius: 10, // Rounded corners for the container
     padding: 20, // Add padding to create spacing inside the container
+    margin: 10, // Add margin to create spacing outside the container
   },
   containerSmall: {
-    width: '90%', // Adjust as needed
+    width: '100%', // Adjust as needed
+    flexDirection: 'column'
   },
   containerLarge: {
-    flexDirection: 'row'!, // Arrange children in a row
+    flexDirection: 'row'!!!,
+    flexWrap: 'wrap',
   },
   header: {
     fontSize: 30,
@@ -247,6 +247,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginBottom: 20,
   },
+  inputWrapper: {
+    alignItems: 'flex-start',
+    marginRight: 25,
+  },
   input: {
     marginBottom: 20, // Space between the inputs
     marginRight: 20, // Space between the inputs
@@ -257,7 +261,8 @@ const styles = StyleSheet.create({
     borderColor: "rgba(34, 170, 85, 1)",
     borderWidth: 2,
     color: '#6B7280',
-    width: 230,
+    width: '100%', // Set the width of the input
+    maxWidth: 300, // Set a max-width for large screens
   },
   inputFocused: {
     borderWidth: 2,
@@ -282,19 +287,6 @@ const styles = StyleSheet.create({
     textAlign: 'center', // Center the text horizontally
     fontSize: 18, // Set the font size
     fontWeight: 'bold', // Bold font weight
-  },
-
-  logoutButton: {
-    backgroundColor: "rgba(255, 0, 0, 0.8)",
-    padding: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 10,
-    borderRadius: 3,
-  },
-  logoutButtonText: {
-    color: "#fff",
-    fontSize: 18,
   },
 });
 export default AccountPage;
