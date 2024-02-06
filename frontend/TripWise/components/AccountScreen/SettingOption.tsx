@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { TouchableOpacity, Text, View, StyleSheet, Platform } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import ThemeContext from '../../context/ThemeContext';
 
@@ -13,32 +13,38 @@ interface SettingOptionProps {
 
 const SettingOption = ({ icon, title, onPress, hasBorder, isActive }: SettingOptionProps) => {
   const { theme } = useContext(ThemeContext);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleHoverIn = () => setIsHovered(true);
+  const handleHoverOut = () => setIsHovered(false);
+
+  // Adjust style based on hover or active state
+  const dynamicStyle = isHovered || isActive ? { backgroundColor: theme === 'Dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)' } : {};
+
+  // Additional props for web to support mouse hover
+  const webHoverProps = Platform.OS === 'web' ? {
+    onMouseEnter: handleHoverIn,
+    onMouseLeave: handleHoverOut,
+  } : {};
+
 
   return (
     <View>
-      <TouchableOpacity style={[styles.settingOption, hasBorder && styles.settingOptionBorder, 
-      isActive && { backgroundColor: theme === 'Dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)' } // Highlight active option
-    ]} onPress={onPress}>
+      <TouchableOpacity style={[styles.settingOption,
+      hasBorder && styles.settingOptionBorder,
+        dynamicStyle // Use dynamic style based on hover or active state
+      ]}
+        onPress={onPress}
+        onPressIn={handleHoverIn} // Simulate hover for mobile
+        onPressOut={handleHoverOut}
+        {...webHoverProps} // Spread web-specific props if on web
+      >
         <View style={styles.settingIconContainer}>{icon}</View>
         <Text style={[styles.settingTitle, { color: theme === 'Dark' ? 'white' : 'black' }]}>
           {title}
         </Text>
-        <Svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          style={styles.arrowStyle}>
-          <Path
-            d="M9 18l6-6-6-6"
-            stroke={theme === 'Dark' ? 'white' : 'black'}
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </Svg>
       </TouchableOpacity>
-      {hasBorder && <View style={[styles.separator, {borderBottomColor: theme === 'Dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'}]}/>}
+      {hasBorder && <View style={[styles.separator, { borderBottomColor: theme === 'Dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)' }]} />}
     </View>
   );
 };
@@ -49,6 +55,8 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     padding: 10,
     alignItems: 'center',
+    borderRadius: 5,
+    marginBottom: 7,
   },
   settingIconContainer: {
     width: 50, // Adjust as needed
@@ -58,12 +66,8 @@ const styles = StyleSheet.create({
   },
   settingTitle: {
     fontSize: 16,
-    fontWeight:'500',
+    fontWeight: '500',
     flex: 1,
-  },
-  arrowStyle: {
-    // Adjust the margin as needed
-    marginLeft: 'auto',
   },
   settingOptionBorder: {
     borderBottomWidth: 0,
@@ -71,7 +75,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     borderBottomWidth: 1,
-    
+
   },
 });
 

@@ -22,7 +22,7 @@ import BackupAndRestoreLogo from "../../components/SVGLogos/BackupAndRestoreLogo
 import HelpAndSupportLogo from "../../components/SVGLogos/HelpAndSupportLogo";
 import AccountLogo from "../../components/SVGLogos/AccountLogo";
 import LogoutLogo from "../../components/SVGLogos/LogoutLogo"
-import AccountPage from "../../components/AccountScreen/AccountPage";
+import AccountPage from "../../components/AccountScreen/AccountSettings";
 import AppSettingsPage from '../../components/AccountScreen/AppSettings'
 import About from '../../components/AccountScreen/About';
 import NotificationScreen from '../../components/AccountScreen/NotificationScreen'; // Your SettingOption component
@@ -87,13 +87,13 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
   const renderContent = () => {
     switch (activeSetting) {
       case 'app':
-        return <AccountPage/>
+        return <AccountPage />
       case 'settings':
         return <AppSettingsPage isVisible={true} userSettings={userSettings} updateUserSettings={updateUserSettings} closeModal={() => setActiveSetting('')} useModal={false} />;
       case 'notification':
-        return <NotificationScreen/>
+        return <NotificationScreen />
       case 'about':
-        return <About/>
+        return <About />
       default:
         return <View />;
     }
@@ -101,30 +101,44 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
 
   if (isLargeScreen) {
 
-  return (
-    <View style={styles.container}>
-      <View style={[styles.sidebar, {backgroundColor: theme === 'Dark'? 'rgba(12, 12, 12, 0.8)' : 'white'}]}>
-      <SettingOption
+    return (
+      <View style={styles.container}>
+        <View style={[styles.sidebar, { backgroundColor: theme === 'Dark' ? 'rgba(66, 70, 70, 0.69)' : 'rgba(240, 241, 241, 0.69)' }]}>
+          <View style={styles.header}>
+            {/* Profile image and name */}
+            <Image source={{}} style={styles.profileImage} />
+            {userProfile && (
+              <Text
+                style={[
+                  styles.profileName,
+                  { color: theme === "Dark" ? "white" : "black" },
+                ]}
+              >
+                {`${userProfile.firstName} ${userProfile.lastName}`}
+              </Text>
+            )}
+          </View>
+          <SettingOption
             icon={<AccountLogo focused={false} />}
             title="Account Settings"
             onPress={() => setActiveSetting('app')}
-            hasBorder={true}
+            hasBorder={false}
             isActive={activeSetting === 'app'}
           />
-      <SettingOption
+          <SettingOption
             icon={<AppSettingsLogo focused={false} />}
             title="App Settings"
             onPress={() => setActiveSetting('settings')}
-            hasBorder={true}
+            hasBorder={false}
             isActive={activeSetting === 'settings'}
           />
-      <SettingOption
+          <SettingOption
             icon={<PrivacySettingsLogo focused={false} />}
             title="Privacy Settings"
             onPress={() => {
               console.log("Privacy Settings");
             }}
-            hasBorder={true}
+            hasBorder={false}
           />
           <SettingOption
             icon={<BackupAndRestoreLogo focused={false} />}
@@ -132,7 +146,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             onPress={() => {
               console.log("Backup and Restore");
             }}
-            hasBorder={true}
+            hasBorder={false}
           />
           <SettingOption
             icon={<HelpAndSupportLogo focused={false} />}
@@ -140,124 +154,136 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             onPress={() => {
               console.log("Help and Support");
             }}
-            hasBorder={true}
+            hasBorder={false}
           />
-        <SettingOption
-          title="About"
-          onPress={() => setActiveSetting('about')}
-          icon={<TripWiseLogoSmall />}
-          hasBorder={true}
-          isActive={activeSetting === 'about'}
-        />
-        <SettingOption
-          title="Sign Out"
-          onPress={handleLogout}
-          icon={<LogoutLogo size={20}/>}
-          hasBorder={false}
-        />
+          <SettingOption
+            title="About"
+            onPress={() => setActiveSetting('about')}
+            icon={<TripWiseLogoSmall />}
+            hasBorder={false}
+            isActive={activeSetting === 'about'}
+          />
+          <SettingOption
+            title="Sign Out"
+            onPress={handleLogout}
+            icon={<LogoutLogo size={20} />}
+            hasBorder={false}
+          />
+        </View>
+        <View style={styles.contentArea}>
+          {renderContent()}
+        </View>
       </View>
-      <View style={styles.contentArea}>
-        {renderContent()}
-      </View>
-    </View>
-  );
+    );
 
-}
-else {
-  return (
-    <Background>
-    <View style={styles.container}>
+  }
+  else {
+    return (
+      <Background>
+        <View style={styles.container}>
 
-      <ScrollView style={styles.settings}>
-        {/* Settings options with icons */}
-        <SettingOption
-          icon={<AccountLogo focused={false} />}
-          title="Account Settings"
-          onPress={() => setAccountSettingsVisible(true)}
-          hasBorder={true}
-        />
-        <SettingOption
-          icon={<AppSettingsLogo focused={false} />}
-          title="App Settings"
-          onPress={() => setAppSettingsModalVisible(true)}
-          hasBorder={true}
-        />
-        <SettingOption
-          icon={<PrivacySettingsLogo focused={false} />}
-          title="Privacy Settings"
-          onPress={() => {
-            console.log("Privacy Settings");
-          }}
-          hasBorder={true}
-        />
-        <SettingOption
-          icon={<BackupAndRestoreLogo focused={false} />}
-          title="Backup and Restore"
-          onPress={() => {
-            console.log("Backup and Restore");
-          }}
-          hasBorder={true}
-        />
-        <SettingOption
-          icon={<HelpAndSupportLogo focused={false} />}
-          title="Help and Support"
-          onPress={() => {
-            console.log("Help and Support");
-          }}
-          hasBorder={true}
-        />
-        <SettingOption
-          icon={<TripWiseLogoSmall />}
-          title="About"
-          onPress={() => {
-            setAboutModalVisible(true);
-          }}
-          hasBorder={false}
-        />
-        {/* Logout button */}
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Logout</Text>
-        </TouchableOpacity>
-      </ScrollView>
-      
-
-      <AppSettingsPage
-        isVisible={appSettingsVisible}
-        userSettings={userSettings}
-        updateUserSettings={updateUserSettings}
-        closeModal={() => setAppSettingsModalVisible(false)}
-        useModal = {true}
-      />
-
-      <Modal
-        animationType="slide"
-        transparent={false}
-        visible={aboutModalVisible}
-        onRequestClose={() => {
-          setAboutModalVisible(!aboutModalVisible);
-        }}
-      >
-        <About
-          closeModal={() => setAboutModalVisible(false)}
-          navigation={navigation}
-        />
-      </Modal>
+          <ScrollView style={styles.settings}>
+            {/* Settings options with icons */}
+            <SettingOption
+              icon={<AccountLogo focused={false} />}
+              title="Account Settings"
+              onPress={() => setAccountSettingsVisible(true)}
+              hasBorder={true}
+            />
+            <SettingOption
+              icon={<AppSettingsLogo focused={false} />}
+              title="App Settings"
+              onPress={() => setAppSettingsModalVisible(true)}
+              hasBorder={true}
+            />
+            <SettingOption
+              icon={<PrivacySettingsLogo focused={false} />}
+              title="Privacy Settings"
+              onPress={() => {
+                console.log("Privacy Settings");
+              }}
+              hasBorder={true}
+            />
+            <SettingOption
+              icon={<BackupAndRestoreLogo focused={false} />}
+              title="Backup and Restore"
+              onPress={() => {
+                console.log("Backup and Restore");
+              }}
+              hasBorder={true}
+            />
+            <SettingOption
+              icon={<HelpAndSupportLogo focused={false} />}
+              title="Help and Support"
+              onPress={() => {
+                console.log("Help and Support");
+              }}
+              hasBorder={true}
+            />
+            <SettingOption
+              icon={<TripWiseLogoSmall />}
+              title="About"
+              onPress={() => {
+                setAboutModalVisible(true);
+              }}
+              hasBorder={false}
+            />
+            {/* Logout button */}
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <Text style={styles.logoutButtonText}>Logout</Text>
+            </TouchableOpacity>
+          </ScrollView>
 
 
-    </View>
-  </Background>
-  );
-}
+          <AppSettingsPage
+            isVisible={appSettingsVisible}
+            userSettings={userSettings}
+            updateUserSettings={updateUserSettings}
+            closeModal={() => setAppSettingsModalVisible(false)}
+            useModal={true}
+          />
+
+          <Modal
+            animationType="slide"
+            transparent={false}
+            visible={aboutModalVisible}
+            onRequestClose={() => {
+              setAboutModalVisible(!aboutModalVisible);
+            }}
+          >
+            <About
+              closeModal={() => setAboutModalVisible(false)}
+              navigation={navigation}
+            />
+          </Modal>
+
+
+        </View>
+      </Background>
+    );
+  }
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
+    backgroundColor: 'white',
+
   },
   sidebar: {
-    width: "25%", // Adjust the width of the sidebar as needed
-    borderRightWidth: 1,
+    width: 280, // Adjust the width of the sidebar as needed
+    marginBottom: 90,
+    backgroundColor: 'white', // Choose a distinct color for the floating effect
+    padding: 20, // Adjust padding to your preference
+    borderRadius: 10, // Rounded corners
+    // Shadow for iOS
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    // Elevation for Android
+    elevation: 5,
   },
   contentArea: {
     flex: 1,
