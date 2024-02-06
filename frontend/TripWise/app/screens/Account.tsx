@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import {
   View,
@@ -8,7 +8,7 @@ import {
   Image,
   Modal,
 } from "react-native";
-import BackgroundGradient from "../../components/BackgroundGradient";
+import Background from "../../components/Background";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import * as UserService from "../../services/userServices";
 import { NavigationProp } from "@react-navigation/native";
@@ -23,12 +23,14 @@ import TripWiseLogoSmall from "../../components/SVGLogos/TripWiseLogoSmall";
 import AppSettingsPage from "../../components/AccountScreen/AppSettings";
 import SettingOption from "../../components/AccountScreen/SettingOption";
 import { UserSettings } from "../../types/userTypes";
+import ThemeContext from "../../context/ThemeContext";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
 const Account = ({ navigation }: RouterProps) => {
+  const { theme } = useContext(ThemeContext);
   const { userProfile, isFetchingProfile } = useUserProfile({
     refreshData: true,
   });
@@ -73,20 +75,25 @@ const Account = ({ navigation }: RouterProps) => {
   // TODO: REPLACE WITH COOL SPINNER
   if (isFetchingProfile) {
     return (
-      <BackgroundGradient>
+      <Background>
         <Text>Loading...</Text>
-      </BackgroundGradient>
+      </Background>
     );
   }
 
   return (
-    <BackgroundGradient>
+    <Background>
       <View style={styles.container}>
         <View style={styles.header}>
           {/* Profile image and name */}
           <Image source={{}} style={styles.profileImage} />
           {userProfile && (
-            <Text style={styles.profileName}>
+            <Text
+              style={[
+                styles.profileName,
+                { color: theme === "Dark" ? "white" : "black" },
+              ]}
+            >
               {`${userProfile.firstName} ${userProfile.lastName}`}
             </Text>
           )}
@@ -94,54 +101,52 @@ const Account = ({ navigation }: RouterProps) => {
 
         <View style={styles.settings}>
           {/* Settings options with icons */}
-          {SettingOption({
-            icon: <AppSettingsLogo focused={false} />,
-            title: "App Settings",
-            onPress: () => {
-              setAppSettingsModalVisible(true);
-            },
-            hasBorder: true,
-          })}
-          {SettingOption({
-            icon: <PrivacySettingsLogo focused={false} />,
-            title: "Privacy Settings",
-            onPress: () => {
+          <SettingOption
+            icon={<AppSettingsLogo focused={false} />}
+            title="App Settings"
+            onPress={() => setAppSettingsModalVisible(true)}
+            hasBorder={true}
+          />
+          <SettingOption
+            icon={<PrivacySettingsLogo focused={false} />}
+            title="Privacy Settings"
+            onPress={() => {
               console.log("Privacy Settings");
-            },
-            hasBorder: true,
-          })}
-          {SettingOption({
-            icon: <BackupAndRestoreLogo focused={false} />,
-            title: "Backup and Restore",
-            onPress: () => {
+            }}
+            hasBorder={true}
+          />
+          <SettingOption
+            icon={<BackupAndRestoreLogo focused={false} />}
+            title="Backup and Restore"
+            onPress={() => {
               console.log("Backup and Restore");
-            },
-            hasBorder: true,
-          })}
-          {SettingOption({
-            icon: <HelpAndSupportLogo focused={false} />,
-            title: "Help and Support",
-            onPress: () => {
+            }}
+            hasBorder={true}
+          />
+          <SettingOption
+            icon={<HelpAndSupportLogo focused={false} />}
+            title="Help and Support"
+            onPress={() => {
               console.log("Help and Support");
-            },
-            hasBorder: true,
-          })}
-          {SettingOption({
-            icon: <NotificationSettingsLogo focused={false} />,
-            title: "Notification Settings",
-            onPress: () => {
+            }}
+            hasBorder={true}
+          />
+          <SettingOption
+            icon={<NotificationSettingsLogo focused={false} />}
+            title="Notification Settings"
+            onPress={() => {
               setNotificationModalVisible(true);
-            },
-            hasBorder: true,
-          })}
-          {SettingOption({
-            icon: <TripWiseLogoSmall />,
-            title: "About",
-            onPress: () => {
+            }}
+            hasBorder={true}
+          />
+          <SettingOption
+            icon={<TripWiseLogoSmall />}
+            title="About"
+            onPress={() => {
               setAboutModalVisible(true);
-            },
-            hasBorder: false,
-          })}
+            }}
+            hasBorder={false}
+          />
         </View>
 
         <AppSettingsPage
@@ -177,7 +182,7 @@ const Account = ({ navigation }: RouterProps) => {
           <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
       </View>
-    </BackgroundGradient>
+    </Background>
   );
 };
 
@@ -192,14 +197,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+
     borderRadius: 3,
   },
   profileImage: {
@@ -209,21 +207,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#ccc", // Placeholder color
   },
   profileName: {
-    color: "#fff",
     fontSize: 20,
     marginTop: 10,
     fontWeight: "bold",
   },
   settings: {
     backgroundColor: "rgba(255, 255, 255, 0.2)",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
     borderRadius: 3,
   },
 
@@ -233,14 +222,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 10,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
     borderRadius: 3,
   },
   logoutButtonText: {

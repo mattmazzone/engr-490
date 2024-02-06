@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 import {
   DatePickerModal,
@@ -6,6 +6,7 @@ import {
   en,
 } from "react-native-paper-dates";
 import { DateRange, Meeting, Time } from "../../types/tripTypes";
+import ThemeContext from "../../context/ThemeContext";
 
 registerTranslation("en", en);
 
@@ -18,6 +19,8 @@ const DateRangePicker = ({ onData }: DateRangePickerProps) => {
     startDate: undefined,
     endDate: undefined,
   });
+
+  const {theme} = useContext(ThemeContext);
 
   useEffect(() => {
     if (rangeDate.startDate && rangeDate.endDate) {
@@ -45,7 +48,7 @@ const DateRangePicker = ({ onData }: DateRangePickerProps) => {
   };
   return (
     <>
-      <Text style={styles.subTitle}>
+      <Text style={[styles.subTitle, {color: theme === "Dark" ? "#fff" : "#000",}]}>
         Start by selecting the dates of your trip
       </Text>
       <View style={styles.dateContainer}>
@@ -61,10 +64,10 @@ const DateRangePicker = ({ onData }: DateRangePickerProps) => {
         </TouchableOpacity>
         {rangeDate.startDate && rangeDate.endDate ? (
           <View>
-            <Text style={styles.dateRangeText}>
+            <Text style={[styles.dateRangeText, {color: theme === "Dark" ? "#fff" : "#000",}]}>
               {rangeDate.startDate.toDateString()}
             </Text>
-            <Text style={styles.dateRangeText}>
+            <Text style={[styles.dateRangeText, {color: theme === "Dark" ? "#fff" : "#000",}]}>
               {rangeDate.endDate.toDateString()}
             </Text>
           </View>
@@ -104,7 +107,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   pickRangeBtn: {
-    backgroundColor: "rgba(0, 255, 85, 0.6)",
+    backgroundColor: "#2a5",
     padding: 10,
     borderRadius: 5,
     marginBottom: 15,
