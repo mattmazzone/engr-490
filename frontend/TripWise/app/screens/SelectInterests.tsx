@@ -13,6 +13,8 @@ import {
   RootStackParamList,
 } from "../../types/navigationTypes";
 
+import { useUserProfile } from "../../hooks/useUserProfile";
+
 interface Item {
   id: string;
   titles: string[];
@@ -145,30 +147,25 @@ const SelectInterests = ({ navigation, route }: RouterProps) => {
   const { theme } = useContext(ThemeContext);
   const { setUserInterests } = route.params || {};
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { userProfile, isFetchingProfile } = useUserProfile({
+    refreshData: true,
+  });
   const [isFetching, setIsFetching] = useState<boolean>(true);
 
   // Fetch user profile and initialize component state on mount
   useEffect(() => {
-    const fetchAndSetUserProfile = async () => {
-      try {
-        const profile = await UserService.fetchUserProfile();
-        setUserProfile(profile);
-        const storedInterests = await AsyncStorage.getItem("selectedInterests");
-        setSelectedInterests(
-          storedInterests
-            ? JSON.parse(storedInterests)
-            : profile?.interests || []
-        );
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      } finally {
-        setIsFetching(false);
-      }
+    const initializeSelectedInterests = async () => {
+      const storedInterests = await AsyncStorage.getItem("selectedInterests");
+      setSelectedInterests(
+        storedInterests
+          ? JSON.parse(storedInterests)
+          : userProfile?.interests || []
+      );
     };
-
-    fetchAndSetUserProfile();
-  }, []);
+    if (userProfile) {
+      initializeSelectedInterests();
+    }
+  }, [userProfile]);
 
   const handleSelectInterest = useCallback((subcategoryId: string) => {
     setSelectedInterests((prev) => {
@@ -202,36 +199,8 @@ const SelectInterests = ({ navigation, route }: RouterProps) => {
           JSON.stringify(selectedInterests)
         );
         setUserInterests?.(true);
-
-        // Fetch the updated profile to ensure the data was updated successfully
-        const updatedProfile = await UserService.fetchUserProfile();
-
-        if (!updatedProfile) {
-          // Handle the error, perhaps by showing an error message
-          return;
-        }
-
-        // Check if the fetched interests match the expected values.
-        if (arraysEqual(updatedProfile.interests, selectedInterestTitles)) {
-          // The interests have been successfully updated.
-          // Update local state or context with the new profile data
-          setUserProfile(updatedProfile);
-          // Optionally, show a success message to the user
-          if (setUserInterests) {
-            setUserInterests(true);
-          } else {
-            // If setUserInterests is not provided, navigate to the home screen
-            (navigation as NavigationProp<MainStackParamList>).navigate(
-              "BottomTabNavigation"
-            );
-          }
-        } else {
-          // The fetched interests don't match the expected values.
-          // Handle the mismatch, possibly by showing an error message
-        }
       } catch (error) {
         console.error("Error updating interests:", error);
-        // Handle error, perhaps show an error message
       }
     }
   };
@@ -244,7 +213,7 @@ const SelectInterests = ({ navigation, route }: RouterProps) => {
   }, [userProfile, selectedInterests]);
 
   // TODO: REPLACE WITH COOL SPINNER
-  if (isFetching) {
+  if (isFetchingProfile) {
     return (
       <Background>
         <Text>Loading...</Text>
