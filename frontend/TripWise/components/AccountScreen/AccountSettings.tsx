@@ -16,12 +16,9 @@ import {
 } from "react-native";
 import Background from "../Background";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import * as UserService from "../../services/userServices";
-import { NavigationProp } from "@react-navigation/native";
 import ThemeContext from "../../context/ThemeContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { fi } from "@faker-js/faker";
-
+import BackButton from "../BackButton";
 const useResponsiveScreen = (breakpoint: number) => {
   const [isScreenSmall, setIsScreenSmall] = useState(Dimensions.get('window').width < breakpoint);
 
@@ -149,7 +146,9 @@ const AccountPage = ({
 
   const content = (
     <Background>
+      
       <View style={[styles.container, { backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }, isScreenSmall ? { margin: 10, alignItems: 'center', alignSelf: 'center', width: '90%' } : { margin: 80, alignSelf: 'flex-start' },]}>
+      {isScreenSmall && <BackButton onPress={() => closeModal()}/>} {/* Conditionally render the Back Button */}
         <Text style={[styles.header, { color: theme === 'Dark' ? 'white' : 'black' }]}>
           Account
         </Text >

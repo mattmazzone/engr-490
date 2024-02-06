@@ -64,7 +64,7 @@ const Login = ({ navigation }: RouterProps) => {
         {mobileRenderContent(
           <>
             <View style={styles.backButtonContainer}>
-              <BackButton />
+              <BackButton onPress={() => navigation.goBack()}/>
             </View>
 
             <Text style={styles.title}>Login</Text>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   Text,
   View,
@@ -8,9 +8,11 @@ import {
   StyleSheet,
   Pressable,
   SafeAreaView,
+  Dimensions
 } from "react-native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import * as UserService from "../../services/userServices";
+import BackButton from "../BackButton";
 
 const testGoogleAPI = async () => {
   try {
@@ -45,10 +47,30 @@ const testGoogleAPI = async () => {
     throw error;
   }
 };
+const useResponsiveScreen = (breakpoint: number) => {
+  const [isScreenSmall, setIsScreenSmall] = useState(Dimensions.get('window').width < breakpoint);
+
+  useEffect(() => {
+    const updateScreenSize = () => {
+      const screenWidth = Dimensions.get('window').width;
+      setIsScreenSmall(screenWidth < breakpoint);
+    };
+
+    // Add event listener
+    const subscription = Dimensions.addEventListener('change', updateScreenSize);
+
+    // Remove event listener on cleanup
+    return () => subscription.remove();
+  }, [breakpoint]);
+
+  return isScreenSmall;
+};
 
 const About = ({ closeModal, navigation }: any) => {
+  const isScreenSmall = useResponsiveScreen(768);
   return (
     <SafeAreaView style={styles.container}>
+      {isScreenSmall && <BackButton onPress={() => closeModal()}/>} {/* Conditionally render the Back Button */}
       <Text>About Modal</Text>
       <Pressable onPress={() => testGoogleAPI()} style={styles.button}>
         <Text style={styles.buttonText}>Test Google API</Text>
