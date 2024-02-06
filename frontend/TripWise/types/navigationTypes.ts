@@ -18,6 +18,6 @@ export type RootStackParamList = {
   LoggedInStack: undefined;
   SelectLogin: { onUserCreationComplete: () => void };
   Login: undefined;
-  SignUp: undefined;
+  SignUp: { onUserCreationComplete: () => void };
   SelectInterests: { setUserInterests: (hasInterests: boolean) => void };
 };

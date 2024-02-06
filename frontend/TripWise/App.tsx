@@ -140,6 +140,7 @@ function RootNavigator({
             name="SignUp"
             component={SignUp}
             options={{ headerShown: false }}
+            initialParams={{ onUserCreationComplete }}
           />
         </>
       )}
@@ -156,19 +157,25 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(
       FIREBASE_AUTH,
       (user: User | null) => {
-        setUser(user);
-        if (FIREBASE_AUTH.currentUser) {
-          setIsUserCreated(true);
-          // Check if user has interests
-          checkUserInterests();
+        if (user) {
+          setUser(user);
+          if (isUserCreated) {
+            // Check if user has interests after setting the user
+            checkUserInterests();
+          }
+        } else {
+          // User has signed out, reset all relevant state
+          setUser(null);
+          setIsUserCreated(false);
+          setUserHasInterests(false);
         }
       }
     );
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, []);
-
+  }, [isUserCreated]);
+  
   const onUserCreationComplete: () => void = () => {
     setIsUserCreated(true);
   };
@@ -184,7 +191,7 @@ export default function App() {
     });
   };
   const setUserInterests = (hasInterests: boolean) => {
-    console.log('Updating userInterests to:', hasInterests);
+    console.log("Updating userInterests to:", hasInterests);
     setUserHasInterests(hasInterests);
   };
 
