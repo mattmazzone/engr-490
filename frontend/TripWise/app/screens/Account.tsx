@@ -22,7 +22,7 @@ import BackupAndRestoreLogo from "../../components/SVGLogos/BackupAndRestoreLogo
 import HelpAndSupportLogo from "../../components/SVGLogos/HelpAndSupportLogo";
 import AccountLogo from "../../components/SVGLogos/AccountLogo";
 import LogoutLogo from "../../components/SVGLogos/LogoutLogo"
-import AccountPage from "../../components/AccountScreen/AccountSettings";
+import AccountSettingPage from "../../components/AccountScreen/AccountSettings";
 import AppSettingsPage from '../../components/AccountScreen/AppSettings'
 import About from '../../components/AccountScreen/About';
 import NotificationScreen from '../../components/AccountScreen/NotificationScreen'; // Your SettingOption component
@@ -37,8 +37,7 @@ interface RouterProps {
 const SettingsScreen = ({ navigation }: RouterProps) => {
 
   const { width } = useWindowDimensions();
-  const isLargeScreen = width >= 1157;
-  const isMedScreen = width < 1157 && width >= 766;
+  const isLargeScreen = width > 766;
   const [activeSetting, setActiveSetting] = useState('app');
 
   const { theme } = useContext(ThemeContext);
@@ -87,7 +86,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
   const renderContent = () => {
     switch (activeSetting) {
       case 'app':
-        return <AccountPage />
+        return <AccountSettingPage isVisible closeModal={() => setActiveSetting('')} useModal={false} />
       case 'settings':
         return <AppSettingsPage isVisible={true} userSettings={userSettings} updateUserSettings={updateUserSettings} closeModal={() => setActiveSetting('')} useModal={false} />;
       case 'notification':
@@ -102,8 +101,8 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
   if (isLargeScreen) {
 
     return (
-      <View style={styles.container}>
-        <View style={[styles.sidebar, { backgroundColor: theme === 'Dark' ? 'rgba(66, 70, 70, 0.69)' : 'rgba(240, 241, 241, 0.69)' }]}>
+      <View style={[styles.container, { backgroundColor: theme === 'Dark' ? '#171F21' : 'white' }]}>
+        <View style={[styles.sidebar, { backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }]}>
           <View style={styles.header}>
             {/* Profile image and name */}
             <Image source={{}} style={styles.profileImage} />
@@ -181,8 +180,21 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
     return (
       <Background>
         <View style={styles.container}>
-
           <ScrollView style={styles.settings}>
+            <View style={styles.header}>
+              {/* Profile image and name */}
+              <Image source={{}} style={styles.profileImage} />
+              {userProfile && (
+                <Text
+                  style={[
+                    styles.profileName,
+                    { color: theme === "Dark" ? "white" : "black" },
+                  ]}
+                >
+                  {`${userProfile.firstName} ${userProfile.lastName}`}
+                </Text>
+              )}
+            </View>
             {/* Settings options with icons */}
             <SettingOption
               icon={<AccountLogo focused={false} />}
@@ -226,15 +238,20 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
               onPress={() => {
                 setAboutModalVisible(true);
               }}
-              hasBorder={false}
+              hasBorder={true}
             />
             {/* Logout button */}
-            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-              <Text style={styles.logoutButtonText}>Logout</Text>
-            </TouchableOpacity>
+            <SettingOption
+              title="Sign Out"
+              onPress={handleLogout}
+              icon={<LogoutLogo size={20} />}
+              hasBorder={false}
+            />
           </ScrollView>
-
-
+          <AccountSettingPage
+            isVisible={accountSettingsVisible}
+            closeModal={() => setAccountSettingsVisible(false)}
+            useModal={true} />
           <AppSettingsPage
             isVisible={appSettingsVisible}
             userSettings={userSettings}
@@ -242,7 +259,6 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             closeModal={() => setAppSettingsModalVisible(false)}
             useModal={true}
           />
-
           <Modal
             animationType="slide"
             transparent={false}
@@ -251,6 +267,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
               setAboutModalVisible(!aboutModalVisible);
             }}
           >
+
             <About
               closeModal={() => setAboutModalVisible(false)}
               navigation={navigation}
@@ -268,18 +285,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: 'white',
 
   },
   sidebar: {
     width: 280, // Adjust the width of the sidebar as needed
     marginBottom: 90,
-    backgroundColor: 'white', // Choose a distinct color for the floating effect
     padding: 20, // Adjust padding to your preference
     borderRadius: 10, // Rounded corners
     // Shadow for iOS
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#184D47',
+    shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     // Elevation for Android
@@ -309,8 +324,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   settings: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderRadius: 3,
+
   },
   logoutButton: {
     backgroundColor: "rgba(255, 0, 0, 0.8)",

@@ -9,6 +9,7 @@ interface SettingOptionProps {
   onPress: () => void;
   hasBorder?: boolean;
   isActive?: boolean;
+  marginBottom?: number;
 }
 
 const SettingOption = ({ icon, title, onPress, hasBorder, isActive }: SettingOptionProps) => {
@@ -32,15 +33,17 @@ const SettingOption = ({ icon, title, onPress, hasBorder, isActive }: SettingOpt
     <View>
       <TouchableOpacity style={[styles.settingOption,
       hasBorder && styles.settingOptionBorder,
-        dynamicStyle // Use dynamic style based on hover or active state
+        dynamicStyle // Use dynamic style based on hover or active state,
+
       ]}
         onPress={onPress}
         onPressIn={handleHoverIn} // Simulate hover for mobile
         onPressOut={handleHoverOut}
         {...webHoverProps} // Spread web-specific props if on web
+
       >
         <View style={styles.settingIconContainer}>{icon}</View>
-        <Text style={[styles.settingTitle, { color: theme === 'Dark' ? 'white' : 'black' }]}>
+        <Text style={[styles.settingTitle, { color: theme === 'Dark' ? 'lightgrey' : 'black' }]}>
           {title}
         </Text>
       </TouchableOpacity>
@@ -56,7 +59,6 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: 'center',
     borderRadius: 5,
-    marginBottom: 7,
   },
   settingIconContainer: {
     width: 50, // Adjust as needed
@@ -75,6 +77,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     borderBottomWidth: 1,
+    marginLeft: 70, // Adjust as needed
 
   },
 });

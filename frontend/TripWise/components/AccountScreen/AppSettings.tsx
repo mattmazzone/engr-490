@@ -7,6 +7,7 @@ import {
   Pressable,
   SafeAreaView,
   Switch,
+  Dimensions,
 } from "react-native";
 import Background from "../Background";
 import ThemeContext from "../../context/ThemeContext";
@@ -23,7 +24,7 @@ const AppSettingsPage = ({
   isVisible = true,
   userSettings,
   updateUserSettings,
-  closeModal = () => {},
+  closeModal = () => { },
   useModal = false,
 }: AppSettingsPageProps) => {
   const { theme, setTheme } = useContext(ThemeContext);
@@ -65,88 +66,92 @@ const AppSettingsPage = ({
       pushNotification: isPushEnabled,
       backgroundTheme: isEnabled,
     };
+
     await updateUserSettings(newSettings);
-    closeModal();
+    const screenWidth = Dimensions.get("window").width;
+    if (screenWidth <= 766) {
+      closeModal();
+    }
   };
 
   const content = (
     <Background>
-    <SafeAreaView style={styles.container}>
-      <View style={styles.titleView}>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.titleView}>
+          <Text
+            style={[
+              styles.titleText,
+              { color: theme === "Dark" ? "white" : "black" },
+            ]}
+          >
+            App Settings
+          </Text>
+        </View>
+        <View style={styles.notificationChoice}>
+          <Text
+            style={[
+              styles.typeNotificationText,
+              { color: theme === "Dark" ? "white" : "black" },
+            ]}
+          >
+            Background Theme
+          </Text>
+          <Switch
+            style={{ height: 25 }}
+            trackColor={{ false: "#767577", true: "rgba(34, 170, 85, 1)" }}
+            thumbColor={isEnabled ? "#32cd32" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleBackgroundSwitch}
+            value={isEnabled}
+          />
+        </View>
         <Text
           style={[
-            styles.titleText,
+            styles.subtitleText,
             { color: theme === "Dark" ? "white" : "black" },
           ]}
         >
-          App Settings
+          Notification Settings
         </Text>
-      </View>
-      <View style={styles.notificationChoice}>
-        <Text
-          style={[
-            styles.typeNotificationText,
-            { color: theme === "Dark" ? "white" : "black" },
-          ]}
-        >
-          Background Theme
-        </Text>
-        <Switch
-          style={{ height: 25 }}
-          trackColor={{ false: "#767577", true: "rgba(34, 170, 85, 1)" }}
-          thumbColor={isEnabled ? "#32cd32" : "#f4f3f4"}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleBackgroundSwitch}
-          value={isEnabled}
-        />
-      </View>
-      <Text
-        style={[
-          styles.subtitleText,
-          { color: theme === "Dark" ? "white" : "black" },
-        ]}
-      >
-        Notification Settings
-      </Text>
-      <View style={styles.notificationChoice}>
-        <Text style={[styles.typeNotificationText, { color: theme === "Dark" ? "#fff" : "#000", }]}>
-          E-Mail Notifications
-        </Text>
-        <Switch
-          style={{ height: 25 }}
-          trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
-          thumbColor={isEmailEnabled ? "#32cd32" : "#f4f3f4"}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleEmailSwitch}
-          value={isEmailEnabled}
-        />
-      </View>
-      <View style={styles.notificationChoice}>
-        <Text style={[styles.typeNotificationText, { color: theme === "Dark" ? "#fff" : "#000", }]}>
-          Push Notifications
-        </Text>
-        <Switch
-          style={{ height: 25 }}
-          trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
-          thumbColor={"#f4f3f4"}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={togglePushSwitch}
-          value={isPushEnabled}
-        />
-      </View>
-      <View>
-        <Pressable
-          onPress={handleAppSettingsPreferences}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>Save</Text>
-        </Pressable>
-      </View>
-    </SafeAreaView>
-  </Background>
+        <View style={styles.notificationChoice}>
+          <Text style={[styles.typeNotificationText, { color: theme === "Dark" ? "#fff" : "#000", }]}>
+            E-Mail Notifications
+          </Text>
+          <Switch
+            style={{ height: 25 }}
+            trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
+            thumbColor={isEmailEnabled ? "#32cd32" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleEmailSwitch}
+            value={isEmailEnabled}
+          />
+        </View>
+        <View style={styles.notificationChoice}>
+          <Text style={[styles.typeNotificationText, { color: theme === "Dark" ? "#fff" : "#000", }]}>
+            Push Notifications
+          </Text>
+          <Switch
+            style={{ height: 25 }}
+            trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
+            thumbColor={"#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={togglePushSwitch}
+            value={isPushEnabled}
+          />
+        </View>
+        <View>
+          <Pressable
+            onPress={handleAppSettingsPreferences}
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}>Save</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    </Background>
   );
 
-  return  useModal ? (
+  return useModal ? (
     <Modal
       animationType="slide"
       transparent={false}

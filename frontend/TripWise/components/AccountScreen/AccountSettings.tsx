@@ -9,8 +9,9 @@ import {
   TextInput,
   StyleSheet,
   Alert,
-  Image,
   Pressable,
+  Dimensions,
+  ActivityIndicator,
   Modal,
 } from "react-native";
 import Background from "../Background";
@@ -21,12 +22,87 @@ import ThemeContext from "../../context/ThemeContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fi } from "@faker-js/faker";
 
-const AccountPage = () => {
+const useResponsiveScreen = (breakpoint: number) => {
+  const [isScreenSmall, setIsScreenSmall] = useState(Dimensions.get('window').width < breakpoint);
 
+  useEffect(() => {
+    const updateScreenSize = () => {
+      const screenWidth = Dimensions.get('window').width;
+      setIsScreenSmall(screenWidth < breakpoint);
+    };
+
+    // Add event listener
+    const subscription = Dimensions.addEventListener('change', updateScreenSize);
+
+    // Remove event listener on cleanup
+    return () => subscription.remove();
+  }, [breakpoint]);
+
+  return isScreenSmall;
+};
+interface AccountPageProps {
+  isVisible: boolean;
+  closeModal: any;
+  useModal: boolean;
+}
+
+
+const AccountPage = ({
+  isVisible = true,
+  closeModal = () => { },
+  useModal = false,
+}: AccountPageProps) => {
+
+  const isScreenSmall = useResponsiveScreen(768);
   const { theme } = useContext(ThemeContext);
   const { userProfile, isFetchingProfile } = useUserProfile({ refreshData: true });
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [focusState, setFocusState] = useState({
+    firstName: false,
+    lastName: false,
+    phone: false,
+  });
+
+  // For border color change on focus
+  const handleFocus = (inputName: string) => {
+    setFocusState((prevFocusState) => ({
+      ...prevFocusState,
+      [inputName]: true,
+    }));
+  };
+
+  const handleBlur = (inputName: string) => {
+    setFocusState((prevFocusState) => ({
+      ...prevFocusState,
+      [inputName]: false,
+    }));
+  };
+
+  //For phone number input
+  const [phone, setPhone] = useState('');
+
+  const formatPhoneNumber = (phoneNumber: string) => {
+    // Remove all non-digit characters from the input
+    let cleaned = ('' + phoneNumber).replace(/\D/g, '');
+
+    // Check the length and format accordingly
+    // US Phone Number formatting (XXX) XXX-XXXX
+    if (cleaned.length > 10) {
+      cleaned = cleaned.substring(0, 10);
+    }
+    let formattedNumber = cleaned;
+
+    if (cleaned.length > 6) {
+      formattedNumber = `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
+    } else if (cleaned.length > 3) {
+      formattedNumber = `(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`;
+    } else if (cleaned.length > 0) {
+      formattedNumber = `(${cleaned}`;
+    }
+
+    setPhone(formattedNumber);
+  };
 
   useEffect(() => {
     if (userProfile) {
@@ -51,108 +127,161 @@ const AccountPage = () => {
     // Optionally, update local storage
     const updatedProfile = { ...userProfile, firstName, lastName };
     await AsyncStorage.setItem("userProfile", JSON.stringify(updatedProfile));
-
+    const screenWidth = Dimensions.get("window").width;
+    if (screenWidth <= 766) {
+      closeModal();
+    }
     Alert.alert('Success', 'Profile updated successfully');
   };
+  //For Testing Purposes
+  const [isLoading, setIsLoading] = useState(true);
+  setTimeout(() => setIsLoading(false), 1000);
 
-
-
-  if (isFetchingProfile) {
-    return <Text>Loading...</Text>; // Or any loading indicator
+  if (isLoading || isFetchingProfile) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: "center", backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }}>
+        <ActivityIndicator size="large" color="rgba(34, 170, 85, 1)" />
+      </View>
+    );
   }
 
-  return (
-    <Background>
-      <View style={[styles.container, { backgroundColor: theme === 'Dark' ? 'rgba(66, 70, 70, 0.69)' : 'rgba(240, 241, 241, 0.69)' }]}>
-        <TextInput
-          style={styles.input}
-          value={firstName}
-          onChangeText={setFirstName}
-          placeholder="First Name"
-        />
-        <TextInput
-          style={styles.input}
-          value={lastName}
-          onChangeText={setLastName}
-          placeholder="Last Name"
-        />
 
+
+  const content = (
+    <Background>
+      <View style={[styles.container, { backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }]}>
+        <Text style={[styles.header, { color: theme === 'Dark' ? 'white' : 'black' }]}>
+          Account
+        </Text >
+        <Text style={[styles.smallHeader, { color: '#6B7280', fontSize: 16 }]}>
+          Manage your account details
+        </Text>
+        <View style={isScreenSmall ? styles.containerSmall : styles.containerLarge}>
+          <View >
+            <Text style={[styles.inputTitles, { color: theme === 'Dark' ? 'white' : 'black' }]}>
+              First Name
+            </Text>
+            <TextInput
+              style={[styles.input, focusState.firstName ? styles.inputFocused : null, { backgroundColor: theme === 'Dark' ? '#202B2E' : 'white' }]}
+              value={firstName}
+              onChangeText={setFirstName}
+              placeholder="First Name"
+              onFocus={() => handleFocus('phone')}
+              onBlur={() => handleBlur('phone')}
+              underlineColorAndroid="transparent"
+            />
+          </View>
+          <View >
+            <Text style={[styles.inputTitles, { color: theme === 'Dark' ? 'white' : 'black' }]}>
+              Last Name
+            </Text>
+            <TextInput
+              style={[styles.input, focusState.firstName ? styles.inputFocused : null, { backgroundColor: theme === 'Dark' ? '#202B2E' : 'white' }]}
+              value={lastName}
+              onChangeText={setLastName}
+              placeholder="Last Name"
+              onFocus={() => handleFocus('phone')}
+              onBlur={() => handleBlur('phone')}
+              underlineColorAndroid="transparent"
+            />
+          </View>
+          <View>
+            <Text style={[styles.inputTitles, { color: theme === 'Dark' ? 'white' : 'black' }]}>
+              Phone <Text style={{ color: "rgba(34, 170, 85, 1)", fontWeight: '500'! }}>(Optional)</Text>
+            </Text>
+            <TextInput
+              style={[styles.input, focusState.firstName ? styles.inputFocused : null, { backgroundColor: theme === 'Dark' ? '#202B2E' : 'white' }]}
+              onFocus={() => handleFocus('phone')}
+              onBlur={() => handleBlur('phone')}
+              value={phone}
+              underlineColorAndroid="transparent"
+              onChangeText={formatPhoneNumber}
+              keyboardType="numeric"
+            />
+          </View>
+        </View>
         <Pressable
           onPress={handleUpdate}
           style={styles.button}
         >
-          <Text style={styles.buttonText}>Save</Text>
+          <Text style={styles.buttonText}>Save Changes</Text>
         </Pressable>
       </View>
     </Background>
   );
+  return useModal ? (
+    <Modal
+      animationType="slide"
+      transparent={false}
+      visible={isVisible}
+      onRequestClose={closeModal}
+    >
+      {content}
+
+    </Modal>
+  ) : content;
 };
 
 const styles = StyleSheet.create({
   container: {
-    margin: 80,
-    alignSelf: 'flex-start',
-    flex: 1,
-    paddingBottom: 70,
-    paddingHorizontal: 70,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)', // Background color for the container
+    flexDirection: 'column'!, // Arrange children in a column
+    flexWrap: 'wrap',
+    margin: 80, // Reduce the margin as needed
+    alignSelf: 'flex-start', // Center the container on the screen
     borderRadius: 10, // Rounded corners for the container
-    alignItems: 'center',
+    padding: 20, // Add padding to create spacing inside the container
+  },
+  containerSmall: {
+    width: '90%', // Adjust as needed
+  },
+  containerLarge: {
+    flexDirection: 'row'!, // Arrange children in a row
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 20,
-    padding: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    marginBottom: 20,
+    fontSize: 30,
+    fontWeight: 'bold',
+    marginBottom: 15,
 
-    borderRadius: 3,
+  },
+  smallHeader: {
+    fontSize: 15,
+    marginBottom: 20,
   },
   input: {
-    marginTop: 10,
-    marginBottom: 20,
-    height: 45, // Adjusted height
+    marginBottom: 20, // Space between the inputs
+    marginRight: 20, // Space between the inputs
     borderRadius: 10, // Rounded corners
-    padding: 10,
-    backgroundColor: "#f5f7fa",
+    padding: 10, // Padding inside the input fields
+    backgroundColor: "white", // Input background color
+    fontSize: 16, // Set the font size
+    borderColor: "rgba(34, 170, 85, 1)",
+    borderWidth: 2,
+    color: '#6B7280',
+    width: 230,
   },
-  inputGroup: {
-    maxWidth: 300, // Set a max-width for large screens
-    alignSelf: 'center',
-    width: '100%',
+  inputFocused: {
+    borderWidth: 2,
   },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#ccc", // Placeholder color
-  },
-  profileName: {
-    fontSize: 20,
-    marginTop: 10,
-    fontWeight: "bold",
-  },
-  settings: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 3,
+  inputTitles: {
+    fontSize: 16,
+    color: 'black',
+    fontWeight: '700',
+    paddingBottom: 10,
   },
   button: {
     backgroundColor: "rgba(34, 170, 85, 1)",
-    flexDirection: "row",
-    width: "75%",
-    height: 45,
     borderRadius: 7,
-    justifyContent: "center",
-    alignSelf: "center",
+    justifyContent: "center", // Center the content horizontally
+    alignItems: "center", // Center the button in the container
+    paddingVertical: 10,
+    paddingHorizontal: 20, // Padding inside the button for height
+    width: 230, // Set the width of the button
   },
   buttonText: {
     color: "white",
-    textAlign: 'center',
-    marginTop: 10,
-    fontSize: 18,
-    width: 150,
-    height: 50,
+    textAlign: 'center', // Center the text horizontally
+    fontSize: 18, // Set the font size
+    fontWeight: 'bold', // Bold font weight
   },
 
   logoutButton: {
