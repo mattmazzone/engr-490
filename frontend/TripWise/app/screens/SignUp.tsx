@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   logo: {
-    marginBottom: 60,
+    //marginBottom: 60,
   },
   loginInputContainer: {
     width: "100%",
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   },
   input: {
     marginTop: 10,
-    marginBottom: 20,
+    marginBottom: 12,
     width: 300,
     height: 45, // Adjusted height
     borderRadius: 10, // Rounded corners
