@@ -4,18 +4,17 @@ FROM python:3.9-slim
 # Set the working directory in the container to /app
 WORKDIR /app
 
-# Copy the requirements file and install Python dependencies
-COPY requirements.txt tripwise-sdk-key.json ./
+# Copy the requirements file, service account key, and app.py into the container
+COPY requirements.txt tripwise-sdk-key.json app.py ./
+
+# Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire src directory into the container
+# Copy the rest of your application files from the src directory
 COPY src/ ./src/
 
-# Set the working directory to /app/src where app.py and other files are located
-WORKDIR /app/src
-
-# Make port 4000 available to the world outside this container
-EXPOSE 4000
+# Make port 5000 available to the world outside this container
+EXPOSE 5000
 
 # Run app.py when the container launches
 CMD ["python", "app.py"]
