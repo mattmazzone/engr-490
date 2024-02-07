@@ -170,7 +170,14 @@ export const createTrip = async (
           "Content-Type": "application/json",
         },
         method: "POST",
-        body: JSON.stringify({ tripStart, tripEnd, tripMeetings }),
+        body: JSON.stringify({
+          tripStart,
+          tripEnd,
+          tripMeetings,
+          maxRecentTrips: 10,
+          maxNearbyPlaces: 20,
+          nearByPlaceRadius: 1500,
+        }),
       }
     );
 
