@@ -10,7 +10,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application source and the SDK key into /app/src/
 COPY src/ ./src/
-COPY tripwise-sdk-key.json ./src/
 
 # Change the working directory to /app/src
 WORKDIR /app/src
