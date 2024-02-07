@@ -146,9 +146,9 @@ const AccountPage = ({
 
   const content = (
     <Background>
-      
+
       <View style={[styles.container, { backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }, isScreenSmall ? { margin: 10, alignItems: 'center', alignSelf: 'center', width: '90%' } : { margin: 80, alignSelf: 'flex-start' },]}>
-      {isScreenSmall && <BackButton onPress={() => closeModal()}/>} {/* Conditionally render the Back Button */}
+        {isScreenSmall && <BackButton onPress={() => closeModal()} />} {/* Conditionally render the Back Button */}
         <Text style={[styles.header, { color: theme === 'Dark' ? 'white' : 'black' }]}>
           Account
         </Text >
@@ -257,8 +257,6 @@ const styles = StyleSheet.create({
     padding: 10, // Padding inside the input fields
     backgroundColor: "white", // Input background color
     fontSize: 16, // Set the font size
-    borderColor: "rgba(34, 170, 85, 1)",
-    borderWidth: 2,
     color: '#6B7280',
     width: '100%', // Set the width of the input
     maxWidth: 300, // Set a max-width for large screens
