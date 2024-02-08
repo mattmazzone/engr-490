@@ -3,6 +3,7 @@ import copy
 from datetime import date, datetime, timedelta, time
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
+import random
 
 # https://developers.google.com/maps/documentation/places/web-service/place-types
 place_types = {
@@ -336,7 +337,6 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
             broken_up_free_slots.append(
                 {"start": current_start, "end": current_end})
             current_end = current_end + activity_duration
-    print(len(broken_up_free_slots))
 
     for slot in broken_up_free_slots:
         index = find_relavent_meeting(trip_meetings, slot['end'])
@@ -377,11 +377,6 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
         other_places = sorted(
             other_places, key=lambda x: x['similarity'], reverse=True)
 
-        # print(len(breakfast_places))
-        # print(len(restaurant_places))
-        # print(len(other_places))
-        # print()
-
         if len(breakfast_places) > 0 and breakfast_time_range['start'] <= slot_start.time() and slot_end.time() <= breakfast_time_range['end']:
             slot['place_similarity'] = addHighestPlace(
                 breakfast_places, nearby_places_picked)
@@ -395,3 +390,9 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
 
     # raise NotImplemented('WIP')
     return broken_up_free_slots
+
+
+def create_interests_df(interests):
+    weighted_interests = {item: random.uniform(0.75, 1) for item in interests}
+    interests_df = pd.DataFrame(weighted_interests.items())
+    return interests_df

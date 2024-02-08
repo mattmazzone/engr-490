@@ -52,11 +52,9 @@ async function getRecentTrips(admin, db, uid, numRecentTrips) {
 
     console.log("Retreived recent trip IDs");
 
-    if (recentTripIds.length < 5) {
-      // Change to throw a proper error
-      console.log(
-        "Minimum number of trips >= 5. Around 10 to get a good recommendation"
-      );
+    if (recentTripIds.length < 2) {
+      console.log("Less than 2 past trips");
+      return [REQUEST.SUCCESSFUL, []];
     }
 
     let recentTrips = [];
@@ -118,7 +116,7 @@ async function getPlaceTextSearch(address, fieldMask) {
   }
 }
 
-async function getUserInterests(uid) {
+async function getUserInterests(uid, db) {
   try {
     let interests = [];
     await db
