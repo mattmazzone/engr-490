@@ -115,9 +115,26 @@ def recommend():
             nearby_places_df = create_df(places)
 
             interests_df = create_interests_df(interests)
-            print(interests_df)
+
             #  drop useless index column (calcultion purposes)
             nearby_places_df_copy = nearby_places_df.reset_index(drop=True)
+            interests_df_copy = interests_df.reset_index(drop=True)
+
+            print(nearby_places_df_copy[['sushi_restaurant', 'liquor_store']])
+            print(interests_df_copy[['chinese_restaurant', 'gift_shop']])
+
+            # compute cosine similarity and convert back to df
+            similarity_df = cosine_similarity(
+                interests_df_copy, nearby_places_df_copy)
+            similarity_df = pd.DataFrame(similarity_df)
+
+            cols = {}
+            for i in range(len(nearby_places_df.index)):
+                cols[i] = nearby_places_df.index[i]
+            similarity_df = similarity_df.rename(cols, axis=1)
+
+            print()
+            print(similarity_df)
             raise NotImplemented
             # return (make_response(jsonify({}), 200))
 

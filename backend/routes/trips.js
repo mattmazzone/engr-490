@@ -22,9 +22,11 @@ async function useGetNearbyPlacesSevice(
   latitude,
   longitude,
   maxNearbyPlaces,
-  nearByPlaceRadius
+  nearByPlaceRadius,
+  includedTypes
 ) {
   const payload = {
+    includedTypes,
     maxResultCount: maxNearbyPlaces,
     locationRestriction: {
       circle: {
@@ -104,6 +106,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       throw interests;
     }
 
+    const includedTypes = interests;
+
     /*
     =--=-=-=-=-=-=-=-=
     Start recommending activities
@@ -123,7 +127,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         location.latitude,
         location.longitude,
         maxNearbyPlaces,
-        nearByPlaceRadius
+        nearByPlaceRadius,
+        includedTypes
       );
 
       console.log(responseData);
@@ -137,7 +142,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
           location.latitude,
           location.longitude,
           maxNearbyPlaces,
-          nearByPlaceRadius
+          nearByPlaceRadius,
+          includedTypes
         );
 
         nearbyPlaces.push(responseData.places);
