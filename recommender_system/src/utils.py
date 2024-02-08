@@ -393,6 +393,12 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
 
 
 def create_interests_df(interests):
-    weighted_interests = {item: random.uniform(0.75, 1) for item in interests}
-    interests_df = pd.DataFrame(weighted_interests.items())
+    data = []
+    place_types_copy = copy.deepcopy(place_types)
+    for type in interests:
+        # Should always be true
+        if type in place_types_copy:
+            place_types_copy[type] = random.uniform(0.75, 1)
+    data.append(place_types_copy)
+    interests_df = pd.DataFrame(data)
     return interests_df
