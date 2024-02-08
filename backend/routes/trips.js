@@ -98,8 +98,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       bufferInMinutes
     );
 
-    const [success, interests] = await getUserInterests(uid);
-    if (!success != REQUEST.SUCCESSFUL) {
+    const [success, interests] = await getUserInterests(uid, db);
+    if (success != REQUEST.SUCCESSFUL) {
       error = interests;
       throw interests;
     }
