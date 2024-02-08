@@ -117,10 +117,28 @@ async function getPlaceTextSearch(address, fieldMask) {
     return [REQUEST.ERROR, error];
   }
 }
+
+async function getUserInterests(uid) {
+  try {
+    let interests = [];
+    await db
+      .collection("users")
+      .doc(uid)
+      .get()
+      .then((doc) => {
+        interests = doc.data().interests;
+      });
+    return [REQUEST.SUCCESSFUL, interests];
+  } catch (error) {
+    console.error(error);
+    return [REQUEST.ERROR, error];
+  }
+}
 module.exports = {
   REQUEST,
   getNearbyPlaces,
   getRecentTrips,
   getPlaceDetails,
   getPlaceTextSearch,
+  getUserInterests,
 };
