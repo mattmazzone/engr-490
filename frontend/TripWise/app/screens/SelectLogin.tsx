@@ -1,15 +1,20 @@
 import React from "react";
-import { View, StyleSheet, useColorScheme } from "react-native";
+import { View, StyleSheet } from "react-native";
 import TripWiseLogo from "../../components/SVGLogos/TripWiseLogo";
 import LoginProviderButton from "../../components/SelectLogin/LoginProviderButton";
-import { NavigationProp } from "@react-navigation/native";
+import { NavigationProp, RouteProp } from "@react-navigation/native";
 import Background from "../../components/Background";
+import { RootStackParamList } from "../../types/navigationTypes";
 
 interface RouterProps {
-  navigation: NavigationProp<any, any>;
+  navigation: NavigationProp<RootStackParamList, "SelectLogin">;
+  route: RouteProp<RootStackParamList, "SelectLogin">;
 }
 
-const SelectLogin = ({ navigation }: RouterProps) => {
+const SelectLogin = ({ navigation, route }: RouterProps) => {
+  const { onUserCreationComplete }: { onUserCreationComplete: () => void } =
+    route.params;
+
   return (
     <Background>
       <View style={styles.container}>
@@ -19,9 +24,21 @@ const SelectLogin = ({ navigation }: RouterProps) => {
           </View>
         </View>
         <View style={styles.loginProviders}>
-          <LoginProviderButton provider={"email"} navigation={navigation} />
-          <LoginProviderButton provider={"google"} navigation={navigation} />
-          <LoginProviderButton provider={"apple"} navigation={navigation} />
+          <LoginProviderButton
+            provider={"email"}
+            navigation={navigation}
+            onUserCreationComplete={onUserCreationComplete}
+          />
+          <LoginProviderButton
+            provider={"google"}
+            navigation={navigation}
+            onUserCreationComplete={onUserCreationComplete}
+          />
+          <LoginProviderButton
+            provider={"apple"}
+            navigation={navigation}
+            onUserCreationComplete={onUserCreationComplete}
+          />
         </View>
       </View>
     </Background>

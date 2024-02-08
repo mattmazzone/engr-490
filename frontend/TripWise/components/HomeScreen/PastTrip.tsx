@@ -47,7 +47,7 @@ const PastTrip = ({ pastTrip }: any) => {
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 1000,
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start();
   };
   useEffect(() => {

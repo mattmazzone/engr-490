@@ -1,13 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  Modal,
-} from "react-native";
+import { View, Text, StyleSheet, Pressable, Image, Modal } from "react-native";
 import Background from "../../components/Background";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import * as UserService from "../../services/userServices";
@@ -24,9 +17,10 @@ import AppSettingsPage from "../../components/AccountScreen/AppSettings";
 import SettingOption from "../../components/AccountScreen/SettingOption";
 import { UserSettings } from "../../types/userTypes";
 import ThemeContext from "../../context/ThemeContext";
+import { BottomTabParamList } from "../../types/navigationTypes";
 
 interface RouterProps {
-  navigation: NavigationProp<any, any>;
+  navigation: NavigationProp<BottomTabParamList, "Account">;
 }
 
 const Account = ({ navigation }: RouterProps) => {
@@ -59,7 +53,7 @@ const Account = ({ navigation }: RouterProps) => {
   }, [userProfile]); // Update settings when userProfile changes
 
   // Function to update user settings
-  const updateUserSettings = async (newSettings: any) => {
+  const updateUserSettings = async (newSettings: UserSettings) => {
     try {
       await UserService.updateUserSettings(newSettings);
       setUserSettings(newSettings); // Update state with new settings
@@ -102,13 +96,13 @@ const Account = ({ navigation }: RouterProps) => {
         <View style={styles.settings}>
           {/* Settings options with icons */}
           <SettingOption
-            icon={<AppSettingsLogo focused={false} />}
+            icon={<AppSettingsLogo />}
             title="App Settings"
             onPress={() => setAppSettingsModalVisible(true)}
             hasBorder={true}
           />
           <SettingOption
-            icon={<PrivacySettingsLogo focused={false} />}
+            icon={<PrivacySettingsLogo />}
             title="Privacy Settings"
             onPress={() => {
               console.log("Privacy Settings");
@@ -116,7 +110,7 @@ const Account = ({ navigation }: RouterProps) => {
             hasBorder={true}
           />
           <SettingOption
-            icon={<BackupAndRestoreLogo focused={false} />}
+            icon={<BackupAndRestoreLogo />}
             title="Backup and Restore"
             onPress={() => {
               console.log("Backup and Restore");
@@ -124,7 +118,7 @@ const Account = ({ navigation }: RouterProps) => {
             hasBorder={true}
           />
           <SettingOption
-            icon={<HelpAndSupportLogo focused={false} />}
+            icon={<HelpAndSupportLogo />}
             title="Help and Support"
             onPress={() => {
               console.log("Help and Support");
@@ -132,7 +126,7 @@ const Account = ({ navigation }: RouterProps) => {
             hasBorder={true}
           />
           <SettingOption
-            icon={<NotificationSettingsLogo focused={false} />}
+            icon={<NotificationSettingsLogo />}
             title="Notification Settings"
             onPress={() => {
               setNotificationModalVisible(true);
@@ -178,9 +172,9 @@ const Account = ({ navigation }: RouterProps) => {
         </Modal>
 
         {/* Logout button */}
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Pressable style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Logout</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </Background>
   );

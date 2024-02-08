@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavigationProp } from "@react-navigation/native";
+import { NavigationProp, RouteProp } from "@react-navigation/native";
 import {
   TextInput,
   View,
@@ -16,11 +16,12 @@ import BackButton from "../../components/BackButton";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import Background from "../../components/Background";
 import * as UserService from "../../services/userServices";
+import { RootStackParamList } from "../../types/navigationTypes";
 
 interface RouterProps {
-  navigation: NavigationProp<any, any>;
+  navigation: NavigationProp<RootStackParamList, "SignUp">;
+  route: RouteProp<RootStackParamList, "SignUp">;
 }
-
 const mobileRenderContent = (children: React.ReactNode) => {
   if (Platform.OS === "ios" || Platform.OS === "android") {
     return (
@@ -40,7 +41,9 @@ const mobileRenderContent = (children: React.ReactNode) => {
   }
 };
 
-const SignUp = ({ navigation }: RouterProps) => {
+const SignUp = ({ navigation, route }: RouterProps) => {
+  const { onUserCreationComplete }: { onUserCreationComplete: () => void } =
+    route.params;
   const auth = FIREBASE_AUTH;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -58,7 +61,8 @@ const SignUp = ({ navigation }: RouterProps) => {
       const user = response.user;
 
       if (user) {
-        UserService.createUser(user.uid, firstName, lastName);
+        await UserService.createUser(user.uid, firstName, lastName);
+        onUserCreationComplete();
       }
     } catch (error) {
       console.error("Error signing up:", error);
