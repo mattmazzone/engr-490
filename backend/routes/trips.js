@@ -10,6 +10,7 @@ const {
   REQUEST,
   getPlaceDetails,
   getPlaceTextSearch,
+  getUserInterests,
 } = require("../utils/services");
 const axios = require("axios");
 
@@ -97,6 +98,12 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       bufferInMinutes
     );
 
+    const [success, interests] = await getUserInterests(uid);
+    if (!success != REQUEST.SUCCESSFUL) {
+      error = interests;
+      throw interests;
+    }
+
     /*
     =--=-=-=-=-=-=-=-=
     Start recommending activities
@@ -183,7 +190,13 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     const token = req.headers.authorization;
     const response = await axios.post(
       recommenderURL,
-      { nearbyPlaces, recentTripsPlaceDetails, freeSlots, tripMeetings },
+      {
+        nearbyPlaces,
+        recentTripsPlaceDetails,
+        freeSlots,
+        tripMeetings,
+        interests,
+      },
       {
         headers: {
           "Content-Type": "application/json",
