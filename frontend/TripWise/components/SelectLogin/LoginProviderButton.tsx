@@ -1,11 +1,11 @@
 import React from "react";
 import {
-  TouchableOpacity,
   Text,
   Image,
   StyleSheet,
   ImageSourcePropType,
   Platform,
+  Pressable,
 } from "react-native";
 import { NavigationProp } from "@react-navigation/native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
@@ -15,7 +15,7 @@ import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 // We import the auth state from the firebase config file
 const auth = FIREBASE_AUTH;
 
-const handleGoogleSignUp = async () => {
+const handleGoogleSignUp = async (onUserCreationComplete: () => void) => {
   try {
     if (Platform.OS === "web") {
       const provider = new GoogleAuthProvider();
@@ -25,11 +25,12 @@ const handleGoogleSignUp = async () => {
       const user = response.user;
 
       if (user.displayName) {
-        UserService.createUser(
+        await UserService.createUser(
           user.uid,
           user.displayName.split(" ")[0],
           user.displayName.split(" ")[1]
         );
+        onUserCreationComplete();
       }
 
       const credential = GoogleAuthProvider.credentialFromResult(response);
@@ -61,9 +62,12 @@ interface ProviderDetails {
 interface LoginProviderButtonProps {
   provider: string;
   navigation: NavigationProp<any, any>;
+  onUserCreationComplete: () => void;
 }
 
-const providerMap: Record<string, ProviderDetails> = {
+const getProviderMap = (
+  onUserCreationComplete: () => void
+): Record<string, ProviderDetails> => ({
   email: {
     title: "Continue with Email",
     logo: require("../../assets/logos/email.png"),
@@ -76,8 +80,8 @@ const providerMap: Record<string, ProviderDetails> = {
   google: {
     title: "Continue with Google",
     logo: require("../../assets/logos/google.png"),
-    onPress: () => {
-      handleGoogleSignUp();
+    onPress: (navigation) => {
+      handleGoogleSignUp(onUserCreationComplete);
     },
     bgColor: "#DB4437",
     textColor: "#FFFFFF",
@@ -91,23 +95,25 @@ const providerMap: Record<string, ProviderDetails> = {
     bgColor: "#FFFFFF",
     textColor: "#000000",
   },
-};
+});
 
 const LoginScreenButton = ({
   provider,
   navigation,
+  onUserCreationComplete,
 }: LoginProviderButtonProps) => {
+  const providerMap = getProviderMap(onUserCreationComplete); // Use the function to get the provider map
   const { title, logo, onPress, bgColor, textColor } =
     providerMap[provider.toLowerCase()] || providerMap["email"];
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={() => onPress(navigation)}
       style={[styles.button, { backgroundColor: bgColor }]}
     >
       <Image source={logo} style={styles.logo} />
       <Text style={[styles.buttonText, { color: textColor }]}>{title}</Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
