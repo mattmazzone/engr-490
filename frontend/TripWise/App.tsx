@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
 import Login from "./app/screens/Login";
 import SignUp from "./app/screens/SignUp";
@@ -16,14 +16,18 @@ import HomeLogo from "./components/SVGLogos/HomeLogo";
 import TripLogo from "./components/SVGLogos/TripLogo";
 import ThemeProvider from "./context/ThemeProvider";
 import ThemeContext from "./context/ThemeContext";
+import * as UserService from "./services/userServices";
+import { RootStackParamList } from "./types/navigationTypes";
+import { MainStackParamList } from "./types/navigationTypes";
+import { BottomTabParamList } from "./types/navigationTypes";
 
 // import your component here
 // import NotificationScreen from "./components/AccountScreen/NotificationScreen";
 
 // Declare your stacks
-const RootStack = createNativeStackNavigator();
-const MainStack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
+const MainStack = createNativeStackNavigator<MainStackParamList>();
+const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 // Tab Navigator
 function BottomTabNavigation() {
@@ -61,11 +65,8 @@ function BottomTabNavigation() {
         },
       })}
     >
-      {/*Change back to Home when done*/}
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Trip" component={Trip} />
-      {/* Dont display in nav */}
-
       <Tab.Screen name="Account" component={Account} />
       {/* <Tab.Screen name="SelectInterests" component={SelectInterests} /> */}
     </Tab.Navigator>
@@ -88,25 +89,47 @@ function LoggedInStack() {
 }
 
 // Root navigator to switch between authentication and main app
-function RootNavigator({ user }: any) {
+function RootNavigator({
+  user,
+  onUserCreationComplete,
+  isUserCreated,
+  userHasInterests,
+  setUserInterests,
+}: {
+  user: User | null;
+  onUserCreationComplete: () => void;
+  isUserCreated: boolean;
+  userHasInterests: boolean;
+  setUserInterests: (hasInterests: boolean) => void;
+}) {
   return (
     <RootStack.Navigator>
-      {user ? (
-        <>
-          <RootStack.Group>
-            <RootStack.Screen
-              name="LoggedInStack"
-              component={LoggedInStack}
-              options={{ headerShown: false }}
-            />
-          </RootStack.Group>
-        </>
+      {user && isUserCreated ? (
+        userHasInterests ? (
+          <>
+            <RootStack.Group>
+              <RootStack.Screen
+                name="LoggedInStack"
+                component={LoggedInStack}
+                options={{ headerShown: false }}
+              />
+            </RootStack.Group>
+          </>
+        ) : (
+          <RootStack.Screen
+            name="SelectInterests"
+            component={SelectInterests}
+            options={{ headerShown: false }}
+            initialParams={{ setUserInterests }}
+          />
+        )
       ) : (
         <>
           <RootStack.Screen
             name="SelectLogin"
             component={SelectLogin}
             options={{ headerShown: false }}
+            initialParams={{ onUserCreationComplete }}
           />
           <RootStack.Screen
             name="Login"
@@ -117,6 +140,7 @@ function RootNavigator({ user }: any) {
             name="SignUp"
             component={SignUp}
             options={{ headerShown: false }}
+            initialParams={{ onUserCreationComplete }}
           />
         </>
       )}
@@ -125,21 +149,62 @@ function RootNavigator({ user }: any) {
 }
 
 export default function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [isUserCreated, setIsUserCreated] = useState(false);
+  const [userHasInterests, setUserHasInterests] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user: any) => {
-      setUser(user);
-    });
+    const unsubscribe = onAuthStateChanged(
+      FIREBASE_AUTH,
+      (user: User | null) => {
+        if (user) {
+          setUser(user);
+          if (isUserCreated) {
+            // Check if user has interests after setting the user
+            checkUserInterests();
+          }
+        } else {
+          // User has signed out, reset all relevant state
+          setUser(null);
+          setIsUserCreated(false);
+          setUserHasInterests(false);
+        }
+      }
+    );
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, []);
+  }, [isUserCreated]);
+  
+  const onUserCreationComplete: () => void = () => {
+    setIsUserCreated(true);
+  };
+
+  const checkUserInterests = async () => {
+    // Check if user has interests
+    UserService.fetchUserProfile().then((profile) => {
+      if (profile && Array.isArray(profile.interests)) {
+        setUserHasInterests(profile.interests.length > 0);
+      } else {
+        setUserHasInterests(false);
+      }
+    });
+  };
+  const setUserInterests = (hasInterests: boolean) => {
+    console.log("Updating userInterests to:", hasInterests);
+    setUserHasInterests(hasInterests);
+  };
 
   return (
     <ThemeProvider>
       <NavigationContainer>
-        <RootNavigator user={user} />
+        <RootNavigator
+          user={user}
+          onUserCreationComplete={onUserCreationComplete}
+          isUserCreated={isUserCreated}
+          userHasInterests={userHasInterests}
+          setUserInterests={setUserInterests}
+        />
       </NavigationContainer>
     </ThemeProvider>
   );
