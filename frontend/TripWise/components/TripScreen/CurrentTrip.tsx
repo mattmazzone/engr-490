@@ -39,8 +39,10 @@ const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
       location: meeting.location,
       color: "#6185d0", // Color for meetings
     })),
-    ...currentTrip.freeSlots.map((slot) => ({
-      title: "Free Time",
+    ...currentTrip.scheduledActivities.map((slot) => ({
+      title: `${slot.place_similarity.place_name}\n${
+        slot.place_similarity.address
+      }\nSimilarity: ${slot.place_similarity.score * 100}%`,
       start: new Date(slot.start),
       end: new Date(slot.end),
       color: "#d3d3d3", // A distinct color for free slots

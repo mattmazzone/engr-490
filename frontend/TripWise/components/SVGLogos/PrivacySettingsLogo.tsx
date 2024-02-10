@@ -5,7 +5,7 @@ interface Props {
   focused: boolean;
 }
 
-const PrivacySettingsLogo = ({ focused }: Props) => {
+const PrivacySettingsLogo = () => {
   const { theme } = React.useContext(ThemeContext);
   return (
     <Svg width="19" height="23" viewBox="0 0 29 33" fill="none">
