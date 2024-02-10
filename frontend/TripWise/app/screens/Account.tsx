@@ -70,7 +70,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
   }, [userProfile]); // Update settings when userProfile changes
 
   // Function to update user settings
-  const updateUserSettings = async (newSettings: any) => {
+  const updateUserSettings = async (newSettings: UserSettings) => {
     try {
       await UserService.updateUserSettings(newSettings);
       setUserSettings(newSettings); // Update state with new settings
@@ -125,14 +125,14 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             isActive={activeSetting === 'app'}
           />
           <SettingOption
-            icon={<AppSettingsLogo focused={false} />}
+            icon={<AppSettingsLogo />}
             title="App Settings"
             onPress={() => setActiveSetting('settings')}
             hasBorder={false}
             isActive={activeSetting === 'settings'}
           />
           <SettingOption
-            icon={<PrivacySettingsLogo focused={false} />}
+            icon={<PrivacySettingsLogo />}
             title="Privacy Settings"
             onPress={() => {
               console.log("Privacy Settings");
@@ -140,7 +140,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             hasBorder={false}
           />
           <SettingOption
-            icon={<BackupAndRestoreLogo focused={false} />}
+            icon={<BackupAndRestoreLogo />}
             title="Backup and Restore"
             onPress={() => {
               console.log("Backup and Restore");
@@ -148,7 +148,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             hasBorder={false}
           />
           <SettingOption
-            icon={<HelpAndSupportLogo focused={false} />}
+            icon={<HelpAndSupportLogo />}
             title="Help and Support"
             onPress={() => {
               console.log("Help and Support");
@@ -203,13 +203,13 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
               hasBorder={true}
             />
             <SettingOption
-              icon={<AppSettingsLogo focused={false} />}
+              icon={<AppSettingsLogo />}
               title="App Settings"
               onPress={() => setAppSettingsModalVisible(true)}
               hasBorder={true}
             />
             <SettingOption
-              icon={<PrivacySettingsLogo focused={false} />}
+              icon={<PrivacySettingsLogo />}
               title="Privacy Settings"
               onPress={() => {
                 console.log("Privacy Settings");
@@ -217,7 +217,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
               hasBorder={true}
             />
             <SettingOption
-              icon={<BackupAndRestoreLogo focused={false} />}
+              icon={<BackupAndRestoreLogo />}
               title="Backup and Restore"
               onPress={() => {
                 console.log("Backup and Restore");
@@ -225,7 +225,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
               hasBorder={true}
             />
             <SettingOption
-              icon={<HelpAndSupportLogo focused={false} />}
+              icon={<HelpAndSupportLogo />}
               title="Help and Support"
               onPress={() => {
                 console.log("Help and Support");

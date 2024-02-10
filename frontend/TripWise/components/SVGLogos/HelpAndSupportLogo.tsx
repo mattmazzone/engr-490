@@ -1,11 +1,9 @@
 import React from "react";
 import Svg, { Path } from "react-native-svg";
 import ThemeContext from "../../context/ThemeContext";
-interface Props {
-  focused: boolean;
-}
 
-const HelpAndSupportLogo = ({ focused }: Props) => {
+
+const HelpAndSupportLogo = () => {
   const { theme } = React.useContext(ThemeContext);
   return (
     <Svg width="20" height="23" viewBox="0 0 35 38" fill="none">
