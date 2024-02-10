@@ -15,9 +15,9 @@ if (process.env.NODE_ENV === 'production') {
 }
 else {
   if (Platform.OS === "android") {
-    BASE_API_URL = "http://10.0.2.2:3000/api";
+    BASE_API_URL = "https://api.tripwise.cloud/api;
   } else {
-    BASE_API_URL = "http://localhost:3000/api";
+    BASE_API_URL = "https://api.tripwise.cloud/api";
   }
 }
 
