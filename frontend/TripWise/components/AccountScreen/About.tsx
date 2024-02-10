@@ -1,10 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import {
   Text,
-  View,
-  Button,
-  Modal,
-  TextInput,
   StyleSheet,
   Pressable,
   SafeAreaView,
@@ -13,6 +9,8 @@ import {
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import * as UserService from "../../services/userServices";
 import BackButton from "../BackButton";
+import ThemeContext from "../../context/ThemeContext";
+import Background from "../Background";
 
 const testGoogleAPI = async () => {
   try {
@@ -67,29 +65,32 @@ const useResponsiveScreen = (breakpoint: number) => {
 };
 
 const About = ({ closeModal, navigation }: any) => {
+  const { theme } = useContext(ThemeContext);
   const isScreenSmall = useResponsiveScreen(768);
   return (
-    <SafeAreaView style={styles.container}>
-      {isScreenSmall && <BackButton onPress={() => closeModal()}/>} {/* Conditionally render the Back Button */}
-      <Text>About Modal</Text>
-      <Pressable onPress={() => testGoogleAPI()} style={styles.button}>
-        <Text style={styles.buttonText}>Test Google API</Text>
-      </Pressable>
+    <Background>
+      <SafeAreaView style={styles.container}>
+        {isScreenSmall && <BackButton onPress={() => closeModal()} />} {/* Conditionally render the Back Button */}
+        <Text style={{ color: theme === "Dark" ? "white" : "black" }}>About Modal</Text>
+        <Pressable onPress={() => testGoogleAPI()} style={styles.button}>
+          <Text style={styles.buttonText}>Test Google API</Text>
+        </Pressable>
 
-      <Pressable
-        onPress={() => {
-          navigation.navigate("SelectInterests");
-          closeModal();
-        }}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>Open Select Interest Page</Text>
-      </Pressable>
+        <Pressable
+          onPress={() => {
+            navigation.navigate("SelectInterests");
+            closeModal();
+          }}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>Open Select Interest Page</Text>
+        </Pressable>
 
-      <Pressable style={styles.button} onPress={UserService.endCurrentTrip}>
-        <Text style={styles.buttonText}>End Current Trip</Text>
-      </Pressable>
-    </SafeAreaView>
+        <Pressable style={styles.button} onPress={UserService.endCurrentTrip}>
+          <Text style={styles.buttonText}>End Current Trip</Text>
+        </Pressable>
+      </SafeAreaView>
+    </Background>
   );
 };
 
