@@ -118,7 +118,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             )}
           </View>
           <SettingOption
-            icon={<AccountLogo focused={false} />}
+            icon={<AccountLogo focused={true} />}
             title="Account Settings"
             onPress={() => setActiveSetting('app')}
             hasBorder={false}
