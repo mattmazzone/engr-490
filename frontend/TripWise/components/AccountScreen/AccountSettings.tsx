@@ -130,11 +130,8 @@ const AccountPage = ({
     }
     Alert.alert('Success', 'Profile updated successfully');
   };
-  //TODO: REMOVE: For Testing Purposes
-  const [isLoading, setIsLoading] = useState(true);
-  setTimeout(() => setIsLoading(false), 1000);
 
-  if (!isScreenSmall && (isLoading || isFetchingProfile)) {
+  if (!isScreenSmall && isFetchingProfile) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: "center", backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }}>
         <ActivityIndicator size="large" color="rgba(34, 170, 85, 1)" />
@@ -161,7 +158,7 @@ const AccountPage = ({
               First Name
             </Text>
             <TextInput
-              style={[styles.input, focusState.firstName ? styles.inputFocused : null, { backgroundColor: theme === 'Dark' ? '#202B2E' : 'white' }]}
+              style={[styles.input, focusState.firstName ? styles.inputFocused : null, { backgroundColor: theme === 'Dark' ? '#202B2E' : 'white', color: theme === 'Dark' ? '#f0f2f1' : 'black' }]}
               value={firstName}
               onChangeText={setFirstName}
               placeholder="First Name"
@@ -175,7 +172,7 @@ const AccountPage = ({
               Last Name
             </Text>
             <TextInput
-              style={[styles.input, focusState.firstName ? styles.inputFocused : null, { backgroundColor: theme === 'Dark' ? '#202B2E' : 'white' }]}
+              style={[styles.input, focusState.firstName ? styles.inputFocused : null, { backgroundColor: theme === 'Dark' ? '#202B2E' : 'white', color: theme === 'Dark' ? '#f0f2f1' : 'black' }]}
               value={lastName}
               onChangeText={setLastName}
               placeholder="Last Name"
@@ -189,7 +186,7 @@ const AccountPage = ({
               Phone <Text style={{ color: "rgba(34, 170, 85, 1)", fontWeight: '500'! }}>(Optional)</Text>
             </Text>
             <TextInput
-              style={[styles.input, focusState.firstName ? styles.inputFocused : null, { backgroundColor: theme === 'Dark' ? '#202B2E' : 'white' }]}
+              style={[styles.input, focusState.firstName ? styles.inputFocused : null, { backgroundColor: theme === 'Dark' ? '#202B2E' : 'white', color: theme === 'Dark' ? '#f0f2f1' : 'black' }]}
               onFocus={() => handleFocus('phone')}
               onBlur={() => handleBlur('phone')}
               value={phone}
@@ -255,11 +252,10 @@ const styles = StyleSheet.create({
     marginRight: 20, // Space between the inputs
     borderRadius: 10, // Rounded corners
     padding: 10, // Padding inside the input fields
-    backgroundColor: "white", // Input background color
     fontSize: 16, // Set the font size
-    color: '#6B7280',
     width: '100%', // Set the width of the input
     maxWidth: 300, // Set a max-width for large screens
+    fontWeight: '400', // Set the font weight
   },
   inputFocused: {
     borderWidth: 2,
