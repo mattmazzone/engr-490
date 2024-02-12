@@ -29,7 +29,7 @@ interface Category {
 const categories: Category[] = [
   {
     name: "Culture 🎨",
-    items: [{ id: "Culture 🎨", titles: ["culture"] }],
+    items: [{ id: "Culture 🎨", titles: ["cultural_center"] }],
   },
   {
     name: "Food & Drink 🍔",
