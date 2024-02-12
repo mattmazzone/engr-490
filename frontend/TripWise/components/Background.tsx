@@ -17,7 +17,7 @@ const Background: React.FC<ContainerProps> = ({ children }) => {
     <View
       style={{
         flex: 1,
-        backgroundColor: isDarkMode ? "#000000" : "#FFFFFF",
+        backgroundColor: isDarkMode ? "#171F21" : "#FFFFFF",
 
         // Paddings to handle safe area
         paddingTop: insets.top,
