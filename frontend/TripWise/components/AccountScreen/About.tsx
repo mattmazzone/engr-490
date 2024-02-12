@@ -1,16 +1,16 @@
-import React from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   Text,
-  View,
-  Button,
-  Modal,
-  TextInput,
   StyleSheet,
   Pressable,
   SafeAreaView,
+  Dimensions
 } from "react-native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import * as UserService from "../../services/userServices";
+import BackButton from "../BackButton";
+import ThemeContext from "../../context/ThemeContext";
+import Background from "../Background";
 
 const testGoogleAPI = async () => {
   try {
@@ -45,33 +45,52 @@ const testGoogleAPI = async () => {
     throw error;
   }
 };
+const useResponsiveScreen = (breakpoint: number) => {
+  const [isScreenSmall, setIsScreenSmall] = useState(Dimensions.get('window').width < breakpoint);
+
+  useEffect(() => {
+    const updateScreenSize = () => {
+      const screenWidth = Dimensions.get('window').width;
+      setIsScreenSmall(screenWidth < breakpoint);
+    };
+
+    // Add event listener
+    const subscription = Dimensions.addEventListener('change', updateScreenSize);
+
+    // Remove event listener on cleanup
+    return () => subscription.remove();
+  }, [breakpoint]);
+
+  return isScreenSmall;
+};
 
 const About = ({ closeModal, navigation }: any) => {
+  const { theme } = useContext(ThemeContext);
+  const isScreenSmall = useResponsiveScreen(768);
   return (
-    <SafeAreaView style={styles.container}>
-      <Text>About Modal</Text>
-      <Pressable onPress={() => testGoogleAPI()} style={styles.button}>
-        <Text style={styles.buttonText}>Test Google API</Text>
-      </Pressable>
+    <Background>
+      <SafeAreaView style={styles.container}>
+        {isScreenSmall && <BackButton onPress={() => closeModal()} />} {/* Conditionally render the Back Button */}
+        <Text style={{ color: theme === "Dark" ? "white" : "black" }}>About Modal</Text>
+        <Pressable onPress={() => testGoogleAPI()} style={styles.button}>
+          <Text style={styles.buttonText}>Test Google API</Text>
+        </Pressable>
 
-      <Pressable
-        onPress={() => {
-          navigation.navigate("SelectInterests");
-          closeModal();
-        }}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>Open Select Interest Page</Text>
-      </Pressable>
+        <Pressable
+          onPress={() => {
+            navigation.navigate("SelectInterests");
+            closeModal();
+          }}
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>Open Select Interest Page</Text>
+        </Pressable>
 
-      <Pressable style={styles.button} onPress={UserService.endCurrentTrip}>
-        <Text>End Current Trip</Text>
-      </Pressable>
-
-      <Pressable onPress={closeModal} style={styles.button}>
-        <Text style={styles.buttonText}>Close Modal</Text>
-      </Pressable>
-    </SafeAreaView>
+        <Pressable style={styles.button} onPress={UserService.endCurrentTrip}>
+          <Text style={styles.buttonText}>End Current Trip</Text>
+        </Pressable>
+      </SafeAreaView>
+    </Background>
   );
 };
 
@@ -81,7 +100,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    backgroundColor: "#1E90FF",
+    backgroundColor: "#2a5",
     flexDirection: "row",
     width: "55%",
     height: 45,
@@ -94,6 +113,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     marginRight: 30, // add some space between text and logo
+    color: "white",
   },
 });
 
