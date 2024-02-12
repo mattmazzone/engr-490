@@ -47,14 +47,14 @@ function BottomTabNavigation() {
         headerShown: false,
         tabBarStyle: {
           position: "absolute",
-          borderTopColor: theme === "Dark" ? "rgba(80, 80, 80, 1)" : "white", // Top border color
+          borderTopColor: theme === "Dark" ? "rgba(80, 80, 80, 1)" : "rgba(213, 213, 213, 0.8)", // Top border color
           borderTopWidth: 2, // Top border width
           borderStyle: "solid", // Add solid border style
           backgroundColor:
             theme === "Dark"
               ? "rgba(80, 80, 80, 0.9)"
-              : "rgba(255,255,255, 0.9)", // Only the background is semi-transparent
-          height: 100, // Set the height of the tab bar
+              : "rgba(213, 213, 213, 0.8)", // Only the background is semi-transparent
+          height: 70, // Set the height of the tab bar
         },
         tabBarActiveTintColor: theme === "Dark" ? "white" : "black",
         tabBarInactiveTintColor: "grey",
