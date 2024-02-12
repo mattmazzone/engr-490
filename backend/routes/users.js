@@ -17,11 +17,22 @@ router.post("/signup", authenticate, async (req, res) => {
   }
 
   try {
-    await db.collection("users").doc(uid).set({
-      uid,
-      firstName,
-      lastName,
-    });
+    await db
+      .collection("users")
+      .doc(uid)
+      .set({
+        uid,
+        firstName,
+        lastName,
+        currentTrip: "",
+        pastTrips: [],
+        interests: [],
+        settings: {
+          backgroundTheme: false,
+          pushNotification: false,
+          emailNotification: false,
+        },
+      });
     return res.status(201).send("User created successfully");
   } catch (error) {
     console.error("Error creating user", error);
