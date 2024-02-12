@@ -64,7 +64,7 @@ const categories: Category[] = [
           "pizza_restaurant",
         ],
       },
-      { id: "Cafe ☕", titles: ["cafe", "bakery", "sandwich_restaurant"] },
+      { id: "Cafe ☕", titles: ["cafe", "bakery", "sandwich_shop"] },
       {
         id: "Breakfast 🍳",
         titles: ["breakfast_restaurant", "brunch_restaurant"],
@@ -106,7 +106,7 @@ const categories: Category[] = [
   {
     name: "Places of Worship 🛐",
     items: [
-      { id: "Church ⛪", titles: ["chruch"] },
+      { id: "Church ⛪", titles: ["church"] },
       { id: "Temple 🕍", titles: ["hindu_temple"] },
       { id: "Mosque 🕌", titles: ["mosque"] },
       { id: "Synagogue 🕍", titles: ["synagogue"] },
@@ -118,7 +118,7 @@ const categories: Category[] = [
       { id: "Book Store 📚", titles: ["book_store"] },
       { id: "Clothing Store 👗", titles: ["clothing_store"] },
       { id: "Gift Shop 🎁", titles: ["gift_shop"] },
-      { id: "Jewellery Store 💍", titles: ["jewellery_store"] },
+      { id: "Jewelry Store 💍", titles: ["jewelry_store"] },
       { id: "Liquor Store 🍷", titles: ["liquor_store"] },
       { id: "Shopping Mall 🏬", titles: ["shopping_mall"] },
     ],
@@ -129,7 +129,7 @@ const categories: Category[] = [
       { id: "Golf ⛳", titles: ["golf_course"] },
       { id: "Gym 💪", titles: ["gym"] },
       { id: "Playground 🤸", titles: ["playground"] },
-      { id: "Ski 🎿", titles: ["ski"] },
+      { id: "Ski 🎿", titles: ["ski_resort"] },
       { id: "Sports Club 🏟️", titles: ["sports_club"] },
       { id: "Swimming Pool 🏊", titles: ["swimming_pool"] },
     ],
