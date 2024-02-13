@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha tests/**/*.js --reporter spec",
-    "start": "node app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+
   },
   "keywords": [],
   "author": "",
@@ -23,6 +25,7 @@
     "@types/sinon": "^17.0.1",
     "chai": "^4.3.10",
     "mocha": "^10.2.0",
+    "nodemon": "^3.0.3",
     "sinon": "^17.0.1"
   }
 }

@@ -7,22 +7,44 @@ import {
   Pressable,
   SafeAreaView,
   Switch,
+  Dimensions,
 } from "react-native";
 import Background from "../Background";
 import ThemeContext from "../../context/ThemeContext";
+import BackButton from "../BackButton";
 
 interface AppSettingsPageProps {
   isVisible: boolean;
   userSettings: any;
   updateUserSettings: any;
   closeModal: any;
+  useModal: boolean;
 }
+const useResponsiveScreen = (breakpoint: number) => {
+  const [isScreenSmall, setIsScreenSmall] = useState(Dimensions.get('window').width < breakpoint);
+
+  useEffect(() => {
+    const updateScreenSize = () => {
+      const screenWidth = Dimensions.get('window').width;
+      setIsScreenSmall(screenWidth < breakpoint);
+    };
+
+    // Add event listener
+    const subscription = Dimensions.addEventListener('change', updateScreenSize);
+
+    // Remove event listener on cleanup
+    return () => subscription.remove();
+  }, [breakpoint]);
+
+  return isScreenSmall;
+};
 
 const AppSettingsPage = ({
-  isVisible,
+  isVisible = true,
   userSettings,
   updateUserSettings,
-  closeModal,
+  closeModal = () => { },
+  useModal = false,
 }: AppSettingsPageProps) => {
   const { theme, setTheme } = useContext(ThemeContext);
   const [isEnabled, setIsEnabled] = useState<boolean>(false);
@@ -36,82 +58,145 @@ const AppSettingsPage = ({
     setIsEnabled(!isEnabled);
     setTheme(newTheme); // Update global theme
   };
+  const [isEmailEnabled, setIsEmailEnabled] = useState<boolean>(
+    userSettings?.emailNotification || false
+  );
+  const toggleEmailSwitch = () =>
+    setIsEmailEnabled((previousState: boolean) => !previousState);
+
+  const [isPushEnabled, setIsPushEnabled] = useState<boolean>(
+    userSettings?.pushNotification || false
+  );
+  const togglePushSwitch = () => {
+    setIsPushEnabled((previousState: boolean) => !previousState);
+  };
+
+  useEffect(() => {
+    if (userSettings) {
+      setIsEmailEnabled(userSettings.emailNotification);
+      setIsPushEnabled(userSettings.pushNotification);
+    }
+  }, [userSettings]);
 
   const handleAppSettingsPreferences = async () => {
     const newSettings = {
       ...userSettings,
+      emailNotification: isEmailEnabled,
+      pushNotification: isPushEnabled,
       backgroundTheme: isEnabled,
     };
-    await updateUserSettings(newSettings);
-    closeModal();
-  };
 
-  return (
+    await updateUserSettings(newSettings);
+    const screenWidth = Dimensions.get("window").width;
+    if (screenWidth <= 766) {
+      closeModal();
+    }
+  };
+  const isScreenSmall = useResponsiveScreen(768);
+
+  const content = (
+    <Background>
+      
+      <SafeAreaView style={styles.container}>
+      {isScreenSmall && <BackButton onPress={() => closeModal()}/>} {/* Conditionally render the Back Button */}
+        <View style={styles.titleView}>
+          <Text
+            style={[
+              styles.titleText,
+              { color: theme === "Dark" ? "white" : "black" },
+            ]}
+          >
+            App Settings
+          </Text>
+        </View>
+        <View style={styles.notificationChoice}>
+          <Text
+            style={[
+              styles.typeNotificationText,
+              { color: theme === "Dark" ? "white" : "black" },
+            ]}
+          >
+            Background Theme
+          </Text>
+          <Switch
+            style={{ height: 25 }}
+            trackColor={{ false: "#767577", true: "rgba(34, 170, 85, 1)" }}
+            thumbColor={isEnabled ? "#32cd32" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleBackgroundSwitch}
+            value={isEnabled}
+          />
+        </View>
+        <Text
+          style={[
+            styles.subtitleText,
+            { color: theme === "Dark" ? "white" : "black" },
+          ]}
+        >
+          Notification Settings
+        </Text>
+        <View style={styles.notificationChoice}>
+          <Text style={[styles.typeNotificationText, { color: theme === "Dark" ? "#fff" : "#000", }]}>
+            E-Mail Notifications
+          </Text>
+          <Switch
+            style={{ height: 25 }}
+            trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
+            thumbColor={isEmailEnabled ? "#32cd32" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleEmailSwitch}
+            value={isEmailEnabled}
+          />
+        </View>
+        <View style={styles.notificationChoice}>
+          <Text style={[styles.typeNotificationText, { color: theme === "Dark" ? "#fff" : "#000", }]}>
+            Push Notifications
+          </Text>
+          <Switch
+            style={{ height: 25 }}
+            trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
+            thumbColor={"#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={togglePushSwitch}
+            value={isPushEnabled}
+          />
+        </View>
+        <View>
+          <Pressable
+            onPress={handleAppSettingsPreferences}
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}>Save</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    </Background>
+  );
+
+  return useModal ? (
     <Modal
       animationType="slide"
       transparent={false}
       visible={isVisible}
       onRequestClose={closeModal}
     >
-      <Background>
-        <SafeAreaView style={styles.container}>
-          <View style={styles.titleView}>
-            <Text
-              style={[
-                styles.titleText,
-                { color: theme === "Dark" ? "white" : "black" },
-              ]}
-            >
-              App Settings
-            </Text>
-          </View>
-          <View style={styles.lineSpace}>
-            <View>
-              <Text
-                style={[
-                  styles.textStyle,
-                  { color: theme === "Dark" ? "white" : "black" },
-                ]}
-              >
-                {" "}
-                Background Theme{" "}
-              </Text>
-            </View>
-            <Text
-              style={{
-                color: theme === "Dark" ? "white" : "black",
-                fontSize: 20,
-              }}
-            >
-              {isEnabled ? "Dark" : "Light"}
-            </Text>
-            <Switch
-              style={{ height: 25 }}
-              trackColor={{ false: "#767577", true: "#00ff00" }}
-              thumbColor={isEnabled ? "#32cd32" : "#f4f3f4"}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={toggleBackgroundSwitch}
-              value={isEnabled}
-            />
-          </View>
-          <View>
-            <Pressable
-              onPress={handleAppSettingsPreferences}
-              style={styles.button}
-            >
-              <Text style={styles.buttonText}>Close</Text>
-            </Pressable>
-          </View>
-        </SafeAreaView>
-      </Background>
+      {content}
+
     </Modal>
-  );
+  ) : content;
+
 };
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+  },
+  settingItem: {
+    flexDirection: 'row', // Align children horizontally
+    alignItems: 'center', // Center items vertically in the container
+    marginBottom: 10, // Optional: add some space between this setting item and the next
   },
   titleView: {
     flexDirection: "row",
@@ -127,6 +212,13 @@ const styles = StyleSheet.create({
     marginTop: 3,
     fontWeight: "bold",
     marginBottom: 16,
+  },
+  subtitleText: {
+    color: "white",
+    alignSelf: "center",
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 32,
   },
   textStyle: {
     color: "white",
@@ -148,8 +240,25 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     height: 70,
   },
+  typeNotificationText: {
+    color: "white",
+    alignSelf: "center",
+    fontSize: 20,
+    fontWeight: "bold",
+    width: 315, //325
+    marginBottom: 32,
+  },
+  notificationSpaces: {
+    alignItems: "flex-start",
+    height: 120,
+  },
+  notificationChoice: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    height: 50,
+  },
   button: {
-    backgroundColor: "#006400",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     flexDirection: "row",
     width: "75%",
     height: 45,
@@ -159,11 +268,17 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "white",
+    textAlign: 'center',
     marginTop: 10,
-    marginLeft: "30%",
     fontSize: 18,
     width: 150,
     height: 50,
+  },
+  backButtonContainer :{
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    margin: 20,
   },
 });
 
