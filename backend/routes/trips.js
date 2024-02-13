@@ -10,6 +10,7 @@ const {
   REQUEST,
   getPlaceDetails,
   getPlaceTextSearch,
+  getUserInterests,
 } = require("../utils/services");
 const axios = require("axios");
 
@@ -21,9 +22,11 @@ async function useGetNearbyPlacesSevice(
   latitude,
   longitude,
   maxNearbyPlaces,
-  nearByPlaceRadius
+  nearByPlaceRadius,
+  includedTypes
 ) {
   const payload = {
+    includedTypes,
     maxResultCount: maxNearbyPlaces,
     locationRestriction: {
       circle: {
@@ -52,12 +55,13 @@ async function useGetNearbyPlacesSevice(
 }
 
 async function getCoords(meeting) {
-  console.log("Getting coords for meeting location", meeting);
+  // console.log("Getting coords for meeting location", meeting);
   const [successOrNot, responseData] = await getPlaceTextSearch(
     meeting.location
   );
   if (successOrNot != REQUEST.SUCCESSFUL) {
     error = responseData;
+    console.error(error);
     throw new BadRequestException(error);
   }
 
@@ -97,6 +101,14 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       bufferInMinutes
     );
 
+    const [success, interests] = await getUserInterests(uid, db);
+    if (success != REQUEST.SUCCESSFUL) {
+      error = interests;
+      throw interests;
+    }
+
+    const includedTypes = interests;
+
     /*
     =--=-=-=-=-=-=-=-=
     Start recommending activities
@@ -108,22 +120,24 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     const numMeetings = tripMeetings.length;
 
-      for (let i = 0; i < numMeetings; i++) {
-        let meeting = tripMeetings[i];
-        if (!meeting.location || meeting.location === "") {
-          console.log("No location for meeting: ", meeting);
-          continue;
-        }
-        const location = await getCoords(meeting);
-        const responseData = await useGetNearbyPlacesSevice(
-          location.latitude,
-          location.longitude,
-          maxNearbyPlaces,
-          nearByPlaceRadius
-        );
-
-        nearbyPlaces.push(responseData.places);
+    for (let i = 0; i < numMeetings; i++) {
+      let meeting = tripMeetings[i];
+      if (!meeting.location || meeting.location === "") {
+        console.log("No location for meeting: ", meeting);
+        continue;
       }
+      const location = await getCoords(meeting);
+      console.log(location);
+      const responseData = await useGetNearbyPlacesSevice(
+        location.lat,
+        location.lng,
+        maxNearbyPlaces,
+        nearByPlaceRadius,
+        includedTypes
+      );
+
+      nearbyPlaces.push(responseData.places);
+    }
 
     // Get user's recent trips from firestore
     let [successOrNotTrips, responseDataTrips] = await getRecentTrips(
@@ -134,16 +148,15 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     );
 
     if (successOrNotTrips != REQUEST.SUCCESSFUL) {
-      if (responseDataTrips == "NEED COLD START") {
-        return res.status(301).json({ message: "Need Cold Start" });
-        //TODO: change to call cold Start
-      }
-      else {
+      // if (responseDataTrips == "NEED COLD START") {
+      //   return res.status(301).json({ message: "Need Cold Start" });
+      //   //TODO: change to call cold Start
+      // } else {
       error = responseDataTrips;
       console.error("Error getting recent trips");
       res.status(400).json(error);
       return;
-      }
+      // }
     }
     const recentTrips = responseDataTrips;
 
@@ -173,11 +186,18 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
     }
 
+    // console.log(nearbyPlaces);
     // Finally pass data into the recommender system and get the activities
     const token = req.headers.authorization;
     const response = await axios.post(
       recommenderURL,
-      { nearbyPlaces, recentTripsPlaceDetails, freeSlots, tripMeetings },
+      {
+        nearbyPlaces,
+        recentTripsPlaceDetails,
+        freeSlots,
+        tripMeetings,
+        interests,
+      },
       {
         headers: {
           "Content-Type": "application/json",
