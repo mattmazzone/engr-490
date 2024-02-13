@@ -17,5 +17,6 @@ WORKDIR /app/src
 # Make port 4000 available to the world outside this container
 EXPOSE 4000
 
-# Run app.py when the container launches
-CMD ["python", "app.py"]
+# Use Gunicorn to serve the Flask application
+CMD ["gunicorn", "-b", "0.0.0.0:4000", "app:app"]
+
