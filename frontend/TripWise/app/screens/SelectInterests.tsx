@@ -91,7 +91,7 @@ const categories: Category[] = [
       { id: "Aquarium 🐟", titles: ["aquarium"] },
       { id: "Bowling 🎳", titles: ["bowling_alley"] },
       { id: "Casino 🎰", titles: ["casino"] },
-      { id: "Movies 🎬", titles: ["movie_theatre"] },
+      { id: "Movies 🎬", titles: ["movie_theater"] },
       { id: "Outdoors 🌳", titles: ["national_park", "hiking_area"] },
       { id: "Night Club 🕺", titles: ["night_club"] },
       { id: "Tourist Attraction 🗺️", titles: ["tourist_attraction"] },

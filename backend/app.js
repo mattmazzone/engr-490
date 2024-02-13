@@ -3,11 +3,8 @@ const cors = require("cors");
 const admin = require("firebase-admin");
 const app = express();
 
-if (process.platform == "win32") {
-  require("dotenv").config({ path: __dirname + "\\..\\env" });
-} else {
-  require("dotenv").config({ path: __dirname + "/../.env" });
-}
+require('dotenv').config();
+
 
 // Initialize Firebase Admin with your project's credentials
 const serviceAccount = require("./tripwise-sdk-key.json");
