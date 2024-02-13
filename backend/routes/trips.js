@@ -55,12 +55,13 @@ async function useGetNearbyPlacesSevice(
 }
 
 async function getCoords(meeting) {
-  console.log("Getting coords for meeting location", meeting);
+  // console.log("Getting coords for meeting location", meeting);
   const [successOrNot, responseData] = await getPlaceTextSearch(
     meeting.location
   );
   if (successOrNot != REQUEST.SUCCESSFUL) {
     error = responseData;
+    console.error(error);
     throw new BadRequestException(error);
   }
 
@@ -126,9 +127,10 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         continue;
       }
       const location = await getCoords(meeting);
+      console.log(location);
       const responseData = await useGetNearbyPlacesSevice(
-        location.latitude,
-        location.longitude,
+        location.lat,
+        location.lng,
         maxNearbyPlaces,
         nearByPlaceRadius,
         includedTypes
@@ -146,15 +148,15 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     );
 
     if (successOrNotTrips != REQUEST.SUCCESSFUL) {
-      if (responseDataTrips == "NEED COLD START") {
-        return res.status(301).json({ message: "Need Cold Start" });
-        //TODO: change to call cold Start
-      } else {
-        error = responseDataTrips;
-        console.error("Error getting recent trips");
-        res.status(400).json(error);
-        return;
-      }
+      // if (responseDataTrips == "NEED COLD START") {
+      //   return res.status(301).json({ message: "Need Cold Start" });
+      //   //TODO: change to call cold Start
+      // } else {
+      error = responseDataTrips;
+      console.error("Error getting recent trips");
+      res.status(400).json(error);
+      return;
+      // }
     }
     const recentTrips = responseDataTrips;
 
@@ -184,6 +186,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
     }
 
+    // console.log(nearbyPlaces);
     // Finally pass data into the recommender system and get the activities
     const token = req.headers.authorization;
     const response = await axios.post(
