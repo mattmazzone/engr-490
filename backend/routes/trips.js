@@ -134,10 +134,16 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     );
 
     if (successOrNotTrips != REQUEST.SUCCESSFUL) {
+      if (responseDataTrips == "NEED COLD START") {
+        return res.status(301).json({ message: "Need Cold Start" });
+        //TODO: change to call cold Start
+      }
+      else {
       error = responseDataTrips;
       console.error("Error getting recent trips");
       res.status(400).json(error);
       return;
+      }
     }
     const recentTrips = responseDataTrips;
 

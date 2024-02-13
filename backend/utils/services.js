@@ -50,16 +50,8 @@ async function getRecentTrips(admin, db, uid, numRecentTrips) {
         recentTripIds = (doc.data()?.pastTrips ?? []).slice(0, numRecentTrips);
       });
 
-    if (recentTripIds.length === 0) {
-      //TODO: change to call cold Start
-      return [REQUEST.ERROR, { message: 'No recent trips found' }];
-    }
-
     if (recentTripIds.length < 5) {
-      // Change to throw a proper error
-      console.log(
-        "Minimum number of trips >= 5. Around 10 to get a good recommendation"
-      );
+      return [REQUEST.ERROR, 'NEED COLD START' ];
     }
 
     let recentTrips = [];
