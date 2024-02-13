@@ -47,10 +47,13 @@ async function getRecentTrips(admin, db, uid, numRecentTrips) {
       .doc(uid)
       .get()
       .then((doc) => {
-        recentTripIds = doc.data().pastTrips.slice(0, numRecentTrips);
+        recentTripIds = (doc.data()?.pastTrips ?? []).slice(0, numRecentTrips);
       });
 
-    console.log("Retreived recent trip IDs");
+    if (recentTripIds.length === 0) {
+      //TODO: change to call cold Start
+      return [REQUEST.ERROR, { message: 'No recent trips found' }];
+    }
 
     if (recentTripIds.length < 5) {
       // Change to throw a proper error
