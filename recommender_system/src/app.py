@@ -60,43 +60,6 @@ def authenticate(f):
     return decorated_function
 
 
-@app.route('/api/recommend-cold-start', methods=['POST'])
-def recommend_cold_start():
-    # Get nearby places and user interests array from POST body
-    content_type = request.headers.get('Content-Type')
-    if (content_type != 'application/json'):
-        return make_response(jsonify({"error": "Content type not application/json"}), 500)
-
-    request_body = request.json
-    # Array
-    nearby_places = request_body["nearbyPlaces"]["results"]
-    # Array
-    user_interests = request_body["userInterests"]
-
-    # Filter out nearby places that don't match user intestests
-    relevant_interests = []
-    for category in user_interests:
-        if category in interests_dict:
-            # Concat the two lists together
-            relevant_interests += interests_dict[category]
-
-    filtered_place_ids = {}
-    for place_info in nearby_places:
-        types = place_info["types"]
-        # Figure out which categories the place falls under
-        matching_interests = list(set(relevant_interests) & set(types))
-        num_matching_interests = len(matching_interests)
-        if (num_matching_interests in filtered_place_ids):
-            filtered_place_ids[num_matching_interests].append(
-                place_info["place_id"])
-        else:
-            filtered_place_ids[num_matching_interests] = [
-                place_info["place_id"]]
-
-    # Return filtered list
-    return filtered_place_ids
-
-
 @app.route('/api/recommend', methods=['POST'])
 @authenticate
 def recommend():
@@ -120,9 +83,6 @@ def recommend():
             nearby_places_df_copy = nearby_places_df.reset_index(drop=True)
             interests_df_copy = interests_df.reset_index(drop=True)
 
-            print(nearby_places_df_copy[['sushi_restaurant', 'liquor_store']])
-            print(interests_df_copy[['chinese_restaurant', 'gift_shop']])
-
             # compute cosine similarity and convert back to df
             similarity_df = cosine_similarity(
                 interests_df_copy, nearby_places_df_copy)
@@ -132,11 +92,17 @@ def recommend():
             for i in range(len(nearby_places_df.index)):
                 cols[i] = nearby_places_df.index[i]
             similarity_df = similarity_df.rename(cols, axis=1)
+            similarity_df = similarity_df.rename(
+                index={0: 'similarity'})
+            similarity_df = similarity_df.transpose()
 
-            print()
             print(similarity_df)
-            raise NotImplemented
-            # return (make_response(jsonify({}), 200))
+
+            similarity_tables.append(similarity_df)
+
+        scheduled_activities = create_scheduled_activities(
+            similarity_tables, nearby_places, free_slots, trip_meetings)
+        return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
 
     else:
         # Create recent places df & user rating df for the recent places

@@ -50,8 +50,8 @@ async function getRecentTrips(admin, db, uid, numRecentTrips) {
         recentTripIds = (doc.data()?.pastTrips ?? []).slice(0, numRecentTrips);
       });
 
-    if (recentTripIds.length < 5) {
-      return [REQUEST.ERROR, "NEED COLD START"];
+    if (recentTripIds.length < 2) {
+      return [REQUEST.SUCCESSFUL, []];
     }
 
     let recentTrips = [];
