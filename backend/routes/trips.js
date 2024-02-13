@@ -52,9 +52,9 @@ async function useGetNearbyPlacesSevice(
 }
 
 async function getCoords(meeting) {
+  console.log("Getting coords for meeting location", meeting);
   const [successOrNot, responseData] = await getPlaceTextSearch(
-    meeting.location,
-    "places.location"
+    meeting.location
   );
   if (successOrNot != REQUEST.SUCCESSFUL) {
     error = responseData;
@@ -62,7 +62,7 @@ async function getCoords(meeting) {
   }
 
   // should only be 1 result
-  return responseData.places[0].location;
+  return responseData;
 }
 
 // Route to create a new trip
@@ -108,23 +108,12 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     const numMeetings = tripMeetings.length;
 
-    if (numMeetings == 1) {
-      const meeting = tripMeetings[0];
-
-      const location = await getCoords(meeting);
-      const responseData = await useGetNearbyPlacesSevice(
-        location.latitude,
-        location.longitude,
-        maxNearbyPlaces,
-        nearByPlaceRadius
-      );
-
-      console.log(responseData);
-
-      nearbyPlaces.push(responseData.places);
-    } else {
       for (let i = 0; i < numMeetings; i++) {
-        const meeting = tripMeetings[i];
+        let meeting = tripMeetings[i];
+        if (!meeting.location || meeting.location === "") {
+          console.log("No location for meeting: ", meeting);
+          continue;
+        }
         const location = await getCoords(meeting);
         const responseData = await useGetNearbyPlacesSevice(
           location.latitude,
@@ -135,7 +124,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
         nearbyPlaces.push(responseData.places);
       }
-    }
 
     // Get user's recent trips from firestore
     let [successOrNotTrips, responseDataTrips] = await getRecentTrips(
@@ -146,10 +134,16 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     );
 
     if (successOrNotTrips != REQUEST.SUCCESSFUL) {
+      if (responseDataTrips == "NEED COLD START") {
+        return res.status(301).json({ message: "Need Cold Start" });
+        //TODO: change to call cold Start
+      }
+      else {
       error = responseDataTrips;
       console.error("Error getting recent trips");
       res.status(400).json(error);
       return;
+      }
     }
     const recentTrips = responseDataTrips;
 
@@ -220,7 +214,7 @@ router.get("/current_trip/:uid", authenticate, async (req, res) => {
   try {
     const user = await db.collection("users").doc(uid).get();
     const userData = user.data();
-    if (userData.currentTrip === "") {
+    if (!userData.currentTrip || userData.currentTrip === "") {
       return res.status(200).json({ hasActiveTrip: false });
     }
     const trip = await db.collection("trips").doc(userData.currentTrip).get();
@@ -263,8 +257,10 @@ router.get("/past_trips/:uid", authenticate, async (req, res) => {
     const uid = req.params.uid;
     const user = await db.collection("users").doc(uid).get();
     const userData = user.data();
-    const pastTrips = userData.pastTrips;
-
+    let pastTrips = userData.pastTrips;
+    if (!pastTrips || pastTrips.length === 0) {
+      pastTrips = [];
+    }
     return res.status(200).json(pastTrips);
   } catch (error) {
     console.error("Error getting past trips", error);
