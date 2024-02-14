@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext} from "react";
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import { TimePickerModal } from "react-native-paper-dates";
 import MeetingDateSelector from "./MeetingDateSelector";
 import { DateRange, Meeting, Time } from "../../types/tripTypes";
 import AddressAutocomplete from "./AddressAutocomplete";
+import ThemeContext from "../../context/ThemeContext";
 
 interface MeetingCreatorProps {
   rangeDate: DateRange;
@@ -30,6 +31,7 @@ const MeetingCreator = ({
   // Time
   const [openTimeStart, setOpenTimeStart] = React.useState(false);
   const [openTimeEnd, setOpenTimeEnd] = React.useState(false);
+  const {theme} = useContext(ThemeContext);
 
   const [startTime, setStartTime] = React.useState<Time>({
     hours: 0,
@@ -133,14 +135,14 @@ const MeetingCreator = ({
 
   return (
     <View style={styles.meetingContainer}>
-      <Text style={styles.subTitle}>Add your meetings here</Text>
+      <Text style={[styles.subTitle, {color: theme === "Dark" ? "#fff" : "#000",}]}>Add your meetings here</Text>
       <TimePickerModal
         visible={openTimeStart}
         onDismiss={onDismissTimeStart}
         onConfirm={onConfirmTimeStart}
         defaultInputType="keyboard"
         hours={12}
-        minutes={14}
+        minutes={0}
       />
       <TimePickerModal
         visible={openTimeEnd}
@@ -148,7 +150,7 @@ const MeetingCreator = ({
         onConfirm={onConfirmTimeEnd}
         defaultInputType="keyboard"
         hours={12}
-        minutes={14}
+        minutes={0}
       />
       <TextInput
         placeholder="Enter meeting title"
@@ -238,7 +240,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   addMeetingBtn: {
-    backgroundColor: "rgba(0, 255, 85, 0.6)",
+    backgroundColor: "#2a5",
     padding: 10,
     borderRadius: 5,
     marginBottom: 5,
@@ -251,7 +253,7 @@ const styles = StyleSheet.create({
   },
 
   pickRangeBtn: {
-    backgroundColor: "rgba(0, 255, 85, 0.6)",
+    backgroundColor: "#2a5",
     padding: 10,
     borderRadius: 5,
     marginBottom: 15,
