@@ -9,6 +9,7 @@ import {
 import { TimePickerModal } from "react-native-paper-dates";
 import MeetingDateSelector from "./MeetingDateSelector";
 import { DateRange, Meeting, Time } from "../../types/tripTypes";
+import AddressAutocomplete from "./AddressAutocomplete";
 
 interface MeetingCreatorProps {
   rangeDate: DateRange;
@@ -156,11 +157,13 @@ const MeetingCreator = ({
         value={meetingTitle}
       />
 
-      <TextInput
-        placeholder="Enter meeting location"
-        style={styles.meetingTitleInput}
-        onChangeText={(text) => setMeetingLocation(text)}
-        value={meetingLocation}
+      <AddressAutocomplete
+        onAddressSelect={(item: any) => {
+          console.log(item);
+          //Can do item.place_id to get the google place_id 
+          setMeetingLocation(item.description);
+          }}
+        
       />
       <View style={styles.timeContainer}>
         <TouchableOpacity
