@@ -8,12 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Meeting, TripType } from "../types/tripTypes";
 
 // Base API URL
-let BASE_API_URL: string;
-if (Platform.OS === "android") {
-  BASE_API_URL = "http://10.0.2.2:3000/api";
-} else {
-  BASE_API_URL = "http://localhost:3000/api";
-}
+let BASE_API_URL: string = "https://api.tripwise.cloud/api";
 
 // Function to create a new user
 export const createUser = async (
