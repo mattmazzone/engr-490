@@ -39,13 +39,7 @@ const MeetingListItem = ({
           </Text>
         </View>
         <TouchableOpacity
-          onPress={() => {
-            if (meeting.id !== undefined) {
-              onDeleteMeeting(meeting.id);
-            } else {
-              console.error('Cannot delete meeting without an ID');
-            }
-          }}
+          onPress={() => onDeleteMeeting(meeting.id)}
           style={styles.deleteMeetingBtn}
         >
           <Text style={styles.deleteMeetingBtnTxt}>X</Text>
