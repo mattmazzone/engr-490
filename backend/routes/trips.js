@@ -304,7 +304,7 @@ router.get("/past_trips/:uid/:tripId", authenticate, async (req, res) => {
   }
 });
 
-router.get("/searchAddress:query", async (req, res) => {
+router.get("/searchAddress:query", authenticate, async (req, res) => {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   const userQuery = req.params.query;
   const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${apiKey}&input=${encodeURIComponent(userQuery)}`;
