@@ -10,6 +10,7 @@ const {
   REQUEST,
   getPlaceDetails,
   getPlaceTextSearch,
+  getUserInterests,
 } = require("../utils/services");
 const axios = require("axios");
 
@@ -21,9 +22,11 @@ async function useGetNearbyPlacesSevice(
   latitude,
   longitude,
   maxNearbyPlaces,
-  nearByPlaceRadius
+  nearByPlaceRadius,
+  includedTypes
 ) {
   const payload = {
+    includedTypes,
     maxResultCount: maxNearbyPlaces,
     locationRestriction: {
       circle: {
@@ -52,17 +55,18 @@ async function useGetNearbyPlacesSevice(
 }
 
 async function getCoords(meeting) {
+  // console.log("Getting coords for meeting location", meeting);
   const [successOrNot, responseData] = await getPlaceTextSearch(
-    meeting.location,
-    "places.location"
+    meeting.location
   );
   if (successOrNot != REQUEST.SUCCESSFUL) {
     error = responseData;
+    console.error(error);
     throw new BadRequestException(error);
   }
 
   // should only be 1 result
-  return responseData.places[0].location;
+  return responseData;
 }
 
 // Route to create a new trip
@@ -97,6 +101,14 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       bufferInMinutes
     );
 
+    const [success, interests] = await getUserInterests(uid, db);
+    if (success != REQUEST.SUCCESSFUL) {
+      error = interests;
+      throw interests;
+    }
+
+    const includedTypes = interests;
+
     /*
     =--=-=-=-=-=-=-=-=
     Start recommending activities
@@ -108,33 +120,23 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     const numMeetings = tripMeetings.length;
 
-    if (numMeetings == 1) {
-      const meeting = tripMeetings[0];
-
+    for (let i = 0; i < numMeetings; i++) {
+      let meeting = tripMeetings[i];
+      if (!meeting.location || meeting.location === "") {
+        console.log("No location for meeting: ", meeting);
+        continue;
+      }
       const location = await getCoords(meeting);
+      console.log(location);
       const responseData = await useGetNearbyPlacesSevice(
-        location.latitude,
-        location.longitude,
+        location.lat,
+        location.lng,
         maxNearbyPlaces,
-        nearByPlaceRadius
+        nearByPlaceRadius,
+        includedTypes
       );
 
-      console.log(responseData);
-
       nearbyPlaces.push(responseData.places);
-    } else {
-      for (let i = 0; i < numMeetings; i++) {
-        const meeting = tripMeetings[i];
-        const location = await getCoords(meeting);
-        const responseData = await useGetNearbyPlacesSevice(
-          location.latitude,
-          location.longitude,
-          maxNearbyPlaces,
-          nearByPlaceRadius
-        );
-
-        nearbyPlaces.push(responseData.places);
-      }
     }
 
     // Get user's recent trips from firestore
@@ -157,11 +159,12 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     // using the places details API
     let recentTripsPlaceDetails = [];
     for (const trip of recentTrips) {
-      const recentTripMeetings = trip.data().tripMeetings;
+      const recentTripMeetings = trip.data().scheduledActivities;
 
       for (const place of recentTripMeetings) {
+        const placeId = place.place_similarity.place_id;
         const [successOrNotPlaceDetails, responsePlaceDetails] =
-          await getPlaceDetails(place.placeId, "id,types");
+          await getPlaceDetails(placeId, "id,types");
         if (successOrNotPlaceDetails != REQUEST.SUCCESSFUL) {
           error = responsePlaceDetails;
           console.error("Error getting place details");
@@ -179,11 +182,18 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
     }
 
+    // console.log(nearbyPlaces);
     // Finally pass data into the recommender system and get the activities
     const token = req.headers.authorization;
     const response = await axios.post(
       recommenderURL,
-      { nearbyPlaces, recentTripsPlaceDetails, freeSlots, tripMeetings },
+      {
+        nearbyPlaces,
+        recentTripsPlaceDetails,
+        freeSlots,
+        tripMeetings,
+        interests,
+      },
       {
         headers: {
           "Content-Type": "application/json",
@@ -220,7 +230,7 @@ router.get("/current_trip/:uid", authenticate, async (req, res) => {
   try {
     const user = await db.collection("users").doc(uid).get();
     const userData = user.data();
-    if (userData.currentTrip === "") {
+    if (!userData.currentTrip || userData.currentTrip === "") {
       return res.status(200).json({ hasActiveTrip: false });
     }
     const trip = await db.collection("trips").doc(userData.currentTrip).get();
@@ -263,8 +273,10 @@ router.get("/past_trips/:uid", authenticate, async (req, res) => {
     const uid = req.params.uid;
     const user = await db.collection("users").doc(uid).get();
     const userData = user.data();
-    const pastTrips = userData.pastTrips;
-
+    let pastTrips = userData.pastTrips;
+    if (!pastTrips || pastTrips.length === 0) {
+      pastTrips = [];
+    }
     return res.status(200).json(pastTrips);
   } catch (error) {
     console.error("Error getting past trips", error);
