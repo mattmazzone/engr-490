@@ -25,26 +25,8 @@ cred = credentials.Certificate(os.path.join(
     os.path.dirname(__file__), '../tripwise-sdk-key.json'))
 fb_app = initialize_app(cred)
 
-interests_dict = {
-    "Restaurants": ["restaurant", "cafe", "bakery", "bar"],
-    "Arts": ["art_gallery", "movie_theater", "museum", "tourist_attraction"],
-    "Bars": ["bar", "nightclub", "liquor_store"],
-    "Sports": ["gym", "stadium", "park", "bowling_alley"],
-    "Politics": ["city_hall", "local_government_office", "courthouse", "embassy"],
-    "History": ["museum", "tourist_attraction", "church", "synagogue", "mosque"],
-    "Social Media": ["cafe"],
-    "Real Estate": ["lodging"],
-    "Dating": ["cafe", "movie_theater", "park", "bar"],
-    "Religion": ["church", "mosque", "synagogue", "hindu_temple"],
-    "Sightseeing": ["tourist_attraction", "museum", "art_gallery", "park", "zoo", "aquarium"],
-    "Cars": ["car_rental"],
-    "Coffee": ["cafe", "bakery", "restaurant"],
-    "Nature": ["park", "campground", "zoo", "aquarium"],
-}
 
 # Authentication middleware
-
-
 def authenticate(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
