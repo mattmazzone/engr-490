@@ -253,7 +253,6 @@ const SelectInterests = ({ navigation, route }: RouterProps) => {
             />
           ))}
         </View>
-        {/* Update Interests Button */}
         <Pressable
           onPress={() => handleUpdateInterests()}
           disabled={selectedInterests.length < 4 || !hasChangedInterests()}

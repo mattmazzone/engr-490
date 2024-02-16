@@ -98,7 +98,7 @@ const AppSettingsPage = ({
     <Background>
       
       <SafeAreaView style={styles.container}>
-      {isScreenSmall && <BackButton onPress={() => closeModal()}/>} {/* Conditionally render the Back Button */}
+      {isScreenSmall && <BackButton onPress={() => closeModal()}/>}
         <View style={styles.titleView}>
           <Text
             style={[

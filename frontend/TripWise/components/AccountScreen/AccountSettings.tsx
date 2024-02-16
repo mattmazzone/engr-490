@@ -145,7 +145,7 @@ const AccountPage = ({
     <Background>
 
       <View style={[styles.container, { backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }, isScreenSmall ? { margin: 10, alignItems: 'center', alignSelf: 'center', width: '90%' } : { margin: 80, alignSelf: 'flex-start' },]}>
-        {isScreenSmall && <BackButton onPress={() => closeModal()} />} {/* Conditionally render the Back Button */}
+        {isScreenSmall && <BackButton onPress={() => closeModal()} />}
         <Text style={[styles.header, { color: theme === 'Dark' ? 'white' : 'black' }]}>
           Account
         </Text >
@@ -162,8 +162,8 @@ const AccountPage = ({
               value={firstName}
               onChangeText={setFirstName}
               placeholder="First Name"
-              onFocus={() => handleFocus('phone')}
-              onBlur={() => handleBlur('phone')}
+              onFocus={() => handleFocus('firstName')}
+              onBlur={() => handleBlur('firstName')}
               underlineColorAndroid="transparent"
             />
           </View>
@@ -176,14 +176,14 @@ const AccountPage = ({
               value={lastName}
               onChangeText={setLastName}
               placeholder="Last Name"
-              onFocus={() => handleFocus('phone')}
-              onBlur={() => handleBlur('phone')}
+              onFocus={() => handleFocus('lastName')}
+              onBlur={() => handleBlur('lastName')}
               underlineColorAndroid="transparent"
             />
           </View>
           <View style={styles.inputWrapper}>
             <Text style={[styles.inputTitles, { color: theme === 'Dark' ? 'white' : 'black' }]}>
-              Phone <Text style={{ color: "rgba(34, 170, 85, 1)", fontWeight: '500'! }}>(Optional)</Text>
+              Phone <Text style={{ color: "rgba(34, 170, 85, 1)", fontWeight: '500' }}>(Optional)</Text>
             </Text>
             <TextInput
               style={[styles.input, focusState.firstName ? styles.inputFocused : null, { backgroundColor: theme === 'Dark' ? '#202B2E' : 'white', color: theme === 'Dark' ? '#f0f2f1' : 'black' }]}
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column'
   },
   containerLarge: {
-    flexDirection: 'row'!!!,
+    flexDirection: 'row',
     flexWrap: 'wrap',
   },
   header: {

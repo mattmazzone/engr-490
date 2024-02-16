@@ -104,7 +104,6 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
       <View style={[styles.container, { backgroundColor: theme === 'Dark' ? '#171F21' : 'white' }]}>
         <ScrollView style={[styles.sidebar, { backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }]}>
           <View style={styles.header}>
-            {/* Profile image and name */}
             <Image source={{}} style={styles.profileImage} />
             {userProfile && (
               <Text
@@ -182,7 +181,6 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
         <View style={styles.container}>
           <ScrollView style={styles.settings}>
             <View style={styles.header}>
-              {/* Profile image and name */}
               <Image source={{}} style={styles.profileImage} />
               {userProfile && (
                 <Text
@@ -195,7 +193,6 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
                 </Text>
               )}
             </View>
-            {/* Settings options with icons */}
             <SettingOption
               icon={<AccountLogo focused={false} />}
               title="Account Settings"
@@ -240,7 +237,6 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
               }}
               hasBorder={true}
             />
-            {/* Logout button */}
             <SettingOption
               title="Sign Out"
               onPress={handleLogout}
