@@ -108,7 +108,7 @@ def recommend():
         # Create recent places df & user rating df for the recent places
         # Doesn't ever change
         recent_places_df = create_df(recent_places)
-        recent_place_ratings_df = create_rating_df(recent_places)
+        # recent_place_ratings_df = create_rating_df(recent_places)
 
         similarity_tables = []
         # For each meeting location, get similarity scores for all nearby places in that location
@@ -133,12 +133,17 @@ def recommend():
                 cols[i] = nearby_places_df.index[i]
             similarity_df = similarity_df.rename(cols, axis=1)
 
+            # DONT DELETE THIS
             # Weight all similarities by the normalized user rating (rating/5) of the recent place
-            recent_place_ratings = recent_place_ratings_df.to_dict()
-            weighted_similarity_df = similarity_df.apply(
-                multiply_rating, axis=1, args=(recent_place_ratings,))
+            # recent_place_ratings = recent_place_ratings_df.to_dict()
+            # weighted_similarity_df = similarity_df.apply(
+            #     multiply_rating, axis=1, args=(recent_place_ratings,))
 
-            mean_vals_df = weighted_similarity_df.mean(axis=0).to_frame().rename(columns={
+            # mean_vals_df = weighted_similarity_df.mean(axis=0).to_frame().rename(columns={
+            #     0: 'similarity'}, errors='raise')
+            # similarity_tables.append(mean_vals_df)
+
+            mean_vals_df = similarity_df.mean(axis=0).to_frame().rename(columns={
                 0: 'similarity'}, errors='raise')
             similarity_tables.append(mean_vals_df)
 
