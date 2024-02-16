@@ -1,9 +1,8 @@
 {
   "name": "tripwise",
   "version": "1.0.0",
-  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --dev-client",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
@@ -32,7 +31,7 @@
     "pod-install": "^0.1.39",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-native": "0.72.6",
+    "react-native": "0.72.10",
     "react-native-big-calendar": "^4.7.0",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-modal-selector": "^2.1.2",

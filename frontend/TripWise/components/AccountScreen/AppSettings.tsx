@@ -5,7 +5,6 @@ import {
   Modal,
   StyleSheet,
   Pressable,
-  SafeAreaView,
   Switch,
   Dimensions,
 } from "react-native";
@@ -21,16 +20,21 @@ interface AppSettingsPageProps {
   useModal: boolean;
 }
 const useResponsiveScreen = (breakpoint: number) => {
-  const [isScreenSmall, setIsScreenSmall] = useState(Dimensions.get('window').width < breakpoint);
+  const [isScreenSmall, setIsScreenSmall] = useState(
+    Dimensions.get("window").width < breakpoint
+  );
 
   useEffect(() => {
     const updateScreenSize = () => {
-      const screenWidth = Dimensions.get('window').width;
+      const screenWidth = Dimensions.get("window").width;
       setIsScreenSmall(screenWidth < breakpoint);
     };
 
     // Add event listener
-    const subscription = Dimensions.addEventListener('change', updateScreenSize);
+    const subscription = Dimensions.addEventListener(
+      "change",
+      updateScreenSize
+    );
 
     // Remove event listener on cleanup
     return () => subscription.remove();
@@ -43,7 +47,7 @@ const AppSettingsPage = ({
   isVisible = true,
   userSettings,
   updateUserSettings,
-  closeModal = () => { },
+  closeModal = () => {},
   useModal = false,
 }: AppSettingsPageProps) => {
   const { theme, setTheme } = useContext(ThemeContext);
@@ -96,71 +100,95 @@ const AppSettingsPage = ({
 
   const content = (
     <Background>
-      
-      <SafeAreaView style={styles.container}>
-      {isScreenSmall && <BackButton onPress={() => closeModal()}/>}
-        <View style={styles.titleView}>
-          <Text
-            style={[
-              styles.titleText,
-              { color: theme === "Dark" ? "white" : "black" },
-            ]}
-          >
-            App Settings
-          </Text>
-        </View>
-        <View style={styles.notificationChoice}>
-          <Text
-            style={[
-              styles.typeNotificationText,
-              { color: theme === "Dark" ? "white" : "black" },
-            ]}
-          >
-            Background Theme
-          </Text>
-          <Switch
-            style={{ height: 25 }}
-            trackColor={{ false: "#767577", true: "rgba(34, 170, 85, 1)" }}
-            thumbColor={isEnabled ? "#32cd32" : "#f4f3f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleBackgroundSwitch}
-            value={isEnabled}
-          />
-        </View>
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor:
+              theme === "Dark" ? "#12181A" : "rgba(240, 241, 241, 0.69)",
+          },
+          isScreenSmall
+            ? {
+                margin: 10,
+                alignItems: "center",
+                alignSelf: "center",
+                width: "90%",
+              }
+            : { margin: 80, alignSelf: "flex-start" },
+        ]}
+      >
+        {isScreenSmall && <BackButton onPress={() => closeModal()} />}
         <Text
           style={[
-            styles.subtitleText,
+            styles.header,
             { color: theme === "Dark" ? "white" : "black" },
           ]}
         >
-          Notification Settings
+          App
         </Text>
-        <View style={styles.notificationChoice}>
-          <Text style={[styles.typeNotificationText, { color: theme === "Dark" ? "#fff" : "#000", }]}>
-            E-Mail Notifications
-          </Text>
-          <Switch
-            style={{ height: 25 }}
-            trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
-            thumbColor={isEmailEnabled ? "#32cd32" : "#f4f3f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleEmailSwitch}
-            value={isEmailEnabled}
-          />
+        <Text style={[styles.smallHeader, { color: "#6B7280", fontSize: 16 }]}>
+          Manage your app preferences
+        </Text>
+        <View
+          style={[
+            isScreenSmall ? styles.containerSmall : styles.containerLarge,
+          ]}
+        >
+          <View style={styles.notificationChoice}>
+            <Text
+              style={[
+                styles.typeNotificationText,
+                { color: theme === "Dark" ? "white" : "black" },
+              ]}
+            >
+              Background Theme
+            </Text>
+
+            <Switch
+              trackColor={{ false: "#767577", true: "rgba(34, 170, 85, 1)" }}
+              thumbColor={isEnabled ? "#32cd32" : "#f4f3f4"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleBackgroundSwitch}
+              value={isEnabled}
+            />
+          </View>
+
+          <View style={styles.notificationChoice}>
+            <Text
+              style={[
+                styles.typeNotificationText,
+                { color: theme === "Dark" ? "#fff" : "#000" },
+              ]}
+            >
+              E-Mail Notifications
+            </Text>
+            <Switch
+              trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
+              thumbColor={isEmailEnabled ? "#32cd32" : "#f4f3f4"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleEmailSwitch}
+              value={isEmailEnabled}
+            />
+          </View>
+          <View style={styles.notificationChoice}>
+            <Text
+              style={[
+                styles.typeNotificationText,
+                { color: theme === "Dark" ? "#fff" : "#000" },
+              ]}
+            >
+              Push Notifications
+            </Text>
+            <Switch
+              trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
+              thumbColor={"#f4f3f4"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={togglePushSwitch}
+              value={isPushEnabled}
+            />
+          </View>
         </View>
-        <View style={styles.notificationChoice}>
-          <Text style={[styles.typeNotificationText, { color: theme === "Dark" ? "#fff" : "#000", }]}>
-            Push Notifications
-          </Text>
-          <Switch
-            style={{ height: 25 }}
-            trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
-            thumbColor={"#f4f3f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={togglePushSwitch}
-            value={isPushEnabled}
-          />
-        </View>
+
         <View>
           <Pressable
             onPress={handleAppSettingsPreferences}
@@ -169,7 +197,7 @@ const AppSettingsPage = ({
             <Text style={styles.buttonText}>Save</Text>
           </Pressable>
         </View>
-      </SafeAreaView>
+      </View>
     </Background>
   );
 
@@ -181,104 +209,64 @@ const AppSettingsPage = ({
       onRequestClose={closeModal}
     >
       {content}
-
     </Modal>
-  ) : content;
-
+  ) : (
+    content
+  );
 };
-
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: "center",
+    maxWidth: 1000, // Adjust as needed
+    borderRadius: 10, // Rounded corners for the container
+    padding: 20, // Add padding to create spacing inside the container
+    margin: 10, // Add margin to create spacing outside the container
   },
-  settingItem: {
-    flexDirection: 'row', // Align children horizontally
-    alignItems: 'center', // Center items vertically in the container
-    marginBottom: 10, // Optional: add some space between this setting item and the next
-  },
-  titleView: {
-    flexDirection: "row",
-    justifyContent: "center",
-    height: 60,
-    alignItems: "center",
-    marginTop: 16,
-    marginBottom: 30,
-  },
-  titleText: {
-    color: "white",
+  header: {
     fontSize: 30,
-    marginTop: 3,
     fontWeight: "bold",
-    marginBottom: 16,
+    marginBottom: 15,
   },
-  subtitleText: {
-    color: "white",
-    alignSelf: "center",
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 32,
+  containerSmall: {
+    width: "100%", // Adjust as needed
+    flexDirection: "column",
   },
-  textStyle: {
-    color: "white",
-    alignSelf: "center",
-    fontSize: 20,
-    fontWeight: "bold",
-    width: "auto", //325
-    marginBottom: 32,
-    marginRight: 75,
-  },
-  lineSpace: {
+  containerLarge: {
     flexDirection: "row",
-    width: "100%",
-    alignItems: "flex-start",
-    height: 70,
-    justifyContent: 'center',
+    flexWrap: "wrap",
   },
-  textSpace: {
-    alignItems: "flex-start",
-    height: 70,
+  smallHeader: {
+    fontSize: 15,
+    marginBottom: 20,
   },
+
   typeNotificationText: {
     color: "white",
-    alignSelf: "center",
     fontSize: 20,
     fontWeight: "bold",
-    width: 315, //325
-    marginBottom: 32,
   },
-  notificationSpaces: {
-    alignItems: "flex-start",
-    height: 120,
-  },
+
   notificationChoice: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    height: 50,
+    justifyContent: "space-between", // This spreads out the child elements across the available space.
+    alignItems: "center", // This centers the elements vertically.
+    marginBottom: 20,
+    paddingHorizontal: 10, // Add some padding if needed.
   },
   button: {
     backgroundColor: "rgba(34, 170, 85, 1)",
-    flexDirection: "row",
-    width: "75%",
-    height: 45,
     borderRadius: 7,
-    justifyContent: "center",
-    alignSelf: "center",
+    justifyContent: "center", // Center the content horizontally
+    alignItems: "center", // Center the button in the container
+    paddingVertical: 10,
+    paddingHorizontal: 20, // Padding inside the button for height
+    width: 230, // Set the width of the button
   },
   buttonText: {
     color: "white",
-    textAlign: 'center',
-    marginTop: 10,
-    fontSize: 18,
-    width: 150,
-    height: 50,
-  },
-  backButtonContainer :{
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    margin: 20,
+    textAlign: "center", // Center the text horizontally
+    fontSize: 18, // Set the font size
+    fontWeight: "bold", // Bold font weight
   },
 });
 
