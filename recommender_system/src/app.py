@@ -21,7 +21,8 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-cred = credentials.Certificate('tripwise-sdk-key.json')
+cred = credentials.Certificate(os.path.join(
+    os.path.dirname(__file__), 'tripwise-sdk-key.json'))
 fb_app = initialize_app(cred)
 
 interests_dict = {
