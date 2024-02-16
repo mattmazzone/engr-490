@@ -148,15 +148,10 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     );
 
     if (successOrNotTrips != REQUEST.SUCCESSFUL) {
-      // if (responseDataTrips == "NEED COLD START") {
-      //   return res.status(301).json({ message: "Need Cold Start" });
-      //   //TODO: change to call cold Start
-      // } else {
       error = responseDataTrips;
       console.error("Error getting recent trips");
       res.status(400).json(error);
       return;
-      // }
     }
     const recentTrips = responseDataTrips;
 
@@ -164,11 +159,12 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     // using the places details API
     let recentTripsPlaceDetails = [];
     for (const trip of recentTrips) {
-      const recentTripMeetings = trip.data().tripMeetings;
+      const recentTripMeetings = trip.data().scheduledActivities;
 
       for (const place of recentTripMeetings) {
+        const placeId = place.place_similarity.place_id;
         const [successOrNotPlaceDetails, responsePlaceDetails] =
-          await getPlaceDetails(place.placeId, "id,types");
+          await getPlaceDetails(placeId, "id,types");
         if (successOrNotPlaceDetails != REQUEST.SUCCESSFUL) {
           error = responsePlaceDetails;
           console.error("Error getting place details");
