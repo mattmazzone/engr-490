@@ -150,13 +150,16 @@ function RootNavigator({
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
-  const [isUserCreated, setIsUserCreated] = useState(false);
+  const [isUserCreated, setIsUserCreated] = useState(true);
   const [userHasInterests, setUserHasInterests] = useState(false);
+  
 
   useEffect(() => {
+    console.log("Setting up auth state change listener");
     const unsubscribe = onAuthStateChanged(
       FIREBASE_AUTH,
       (user: User | null) => {
+        
         if (user) {
           setUser(user);
           if (isUserCreated) {
