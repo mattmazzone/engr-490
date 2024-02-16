@@ -241,7 +241,6 @@ const styles = StyleSheet.create({
   },
 
   typeNotificationText: {
-    color: "white",
     fontSize: 20,
     fontWeight: "bold",
   },
