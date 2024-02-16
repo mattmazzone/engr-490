@@ -65,6 +65,7 @@ interface ProviderDetails {
   onPress: (navigation: NavigationProp<any, any>) => void;
   bgColor: string;
   textColor: string;
+  borderColor?: string;
 }
 
 interface LoginProviderButtonProps {
@@ -82,8 +83,9 @@ const getProviderMap = (
     onPress: (navigation) => {
       navigation.navigate("Login");
     },
-    bgColor: "#D9D9D9",
+    bgColor: "#FFFFFF",
     textColor: "#000000",
+    borderColor: "#000000",
   },
   google: {
     title: "Continue with Google",
@@ -91,8 +93,9 @@ const getProviderMap = (
     onPress: (navigation) => {
       handleGoogleSignUp(onUserCreationComplete);
     },
-    bgColor: "#DB4437",
-    textColor: "#FFFFFF",
+    bgColor: "#FFFFFF",
+    textColor: "#000000",
+    borderColor: "#000000",
   },
   apple: {
     title: "Continue with Apple",
@@ -102,22 +105,29 @@ const getProviderMap = (
     },
     bgColor: "#FFFFFF",
     textColor: "#000000",
+    borderColor: "#000000",
   },
 });
-
 const LoginScreenButton = ({
   provider,
   navigation,
   onUserCreationComplete,
 }: LoginProviderButtonProps) => {
   const providerMap = getProviderMap(onUserCreationComplete); // Use the function to get the provider map
-  const { title, logo, onPress, bgColor, textColor } =
+  const { title, logo, onPress, bgColor, textColor, borderColor } =
     providerMap[provider.toLowerCase()] || providerMap["email"];
 
   return (
     <Pressable
       onPress={() => onPress(navigation)}
-      style={[styles.button, { backgroundColor: bgColor }]}
+      style={[
+        styles.button,
+        {
+          backgroundColor: bgColor,
+          borderColor: borderColor,
+          borderWidth: borderColor ? 1 : 0,
+        },
+      ]}
     >
       <Image source={logo} style={styles.logo} />
       <Text style={[styles.buttonText, { color: textColor }]}>{title}</Text>
@@ -129,17 +139,17 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#1E90FF",
     flexDirection: "row",
-    width: "75%",
     height: 45,
     borderRadius: 7,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 10,
     paddingLeft: 30,
+    marginVertical: 2,
   },
   buttonText: {
     fontSize: 18,
-    marginRight: 30, // add some space between text and logo
+    marginRight: 30,
   },
   logo: {
     width: 25,
