@@ -56,9 +56,7 @@ async function useGetNearbyPlacesSevice(
 
 async function getCoords(meeting) {
   console.log("Getting coords for meeting location", meeting);
-  const [successOrNot, responseData] = await getPlaceTextSearch(
-    meeting,
-  );
+  const [successOrNot, responseData] = await getPlaceTextSearch(meeting);
   if (successOrNot != REQUEST.SUCCESSFUL) {
     error = responseData;
     console.error(error);
@@ -71,7 +69,7 @@ async function getCoords(meeting) {
 
 // Route to create a new trip
 router.post("/create_trip/:uid", authenticate, async (req, res) => {
-  console.log(req.body)
+  console.log(req.body);
   try {
     const uid = req.params.uid;
     const {
@@ -121,18 +119,28 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     let nearbyPlaces = [];
 
     const numMeetings = tripMeetings.length;
-    let pastLocation = '';
-    let futureLocation = '';
 
-    if (!tripLocation || tripLocation == '') {
+
+    if (!tripLocation || tripLocation == "") {
+      // Get all meeting locations
+      let locations = [];
       for (let i = 0; i < numMeetings; i++) {
         let meeting = tripMeetings[i];
-      
-        if (!meeting.location || meeting.location === "") {
-          meeting.location == '' //TODO: add previous or next location
-          console.log("No location for meeting: ", meeting);
-          continue;
+        if (meeting.location && meeting.location != "") {
+          locations.push(meeting.location);
         }
+      }
+
+      let locationIndex = 0;
+      for (let i = 0; i < numMeetings; i++) {
+        let meeting = tripMeetings[i];
+
+        if (!meeting.location || meeting.location === "") {
+          meeting.location = locations[locationIndex];
+          console.log("No location for meeting: ", meeting);
+          if (locationIndex < locations.length) locationIndex++;
+        }
+
         const location = await getCoords(meeting.location);
         console.log(location);
         const responseData = await useGetNearbyPlacesSevice(
@@ -142,11 +150,10 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
           nearByPlaceRadius,
           includedTypes
         );
-  
+
         nearbyPlaces.push(responseData.places);
       }
-    }
-    else {
+    } else {
       for (let i = 0; i < numMeetings; i++) {
         const location = await getCoords(tripLocation);
         const responseData = await useGetNearbyPlacesSevice(
@@ -156,24 +163,27 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
           nearByPlaceRadius,
           includedTypes
         );
-  
+
         nearbyPlaces.push(responseData.places);
       }
-
     }
-
-
-
-    
 
     // Check if user has any locations
     //If they do not, use the trip location they inputted
     if (nearbyPlaces.length === 0) {
       const location = await getCoords(tripLocation);
-      const responseData = await useGetNearbyPlacesSevice(location.lat, location.lng, maxNearbyPlaces, nearByPlaceRadius, includedTypes);
+      const responseData = await useGetNearbyPlacesSevice(
+        location.lat,
+        location.lng,
+        maxNearbyPlaces,
+        nearByPlaceRadius,
+        includedTypes
+      );
       nearbyPlaces.push(responseData.places);
-      console.log("No locations for meetings, using trip location", nearbyPlaces);
-    
+      console.log(
+        "No locations for meetings, using trip location",
+        nearbyPlaces
+      );
     }
 
     // Get user's recent trips from firestore
@@ -341,17 +351,18 @@ router.get("/past_trips/:uid/:tripId", authenticate, async (req, res) => {
 router.get("/searchAddress:query", authenticate, async (req, res) => {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   const userQuery = req.params.query;
-  const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${apiKey}&input=${encodeURIComponent(userQuery)}`;
+  const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${apiKey}&input=${encodeURIComponent(
+    userQuery
+  )}`;
 
   try {
     const response = await fetch(apiUrl);
     const data = await response.json();
     return res.status(200).json(data);
   } catch (error) {
-    console.error('Error fetching from Google Places API:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error("Error fetching from Google Places API:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
-
 });
 
 module.exports = router;
