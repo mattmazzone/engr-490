@@ -144,16 +144,13 @@ const Trip = ({ navigation }: RouterProps) => {
   const [popupVisible, setPopupVisible] = useState(false);
   const [locationModalClosed, setLocationModalClosed] = useState(false);
 
-  const handleSaveLocation = (location: any) => {
-    setSeperateLocation(location.description);
-    console.log('Location saved:', location.description);
-    // Here you can handle the location (e.g., update state or send to an API)
+  const handleSaveLocation = (location: string) => {
+    setSeperateLocation(location);
+    console.log('Location saved:', location);
   };
 
   useEffect(() => {
     if (locationModalClosed) {
-      // This assumes you have a way to ensure all locations are filled in
-      // before this flag is set to true.
       continueCreateTrip();
     }
   }, [locationModalClosed]);
