@@ -55,9 +55,9 @@ async function useGetNearbyPlacesSevice(
 }
 
 async function getCoords(meeting) {
-  // console.log("Getting coords for meeting location", meeting);
+  console.log("Getting coords for meeting location", meeting);
   const [successOrNot, responseData] = await getPlaceTextSearch(
-    meeting.location
+    meeting,
   );
   if (successOrNot != REQUEST.SUCCESSFUL) {
     error = responseData;
@@ -71,19 +71,21 @@ async function getCoords(meeting) {
 
 // Route to create a new trip
 router.post("/create_trip/:uid", authenticate, async (req, res) => {
+  console.log(req.body)
   try {
     const uid = req.params.uid;
     const {
       tripStart,
       tripEnd,
       tripMeetings,
+      tripLocation,
       maxRecentTrips,
       maxNearbyPlaces,
       nearByPlaceRadius,
     } = req.body; // Destructure expected properties
 
     // Validate trip data
-    if (!tripStart || !tripEnd || !tripMeetings) {
+    if (!tripStart || !tripEnd) {
       return res.status(400).send("Missing required trip data");
     }
 
@@ -126,7 +128,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         console.log("No location for meeting: ", meeting);
         continue;
       }
-      const location = await getCoords(meeting);
+      const location = await getCoords(meeting.location);
       console.log(location);
       const responseData = await useGetNearbyPlacesSevice(
         location.lat,
@@ -137,6 +139,16 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       );
 
       nearbyPlaces.push(responseData.places);
+    }
+
+    // Check if user has any locations
+    //If they do not, use the trip location they inputted
+    if (nearbyPlaces.length === 0) {
+      const location = await getCoords(tripLocation);
+      const responseData = await useGetNearbyPlacesSevice(location.lat, location.lng, maxNearbyPlaces, nearByPlaceRadius, includedTypes);
+      nearbyPlaces.push(responseData.places);
+      console.log("No locations for meetings, using trip location", nearbyPlaces);
+    
     }
 
     // Get user's recent trips from firestore
