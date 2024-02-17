@@ -1,5 +1,5 @@
 import { NavigationProp } from "@react-navigation/native";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   Text,
   TouchableOpacity,
@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   ScrollView,
   Modal,
+  View,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import Background from "../../components/Background";
@@ -24,6 +25,7 @@ import CalendarConfirmModal from "../../components/TripScreen/CalendarConfimModa
 import CurrentTrip from "../../components/TripScreen/CurrentTrip";
 import ThemeContext from "../../context/ThemeContext";
 import { BottomTabParamList } from "../../types/navigationTypes";
+import LocationPopup from "../../components/TripScreen/LocationPopup";
 
 interface RouterProps {
   navigation: NavigationProp<BottomTabParamList, "Trip">;
@@ -44,6 +46,7 @@ const Trip = ({ navigation }: RouterProps) => {
     endDate: undefined,
   });
   const [meetings, setMeetings] = React.useState<Meeting[]>([]);
+  const [seperateLocation, setSeperateLocation] = React.useState<String | undefined>(undefined);
   const deleteMeeting = (id: number) => {
     setMeetings((prevMeetings) =>
       prevMeetings.filter((meeting) => meeting.id !== id)
@@ -93,6 +96,16 @@ const Trip = ({ navigation }: RouterProps) => {
       alert("Please select a date range");
       return;
     }
+    if (meetings.length === 0 || meetings.some(meeting => meeting.location === "")) {
+      setPopupVisible(true);
+
+      return;
+    }
+
+    await continueCreateTrip();
+  };
+
+  const continueCreateTrip = async () => {
 
     setConfirmTripModalVisible(true);
 
@@ -100,7 +113,8 @@ const Trip = ({ navigation }: RouterProps) => {
     const createTripResponse = await createTrip(
       rangeDate.startDate,
       rangeDate.endDate,
-      meetings
+      meetings,
+      seperateLocation
     );
 
     if (createTripResponse) {
@@ -125,6 +139,25 @@ const Trip = ({ navigation }: RouterProps) => {
       setImportEventsVisible(false);
     }
   };
+
+  //Popup for location input
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [locationModalClosed, setLocationModalClosed] = useState(false);
+
+  const handleSaveLocation = (location: any) => {
+    setSeperateLocation(location.description);
+    console.log('Location saved:', location.description);
+    // Here you can handle the location (e.g., update state or send to an API)
+  };
+
+  useEffect(() => {
+    if (locationModalClosed) {
+      // This assumes you have a way to ensure all locations are filled in
+      // before this flag is set to true.
+      continueCreateTrip();
+    }
+  }, [locationModalClosed]);
+
 
   if (isFetching) {
     return (
@@ -155,6 +188,7 @@ const Trip = ({ navigation }: RouterProps) => {
           </Text>
 
           <DateRangePicker onData={getDateRange} />
+
 
           {rangeDate.startDate && rangeDate.endDate && importEventsVisible ? (
             <ImportEventsFromProvider
@@ -193,6 +227,15 @@ const Trip = ({ navigation }: RouterProps) => {
           ) : (
             <></>
           )}
+          {popupVisible && (
+            <View style={styles.overlay}>
+              <LocationPopup
+                visible={popupVisible}
+                onClose={() => setPopupVisible(false)}
+                onSave={handleSaveLocation}
+                onModalClose={() => setLocationModalClosed(true)}
+              />
+            </View>)}
           <Modal
             animationType="slide"
             transparent={false}
@@ -249,4 +292,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
+  overlay: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10, // Ensure this is higher than other content but consider your entire app's layout
+  }
+
 });
