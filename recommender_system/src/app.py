@@ -139,7 +139,7 @@ def recommend():
             similarity_tables.append(mean_vals_df)
 
         scheduled_activities = create_scheduled_activities(
-            similarity_tables, nearby_places, free_slots, trip_meetings)
+            similarity_tables, nearby_places, free_slots, trip_meetings, time_zones)
         return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
 
 
