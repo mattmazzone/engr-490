@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Pressable,
-  Button,
   Modal,
   Animated,
 } from "react-native";
 import { TripType } from "../../types/tripTypes";
 import * as UserService from "../../services/userServices";
 import PastTripSkeleton from "./PastTripSkeleton";
+import { Image } from "expo-image";
+import { faker } from "@faker-js/faker";
+import ThemeContext from "../../context/ThemeContext";
 
 const PastTrip = ({ pastTrip }: any) => {
+  const { theme } = useContext(ThemeContext);
   const [pastTripData, setPastTripData] = useState<TripType | null>(null);
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [tripDetailsModalVisible, setTripDetailsModalVisible] =
@@ -44,7 +47,7 @@ const PastTrip = ({ pastTrip }: any) => {
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 1000,
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start();
   };
   useEffect(() => {
@@ -76,36 +79,72 @@ const PastTrip = ({ pastTrip }: any) => {
   );
 
   return (
-    <Animated.View style={{ ...styles.container, opacity: fadeAnim }}>
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>
-          {formattedStartDate} - {formattedEndDate}
-        </Text>
-      </View>
-      <Pressable
-        style={styles.button}
-        onPress={() => setTripDetailsModalVisible(true)}
+    <Pressable
+      style={{ width: "100%" }}
+      onPress={() => setTripDetailsModalVisible(true)}
+    >
+      <Animated.View
+        style={[
+          styles.container,
+          {
+            opacity: fadeAnim,
+            backgroundColor: theme === "Dark" ? "#505050" : "#E8E8E8",
+          },
+        ]}
       >
-        <Text style={styles.buttonText}>View Details</Text>
-      </Pressable>
-      <Modal
-        animationType="slide"
-        transparent={false}
-        visible={tripDetailsModalVisible}
-        onRequestClose={() => {
-          setTripDetailsModalVisible(!tripDetailsModalVisible);
-        }}
-      >
-        <View>
-          <View>
-            <Text>This is my modal</Text>
-            <Pressable onPress={() => setTripDetailsModalVisible(false)}>
-              <Text>close</Text>
-            </Pressable>
-          </View>
+        <View
+          style={[
+            styles.titleContainer,
+            { backgroundColor: theme === "Dark" ? "#505050" : "#E8E8E8" },
+          ]}
+        >
+          <Image
+            source={faker.image.urlLoremFlickr({
+              category: "landscape",
+            })}
+            style={{
+              height: 100,
+              borderTopLeftRadius: 5,
+              borderTopRightRadius: 5,
+            }}
+          />
+          <Text
+            style={[
+              styles.city,
+              { color: theme === "Dark" ? "white" : "black" },
+            ]}
+          >
+            {faker.location.city()}
+          </Text>
+          <Text
+            style={[
+              styles.date,
+              { color: theme === "Dark" ? "white" : "black" },
+            ]}
+          >
+            {formattedStartDate} - {formattedEndDate}
+          </Text>
         </View>
-      </Modal>
-    </Animated.View>
+
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={tripDetailsModalVisible}
+          onRequestClose={() => {
+            setTripDetailsModalVisible(!tripDetailsModalVisible);
+          }}
+        >
+          <View>
+            <View>
+              <Text>This is my modal</Text>
+              <Pressable onPress={() => setTripDetailsModalVisible(false)}>
+                <Text>close</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
+      </Animated.View>
+    </Pressable>
   );
 };
 
@@ -115,39 +154,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 3,
     marginBottom: 20,
     width: "100%",
+    borderRadius: 5,
     paddingBottom: 20,
-    paddingTop: 10,
   },
   titleContainer: {
     alignSelf: "stretch",
-    marginLeft: 10,
-    marginBottom: 10,
   },
-  title: {
-    fontSize: 20,
+  city: {
+    fontSize: 14,
     fontWeight: "bold",
-    color: "white",
     textAlign: "left",
+    marginTop: 10,
+    marginLeft: 10,
   },
-  text: {
-    fontSize: 16,
-    color: "white",
-  },
-  button: {
-    backgroundColor: "rgba(0, 255, 85, 0.6)",
-    padding: 10,
-    borderRadius: 3,
-    marginBottom: 5,
+  date: {
+    fontSize: 12,
+    textAlign: "left",
+    marginLeft: 10,
   },
 
-  buttonText: {
-    color: "white",
-    textAlign: "center",
-    fontWeight: "bold",
+  text: {
     fontSize: 16,
   },
 });

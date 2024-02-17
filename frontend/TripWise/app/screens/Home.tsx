@@ -1,27 +1,22 @@
 import { NavigationProp } from "@react-navigation/native";
-import React, { useState } from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
-import BackgroundGradient from "../../components/BackgroundGradient";
-
+import React, { useState, useContext } from "react";
+import { Text, View, StyleSheet, Pressable } from "react-native";
+import Background from "../../components/Background";
+import ThemeContext from "../../context/ThemeContext";
 import * as UserService from "../../services/userServices";
 import { TripType } from "../../types/tripTypes";
 import { useFocusEffect } from "@react-navigation/native";
 import PastTrips from "../../components/HomeScreen/PastTrips";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import { recommendActivities } from "../../services/recommenderService";
-import { RecommendActivitiesResponse } from "../../types/recommenderTypes";
+import TripWiseLogoHomePage from "../../components/SVGLogos/TripWiseLogoHomePage";
+import { BottomTabParamList } from "../../types/navigationTypes";
 
 interface RouterProps {
-  navigation: NavigationProp<any, any>;
+  navigation: NavigationProp<BottomTabParamList, "Home">;
 }
 
 const Home = ({ navigation }: RouterProps) => {
+  const { theme } = useContext(ThemeContext);
   const { userProfile, isFetchingProfile } = useUserProfile({
     refreshData: true,
   });
@@ -29,10 +24,6 @@ const Home = ({ navigation }: RouterProps) => {
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
   const [pastTrips, setPastTrips] = useState<TripType[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(true);
-  const [recommendedActivities, setRecommenedActivities] =
-    useState<RecommendActivitiesResponse | null>(null);
-  const [isFetchingActivities, setIsFetchingActivities] =
-    useState<boolean>(false);
 
   const loadTripData = async () => {
     try {
@@ -57,88 +48,99 @@ const Home = ({ navigation }: RouterProps) => {
 
   if (isFetchingProfile) {
     return (
-      <BackgroundGradient>
+      <Background>
         <View style={styles.container}>
           <Text style={styles.title}>Loading...</Text>
         </View>
-      </BackgroundGradient>
+      </Background>
     );
   }
 
   return (
-    <BackgroundGradient>
+    <Background>
       <View style={styles.container}>
-        <Text style={styles.title}>
-          Welcome back, {userProfile?.firstName}!
-          {currentTrip && " You have an ongoing trip!"}
-        </Text>
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Trip")}
-          style={styles.button}
+        <View
+          style={[
+            styles.header,
+            { backgroundColor: theme === "Dark" ? "black" : "white" },
+          ]}
         >
-          <Text style={styles.buttonText}>
-            {currentTrip ? "View Trip Details" : "Start a Trip"}
+          <View style={styles.logoContainer}>
+            <TripWiseLogoHomePage />
+          </View>
+          <Text
+            style={[
+              styles.title,
+              { color: theme === "Dark" ? "white" : "black" },
+            ]}
+          >
+            Welcome back, {userProfile?.firstName}!
+            {currentTrip && " You have an ongoing trip!"}
           </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={async () => {
-            setIsFetchingActivities(true);
-            const _activities = await recommendActivities();
-            setRecommenedActivities(_activities);
-            setIsFetchingActivities(false);
-          }}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}> Recommend activities</Text>
-        </TouchableOpacity>
-        {isFetchingActivities && <Text>Loading activities...</Text>}
-        {recommendedActivities && (
-          <FlatList
-            data={recommendedActivities.activities}
-            renderItem={({ item }) => (
-              <Text>{`${item.displayName.text}: ${(
-                item.similarity * 100.0
-              ).toPrecision(4)}%`}</Text>
-            )}
-            keyExtractor={(item) => item.id}
-          ></FlatList>
-        )}
+          <View style={styles.buttonContainer}>
+            <Pressable
+              onPress={() => navigation.navigate("Trip")}
+              style={styles.button}
+            >
+              <Text
+                style={[
+                  styles.buttonText,
+                  { color: theme === "Dark" ? "white" : "black" },
+                ]}
+              >
+                {currentTrip ? "View Trip Details" : "Plan a Trip"}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+
         {!currentTrip && (
           <PastTrips isFetching={isFetching} pastTrips={pastTrips} />
         )}
       </View>
-    </BackgroundGradient>
+    </Background>
   );
 };
 
 export default Home;
 
 const styles = StyleSheet.create({
+  header: {
+    width: "100%",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.9)",
+  },
+  logoContainer: {
+    alignItems: "center",
+  },
   container: {
     flex: 1,
     alignItems: "flex-start",
     marginHorizontal: 40,
-    marginTop: 40,
+    marginTop: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "white",
     textAlign: "center",
     marginBottom: 20,
   },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    columnGap: 15,
+    width: "100%",
+    marginBottom: 20,
+  },
   button: {
-    backgroundColor: "rgba(0, 255, 85, 0.6)",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     padding: 10,
-    width: "50%",
-    borderRadius: 3,
-    marginBottom: 40,
+    borderRadius: 25,
+    justifyContent: "center",
   },
   buttonText: {
-    color: "white",
     textAlign: "center",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 12,
   },
 });
