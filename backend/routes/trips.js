@@ -121,25 +121,50 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     let nearbyPlaces = [];
 
     const numMeetings = tripMeetings.length;
+    let pastLocation = '';
+    let futureLocation = '';
 
-    for (let i = 0; i < numMeetings; i++) {
-      let meeting = tripMeetings[i];
-      if (!meeting.location || meeting.location === "") {
-        console.log("No location for meeting: ", meeting);
-        continue;
+    if (!tripLocation || tripLocation == '') {
+      for (let i = 0; i < numMeetings; i++) {
+        let meeting = tripMeetings[i];
+      
+        if (!meeting.location || meeting.location === "") {
+          meeting.location == '' //TODO: add previous or next location
+          console.log("No location for meeting: ", meeting);
+          continue;
+        }
+        const location = await getCoords(meeting.location);
+        console.log(location);
+        const responseData = await useGetNearbyPlacesSevice(
+          location.lat,
+          location.lng,
+          maxNearbyPlaces,
+          nearByPlaceRadius,
+          includedTypes
+        );
+  
+        nearbyPlaces.push(responseData.places);
       }
-      const location = await getCoords(meeting.location);
-      console.log(location);
-      const responseData = await useGetNearbyPlacesSevice(
-        location.lat,
-        location.lng,
-        maxNearbyPlaces,
-        nearByPlaceRadius,
-        includedTypes
-      );
-
-      nearbyPlaces.push(responseData.places);
     }
+    else {
+      for (let i = 0; i < numMeetings; i++) {
+        const location = await getCoords(tripLocation);
+        const responseData = await useGetNearbyPlacesSevice(
+          location.lat,
+          location.lng,
+          maxNearbyPlaces,
+          nearByPlaceRadius,
+          includedTypes
+        );
+  
+        nearbyPlaces.push(responseData.places);
+      }
+
+    }
+
+
+
+    
 
     // Check if user has any locations
     //If they do not, use the trip location they inputted

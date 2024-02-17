@@ -46,6 +46,21 @@ def authenticate(f):
 @app.route('/api/recommend', methods=['POST'])
 @authenticate
 def recommend():
+
+    #Call function to get list of google recommendations
+        #Check if meetings has any slots that has locations
+        #create table of pastTrips 
+    
+        #if true -> loop through each meeting
+                            #call api to get 20 random places per meeting based of location and interests
+                            #generate table based off places and pastTrips
+                            #create a dictionary of [random place, similarityScore] for each place 
+        #if false -> call api api to get 20 random places per meeting based of USERSETlocation and interests
+
+
+    #SEND create SCHEDULE(googleAPIplaces[place, score], HEREAPIplaces, meetings, tripStartTime, tripEndTime)
+            #go through googleAPIplaces
+
     request_body = request.get_json()
     nearby_places = request_body["nearbyPlaces"]
     recent_places = request_body["recentTripsPlaceDetails"]
