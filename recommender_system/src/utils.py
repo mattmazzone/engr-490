@@ -1,6 +1,6 @@
 from ast import Raise
 import copy
-from datetime import date, datetime, timedelta, time
+from datetime import date, datetime, timedelta, time, timezone
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import random
@@ -313,15 +313,19 @@ def addHighestPlace(places, nearby_places_picked):
             return {'place_id': best_place_id, 'place_name': place['info']['displayName']['text'], 'address': place['info']['formattedAddress'], 'score': place['similarity']}
 
 
-def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings):
+def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings, time_zones):
     format_trips = '%Y-%m-%dT%H:%M:%S%z'
     format_slots = '%Y-%m-%dT%H:%M:%S.%f%z'
     activity_duration = timedelta(hours=1.5)
     broken_up_free_slots = []
 
-    for meeting in trip_meetings:
+    for index,meeting in enumerate(trip_meetings):
         meeting['start'] = datetime.strptime(meeting['start'], format_trips)
         meeting['end'] = datetime.strptime(meeting['end'], format_trips)
+        timezone_offset = timedelta(hours=time_zones[index]['rawOffset'] + time_zones[index]['dstOffset'])
+        #timeZoneWithOffset = timezone(timezone_offset)
+        meeting['start'] = meeting['start'] + timezone_offset
+        meeting['end'] = meeting['end'] + timezone_offset
 
     trip_meetings.sort(key=lambda x: x['start'])
 
