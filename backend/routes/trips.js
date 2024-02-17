@@ -69,7 +69,6 @@ async function getCoords(meeting) {
 
 // Route to create a new trip
 router.post("/create_trip/:uid", authenticate, async (req, res) => {
-  console.log(req.body);
   try {
     const uid = req.params.uid;
     const {
@@ -137,12 +136,10 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
         if (!meeting.location || meeting.location === "") {
           meeting.location = locations[locationIndex];
-          console.log("No location for meeting: ", meeting);
-          if (locationIndex < locations.length) locationIndex++;
+          if (locationIndex < locations.length - 1) locationIndex++;
         }
 
         const location = await getCoords(meeting.location);
-        console.log(location);
         const responseData = await useGetNearbyPlacesSevice(
           location.lat,
           location.lng,
@@ -167,24 +164,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         nearbyPlaces.push(responseData.places);
       }
     }
+    console.log("Nearby Places ",nearbyPlaces);
 
-    // Check if user has any locations
-    //If they do not, use the trip location they inputted
-    if (nearbyPlaces.length === 0) {
-      const location = await getCoords(tripLocation);
-      const responseData = await useGetNearbyPlacesSevice(
-        location.lat,
-        location.lng,
-        maxNearbyPlaces,
-        nearByPlaceRadius,
-        includedTypes
-      );
-      nearbyPlaces.push(responseData.places);
-      console.log(
-        "No locations for meetings, using trip location",
-        nearbyPlaces
-      );
-    }
 
     // Get user's recent trips from firestore
     let [successOrNotTrips, responseDataTrips] = await getRecentTrips(
