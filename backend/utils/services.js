@@ -47,16 +47,11 @@ async function getRecentTrips(admin, db, uid, numRecentTrips) {
       .doc(uid)
       .get()
       .then((doc) => {
-        recentTripIds = doc.data().pastTrips.slice(0, numRecentTrips);
+        recentTripIds = (doc.data()?.pastTrips ?? []).slice(0, numRecentTrips);
       });
 
-    console.log("Retreived recent trip IDs");
-
-    if (recentTripIds.length < 5) {
-      // Change to throw a proper error
-      console.log(
-        "Minimum number of trips >= 5. Around 10 to get a good recommendation"
-      );
+    if (recentTripIds.length < 2) {
+      return [REQUEST.SUCCESSFUL, []];
     }
 
     let recentTrips = [];
@@ -95,9 +90,53 @@ async function getPlaceDetails(id, fieldMask) {
     return [REQUEST.ERROR, error];
   }
 }
+
+async function getPlaceTextSearch(address) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+    address
+  )}&key=${apiKey}`;
+  try {
+    const response = await axios.get(url);
+    // Check if the API call was successful and if results were found
+    if (response.data.status === "OK" && response.data.results.length > 0) {
+      // Getting first result
+      const geocodedData = response.data.results[0];
+      return [REQUEST.SUCCESSFUL, geocodedData.geometry.location];
+    } else {
+      // Handle no results or other API errors
+      return [
+        REQUEST.ERROR,
+        { message: "Geocoding failed: " + response.data.status },
+      ];
+    }
+  } catch (error) {
+    console.error(error);
+    return [REQUEST.ERROR, error.response ? error.response.data : error];
+  }
+}
+
+async function getUserInterests(uid, db) {
+  try {
+    let interests = [];
+    await db
+      .collection("users")
+      .doc(uid)
+      .get()
+      .then((doc) => {
+        interests = doc.data().interests;
+      });
+    return [REQUEST.SUCCESSFUL, interests];
+  } catch (error) {
+    console.error(error);
+    return [REQUEST.ERROR, error];
+  }
+}
 module.exports = {
   REQUEST,
   getNearbyPlaces,
   getRecentTrips,
   getPlaceDetails,
+  getPlaceTextSearch,
+  getUserInterests,
 };

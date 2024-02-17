@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   Text,
   View,
@@ -8,7 +8,8 @@ import {
   SafeAreaView,
   Switch,
 } from "react-native";
-import BackgroundGradient from "../BackgroundGradient";
+import Background from "../Background";
+import ThemeContext from "../../context/ThemeContext";
 
 const NotificationScreen = ({
   isVisible,
@@ -29,6 +30,7 @@ const NotificationScreen = ({
   const togglePushSwitch = () => {
     setIsPushEnabled((previousState: boolean) => !previousState);
   };
+  const {theme} = useContext(ThemeContext);
 
   useEffect(() => {
     if (userSettings) {
@@ -55,14 +57,14 @@ const NotificationScreen = ({
       visible={isVisible}
       onRequestClose={closeModal}
     >
-      <BackgroundGradient>
+      <Background>
         <SafeAreaView style={styles.container}>
           <View style={styles.titleView}>
-            <Text style={styles.titleText}> Notification Settings </Text>
+            <Text style={[styles.titleText, {color: theme === "Dark" ? "#fff" : "#000",}]}> Notification Settings </Text>
           </View>
           <View style={styles.notificationSpaces}>
             <View style={styles.notificationChoice}>
-              <Text style={styles.typeNotificationText}>
+              <Text style={[styles.typeNotificationText, {color: theme === "Dark" ? "#fff" : "#000",}]}>
                 {" "}
                 E-Mail Notifications{" "}
               </Text>
@@ -76,7 +78,7 @@ const NotificationScreen = ({
               />
             </View>
             <View style={styles.notificationChoice}>
-              <Text style={styles.typeNotificationText}>
+              <Text style={[styles.typeNotificationText, {color: theme === "Dark" ? "#fff" : "#000",}]}>
                 {" "}
                 Push Notifications{" "}
               </Text>
@@ -99,7 +101,7 @@ const NotificationScreen = ({
             </Pressable>
           </View>
         </SafeAreaView>
-      </BackgroundGradient>
+      </Background>
     </Modal>
   );
 };
@@ -134,7 +136,7 @@ const styles = StyleSheet.create({
   },
   notificationSpaces: {
     alignItems: "flex-start",
-    height: 650,
+    height: 120,
   },
   notificationChoice: {
     flexDirection: "row",

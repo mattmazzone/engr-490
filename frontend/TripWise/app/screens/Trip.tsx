@@ -1,17 +1,15 @@
 import { NavigationProp } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   Text,
-  View,
   TouchableOpacity,
   StyleSheet,
-  TextInput,
   SafeAreaView,
   ScrollView,
   Modal,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import BackgroundGradient from "../../components/BackgroundGradient";
+import Background from "../../components/Background";
 import DateRangePicker from "../../components/TripScreen/DateRangePicker";
 import { DateRange, Meeting, TripType } from "../../types/tripTypes";
 import MeetingCreator from "../../components/TripScreen/MeetingCreator";
@@ -24,9 +22,11 @@ import {
 } from "../../services/userServices";
 import CalendarConfirmModal from "../../components/TripScreen/CalendarConfimModal";
 import CurrentTrip from "../../components/TripScreen/CurrentTrip";
+import ThemeContext from "../../context/ThemeContext";
+import { BottomTabParamList } from "../../types/navigationTypes";
 
 interface RouterProps {
-  navigation: NavigationProp<any, any>;
+  navigation: NavigationProp<BottomTabParamList, "Trip">;
 }
 
 // Trip planner
@@ -53,6 +53,7 @@ const Trip = ({ navigation }: RouterProps) => {
   const [confirmTripModalVisible, setConfirmTripModalVisible] = useState(false);
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
+  const { theme } = useContext(ThemeContext);
 
   // useFocusEffect is used to run code when the screen is focused
   useFocusEffect(
@@ -127,12 +128,12 @@ const Trip = ({ navigation }: RouterProps) => {
 
   if (isFetching) {
     return (
-      <BackgroundGradient>
+      <Background>
         <SafeAreaView style={styles.container}>
           <Text style={styles.title}>Trip Planner</Text>
           <Text style={styles.subTitle}>Loading...</Text>
         </SafeAreaView>
-      </BackgroundGradient>
+      </Background>
     );
   }
 
@@ -141,10 +142,17 @@ const Trip = ({ navigation }: RouterProps) => {
   }
 
   return (
-    <BackgroundGradient>
+    <Background>
       <SafeAreaView style={styles.container}>
         <ScrollView style={styles.scrollView}>
-          <Text style={styles.title}>Trip Planner</Text>
+          <Text
+            style={[
+              styles.title,
+              { color: theme === "Dark" ? "#fff" : "#000" },
+            ]}
+          >
+            Trip Planner
+          </Text>
 
           <DateRangePicker onData={getDateRange} />
 
@@ -202,7 +210,7 @@ const Trip = ({ navigation }: RouterProps) => {
           </Modal>
         </ScrollView>
       </SafeAreaView>
-    </BackgroundGradient>
+    </Background>
   );
 };
 
@@ -222,13 +230,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "white",
     textAlign: "left",
     marginBottom: 20,
   },
   subTitle: {
     fontSize: 16,
-    color: "white",
     marginBottom: 20,
   },
   button: {

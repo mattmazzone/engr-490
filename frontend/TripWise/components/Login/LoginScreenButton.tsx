@@ -16,7 +16,7 @@ const LoginScreenButton = ({ onPress, title }: LoginScreenButtonProps) => {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "#D9D9D9",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     flexDirection: "row",
     height: 45,
     borderRadius: 7,
