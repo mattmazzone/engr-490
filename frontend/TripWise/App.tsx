@@ -150,18 +150,17 @@ function RootNavigator({
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
-  const [isUserCreated, setIsUserCreated] = useState(true);
+  const [isUserCreated, setIsUserCreated] = useState(false);
   const [userHasInterests, setUserHasInterests] = useState(false);
-  
 
   useEffect(() => {
     console.log("Setting up auth state change listener");
     const unsubscribe = onAuthStateChanged(
       FIREBASE_AUTH,
-      (user: User | null) => {
-        
+      async (user: User | null) => {
         if (user) {
           setUser(user);
+          setIsUserCreated(true);
           if (isUserCreated) {
             // Check if user has interests after setting the user
             checkUserInterests();
@@ -174,7 +173,6 @@ export default function App() {
         }
       }
     );
-
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [isUserCreated]);
@@ -193,6 +191,7 @@ export default function App() {
       }
     });
   };
+
   const setUserInterests = (hasInterests: boolean) => {
     console.log("Updating userInterests to:", hasInterests);
     setUserHasInterests(hasInterests);
@@ -200,7 +199,7 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      <NavigationContainer>
+       <NavigationContainer>
         <RootNavigator
           user={user}
           onUserCreationComplete={onUserCreationComplete}
