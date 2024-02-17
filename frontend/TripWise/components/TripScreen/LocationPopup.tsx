@@ -12,14 +12,20 @@ interface LocationPopupProps {
 
 const LocationPopup: React.FC<LocationPopupProps> = ({ visible, onClose, onSave, onModalClose }) => {
     const [location, setLocation] = useState('');
+    const [error, setError] = useState(false);
+    const { theme } = useContext(ThemeContext);
+
 
     const handleSave = () => {
+        if (!location.trim()) { // Check if the location is empty or just whitespace
+            setError(true); // Set error to true to show the error message
+            return; // Prevent further execution
+        }
         onSave(location); // Assume this saves the location
         onClose(); // Closes the popup
         onModalClose(); // New callback to notify the parent component
         setLocation(''); // Reset location input
     };
-    const { theme } = useContext(ThemeContext);
 
     return (
         <Modal
@@ -30,7 +36,13 @@ const LocationPopup: React.FC<LocationPopupProps> = ({ visible, onClose, onSave,
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
                     <Text style={[styles.modalText, { color: theme === "Dark" ? "#fff" : "#000" }]}>Please tell us where you're headed!</Text>
-                    <AddressAutocomplete onAddressSelect={setLocation} />
+                    {error && (
+                        <Text style={styles.errorText}>Location cannot be empty.</Text>
+                    )}
+                    <AddressAutocomplete onAddressSelect={(selectedLocation: any) => {
+                        setLocation(selectedLocation.description);
+                        setError(false);
+                    }} />
                     <Pressable
                         style={styles.button}
                         onPress={handleSave}>
@@ -93,7 +105,12 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         fontSize: 16,
 
-    }
+    },
+    errorText: {
+        color: 'red', // Example error text color, adjust as needed
+        marginBottom: 8, // Adjust spacing as needed
+        // Add other styling for the error text here
+    },
 });
 
 export default LocationPopup;
