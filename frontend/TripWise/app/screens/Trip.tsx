@@ -96,7 +96,7 @@ const Trip = ({ navigation }: RouterProps) => {
       alert("Please select a date range");
       return;
     }
-    if ((meetings.length === 0 || meetings.some(meeting => meeting.location === "")) && !tripLocation) {
+    if ((meetings.length === 0 || meetings.every(meeting => meeting.location === "")) && !tripLocation) {
       setPopupVisible(true);
 
       return;
