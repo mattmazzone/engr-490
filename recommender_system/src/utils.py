@@ -380,7 +380,7 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
         if len(breakfast_places) > 0 and breakfast_time_range['start'] <= slot_start.time() and slot_end.time() <= breakfast_time_range['end']:
             slot['place_similarity'] = addHighestPlace(
                 breakfast_places, nearby_places_picked)
-        elif len(restaurant_places) > 0 and (lunch_time_range['start'] <= slot_start.time() and slot_end.time() <= lunch_time_range['end']) or (dinner_time_range['start'] <= slot_start.time() and slot_end.time() <= dinner_time_range['end']):
+        elif len(restaurant_places) > 0 and ((lunch_time_range['start'] <= slot_start.time() and slot_end.time() <= lunch_time_range['end']) or (dinner_time_range['start'] <= slot_start.time() and slot_end.time() <= dinner_time_range['end'])):
             slot['place_similarity'] = addHighestPlace(
                 restaurant_places, nearby_places_picked)
         else:
