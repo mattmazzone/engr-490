@@ -46,7 +46,7 @@ const Trip = ({ navigation }: RouterProps) => {
     endDate: undefined,
   });
   const [meetings, setMeetings] = React.useState<Meeting[]>([]);
-  const [seperateLocation, setSeperateLocation] = React.useState<String | undefined>(undefined);
+  const [tripLocation, setTripLocation] = React.useState<String | undefined>(undefined);
   const deleteMeeting = (id: number) => {
     setMeetings((prevMeetings) =>
       prevMeetings.filter((meeting) => meeting.id !== id)
@@ -96,7 +96,7 @@ const Trip = ({ navigation }: RouterProps) => {
       alert("Please select a date range");
       return;
     }
-    if (meetings.length === 0 || meetings.some(meeting => meeting.location === "")) {
+    if ((meetings.length === 0 || meetings.some(meeting => meeting.location === "")) && !tripLocation) {
       setPopupVisible(true);
 
       return;
@@ -114,7 +114,7 @@ const Trip = ({ navigation }: RouterProps) => {
       rangeDate.startDate,
       rangeDate.endDate,
       meetings,
-      seperateLocation
+      tripLocation
     );
 
     if (createTripResponse) {
@@ -145,7 +145,7 @@ const Trip = ({ navigation }: RouterProps) => {
   const [locationModalClosed, setLocationModalClosed] = useState(false);
 
   const handleSaveLocation = (location: string) => {
-    setSeperateLocation(location);
+    setTripLocation(location);
     console.log('Location saved:', location);
   };
 

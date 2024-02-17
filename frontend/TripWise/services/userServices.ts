@@ -149,7 +149,7 @@ export const createTrip = async (
   tripStart: Date | undefined,
   tripEnd: Date | undefined,
   tripMeetings: Meeting[] | undefined,
-  seperateLocation: String | undefined
+  tripLocation: String | undefined
 ): Promise<TripDataResponse | undefined> => {
   if (!FIREBASE_AUTH.currentUser) {
     console.error("No current user found");
@@ -169,7 +169,7 @@ export const createTrip = async (
           tripStart,
           tripEnd,
           tripMeetings,
-          seperateLocation,
+          tripLocation,
           maxRecentTrips: 10,
           maxNearbyPlaces: 20,
           nearByPlaceRadius: 1500,
