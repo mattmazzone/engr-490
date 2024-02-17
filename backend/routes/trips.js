@@ -197,6 +197,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     // console.log(nearbyPlaces);
     // Finally pass data into the recommender system and get the activities
     const token = req.headers.authorization;
+    //TODO: add TripLocation to the request
     const response = await axios.post(
       recommenderURL,
       {
