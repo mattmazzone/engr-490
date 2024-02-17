@@ -1,6 +1,7 @@
 from ast import Raise
 import copy
 from datetime import date, datetime, timedelta, time, timezone
+from weakref import ref
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import random
@@ -322,8 +323,7 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
     for index,meeting in enumerate(trip_meetings):
         meeting['start'] = datetime.strptime(meeting['start'], format_trips)
         meeting['end'] = datetime.strptime(meeting['end'], format_trips)
-        timezone_offset = timedelta(hours=time_zones[index]['rawOffset'] + time_zones[index]['dstOffset'])
-        #timeZoneWithOffset = timezone(timezone_offset)
+        timezone_offset = timedelta(seconds=time_zones[index]['rawOffset'] + time_zones[index]['dstOffset'])
         meeting['start'] = meeting['start'] + timezone_offset
         meeting['end'] = meeting['end'] + timezone_offset
 
@@ -333,10 +333,19 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
         trip_meetings[i]['nearby_place_similarities'] = similarity_tables[i]
 
     for slot in free_slots:
-        start = datetime.strptime(slot['start'], format_slots)
-        end = datetime.strptime(slot['end'],  format_slots)
-        current_end = start + activity_duration
-        while current_end <= end:
+        slot_start = datetime.strptime(slot['start'], format_slots)
+        slot_start = slot_start.replace(tzinfo=timezone.utc)
+        slot_end = datetime.strptime(slot['end'],  format_slots)
+        slot_end = slot_end.replace(tzinfo=timezone.utc)
+        timezone_offset = timedelta(seconds=time_zones[0]['rawOffset'] + time_zones[0]['dstOffset'])
+        new_timezone = timezone(timedelta(hours = ((timezone_offset.seconds/3600) - 24)))
+        slot_start = slot_start + timezone_offset
+        slot_start = slot_start.replace(tzinfo=new_timezone)
+        slot_end = slot_end + timezone_offset
+        slot_end = slot_end.replace(tzinfo=new_timezone)
+
+        current_end = slot_start + activity_duration
+        while current_end <= slot_end:
             current_start = current_end - activity_duration
             broken_up_free_slots.append(
                 {"start": current_start, "end": current_end})
