@@ -51,8 +51,62 @@ const SignUp = ({ navigation, route }: RouterProps) => {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [firstNameValid, setFirstNameValid] = useState(true);
+  const [lastNameValid, setLastNameValid] = useState(true);
+  const [isEmailValid, setIsEmailValid] = useState(true);
+  const [isPasswordValid, setIsPasswordValid] = useState(true);
+
+  const isValidName = (name: string) => {
+    return name.trim().length > 0;
+  };
+
+  const isValidEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const isValidPassword = (password: string) => {
+    return password.trim().length >= 6;
+  }
+
+  const validateFields = () => {
+    let isFormValid = true;
+
+    if (!isValidName(firstName)) {
+      setFirstNameValid(false);
+      isFormValid = false;
+    } else {
+      setFirstNameValid(true);
+    }
+
+    if (!isValidName(lastName)) {
+      setLastNameValid(false);
+      isFormValid = false;
+    } else {
+      setLastNameValid(true);
+    }
+
+    if (!isValidEmail(email)) {
+      setIsEmailValid(false);
+      isFormValid = false;
+    } else {
+      setIsEmailValid(true);
+    }
+
+    if (!isValidPassword(password)) {
+      setIsPasswordValid(false);
+      isFormValid = false;
+    } else {
+      setIsPasswordValid(true);
+    }
+
+    return isFormValid;
+  };
 
   const handleSignUp = async () => {
+    if (!validateFields()) {
+      return;
+    }
     try {
       // Sign up the user
       const response = await createUserWithEmailAndPassword(
@@ -88,52 +142,76 @@ const SignUp = ({ navigation, route }: RouterProps) => {
               <View style={styles.loginInputContainer}>
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputTitles}>
-                    First Name
+                    First Name*
                   </Text>
                   <TextInput
                     placeholder="Enter your first name"
-                    style={styles.input}
+                    style={[
+                      styles.input,
+                      !firstNameValid ? styles.inputInvalid: null,
+                    ]}
                     value={firstName}
                     onChangeText={setFirstName}
                     placeholderTextColor={'#c7c7c7'}
                   />
+                  {!firstNameValid && (
+                      <Text style={styles.errorText}>Required field</Text>
+                  )}
                 </View>
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputTitles}>
-                    Last Name
+                    Last Name*
                   </Text>
                   <TextInput
                     placeholder="Enter your last name"
-                    style={styles.input}
+                    style={[
+                      styles.input,
+                      !lastNameValid ? styles.inputInvalid: null,
+                    ]}
                     value={lastName}
                     onChangeText={setLastName}
                     placeholderTextColor={'#c7c7c7'}
                   />
+                  {!lastNameValid && (
+                      <Text style={styles.errorText}>Required Field</Text>
+                  )}
                 </View>
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputTitles}>
-                    Email
+                    Email*
                   </Text>
                   <TextInput
                     placeholder="Enter your email"
-                    style={styles.input}
+                    style={[
+                      styles.input,
+                      !isEmailValid ? styles.inputInvalid: null,
+                    ]}
                     value={email}
                     onChangeText={setEmail}
                     placeholderTextColor={'#c7c7c7'}
                   />
+                  {!isEmailValid && (
+                      <Text style={styles.errorText}>Please enter a valid email address.</Text>
+                  )}
                 </View>
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputTitles}>
-                    Password
+                    Password*
                   </Text>
                   <TextInput
                     placeholder="Enter your password"
-                    style={styles.input}
+                    style={[
+                      styles.input,
+                      !isPasswordValid ? styles.inputInvalid: null,
+                    ]}
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
                     placeholderTextColor={'#c7c7c7'}
                   />
+                  {!isPasswordValid && (
+                      <Text style={styles.errorText}>Password must be at least 6 characters long.</Text>
+                  )}
                 </View>
               </View>
               <LoginScreenButton title="Sign Up" onPress={handleSignUp} />
@@ -189,6 +267,7 @@ const styles = StyleSheet.create({
     maxWidth: 300, // Set a max-width for large screens
     alignSelf: 'center',
     width: '100%',
+    marginBottom:12,
   },
   inputTitles : {
     fontSize: 15,
@@ -197,12 +276,21 @@ const styles = StyleSheet.create({
   },
   input: {
     marginTop: 10,
-    marginBottom: 12,
+    width: 300,
+    height: 45, // Adjusted height
+    borderRadius: 10, // Rounded corners
+    padding: 10,
+    backgroundColor: "#",
+  },
+  inputInvalid: {
+    marginTop: 10,
     width: 300,
     height: 45, // Adjusted height
     borderRadius: 10, // Rounded corners
     padding: 10,
     backgroundColor: "#f5f7fa",
+    borderColor: 'red', // Border color for invalid input
+    borderWidth: 1,
   },
   loginText: {
     fontSize: 16,
@@ -212,5 +300,10 @@ const styles = StyleSheet.create({
   loginButton: {
     fontWeight: 'bold',
     color: 'rgba(34, 170, 85, 1)',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    paddingLeft: 5,
   },
 });
