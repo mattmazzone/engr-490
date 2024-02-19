@@ -314,20 +314,13 @@ def addHighestPlace(places, nearby_places_picked):
 
 
 def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings):
+
     format_trips = '%Y-%m-%dT%H:%M:%S%z'
     format_slots = '%Y-%m-%dT%H:%M:%S.%f%z'
     activity_duration = timedelta(hours=1.5)
     broken_up_free_slots = []
 
-    for meeting in trip_meetings:
-        meeting['start'] = datetime.strptime(meeting['start'], format_trips)
-        meeting['end'] = datetime.strptime(meeting['end'], format_trips)
-
-    trip_meetings.sort(key=lambda x: x['start'])
-
-    for i in range(len(similarity_tables)):
-        trip_meetings[i]['nearby_place_similarities'] = similarity_tables[i]
-
+    # Break up free slots
     for slot in free_slots:
         start = datetime.strptime(slot['start'], format_slots)
         end = datetime.strptime(slot['end'],  format_slots)
@@ -338,11 +331,33 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
                 {"start": current_start, "end": current_end})
             current_end = current_end + activity_duration
 
-    for slot in broken_up_free_slots:
-        index = find_relavent_meeting(trip_meetings, slot['end'])
-        relevant_meeting = trip_meetings[index]
-        slot['place_similarity'] = relevant_meeting['nearby_place_similarities']
-        slot['places_dict'] = nearby_places[index]
+    if len(trip_meetings) == 0:
+        # Since there are no trip meetings, there can only be 1 similarity table and 1 nearby places array
+
+        if len(nearby_places) != 1 or len(similarity_tables) != 1:
+            raise ValueError(
+                "nearby_places or similarity_table incorrect length")
+
+        for slot in broken_up_free_slots:
+            slot['place_similarity'] = similarity_tables[0]
+            slot['places_dict'] = nearby_places[0]
+    else:
+
+        for meeting in trip_meetings:
+            meeting['start'] = datetime.strptime(
+                meeting['start'], format_trips)
+            meeting['end'] = datetime.strptime(meeting['end'], format_trips)
+
+        trip_meetings.sort(key=lambda x: x['start'])
+
+        for i in range(len(similarity_tables)):
+            trip_meetings[i]['nearby_place_similarities'] = similarity_tables[i]
+
+        for slot in broken_up_free_slots:
+            index = find_relavent_meeting(trip_meetings, slot['end'])
+            relevant_meeting = trip_meetings[index]
+            slot['place_similarity'] = relevant_meeting['nearby_place_similarities']
+            slot['places_dict'] = nearby_places[index]
 
     nearby_places_picked = set()
     breakfast_time_range = {"start": time(8, 0, 0), "end": time(10, 0, 0)}
