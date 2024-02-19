@@ -119,7 +119,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     const numMeetings = tripMeetings.length;
 
-
     if (!tripLocation || tripLocation == "") {
       // Get all meeting locations
       let locations = [];
@@ -151,21 +150,18 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         nearbyPlaces.push(responseData.places);
       }
     } else {
-      for (let i = 0; i < numMeetings; i++) {
-        const location = await getCoords(tripLocation);
-        const responseData = await useGetNearbyPlacesSevice(
-          location.lat,
-          location.lng,
-          maxNearbyPlaces,
-          nearByPlaceRadius,
-          includedTypes
-        );
+      const location = await getCoords(tripLocation);
+      const responseData = await useGetNearbyPlacesSevice(
+        location.lat,
+        location.lng,
+        maxNearbyPlaces,
+        nearByPlaceRadius,
+        includedTypes
+      );
 
-        nearbyPlaces.push(responseData.places);
-      }
+      nearbyPlaces.push(responseData.places);
     }
-    console.log("Nearby Places ",nearbyPlaces);
-
+    console.log("Nearby Places ", nearbyPlaces);
 
     // Get user's recent trips from firestore
     let [successOrNotTrips, responseDataTrips] = await getRecentTrips(
