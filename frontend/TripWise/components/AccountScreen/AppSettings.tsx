@@ -21,16 +21,21 @@ interface AppSettingsPageProps {
   useModal: boolean;
 }
 const useResponsiveScreen = (breakpoint: number) => {
-  const [isScreenSmall, setIsScreenSmall] = useState(Dimensions.get('window').width < breakpoint);
+  const [isScreenSmall, setIsScreenSmall] = useState(
+    Dimensions.get("window").width < breakpoint
+  );
 
   useEffect(() => {
     const updateScreenSize = () => {
-      const screenWidth = Dimensions.get('window').width;
+      const screenWidth = Dimensions.get("window").width;
       setIsScreenSmall(screenWidth < breakpoint);
     };
 
     // Add event listener
-    const subscription = Dimensions.addEventListener('change', updateScreenSize);
+    const subscription = Dimensions.addEventListener(
+      "change",
+      updateScreenSize
+    );
 
     // Remove event listener on cleanup
     return () => subscription.remove();
@@ -43,7 +48,7 @@ const AppSettingsPage = ({
   isVisible = true,
   userSettings,
   updateUserSettings,
-  closeModal = () => { },
+  closeModal = () => {},
   useModal = false,
 }: AppSettingsPageProps) => {
   const { theme, setTheme } = useContext(ThemeContext);
@@ -96,9 +101,8 @@ const AppSettingsPage = ({
 
   const content = (
     <Background>
-      
       <SafeAreaView style={styles.container}>
-      {isScreenSmall && <BackButton onPress={() => closeModal()}/>} {/* Conditionally render the Back Button */}
+        {isScreenSmall && <BackButton onPress={() => closeModal()} />}
         <View style={styles.titleView}>
           <Text
             style={[
@@ -136,7 +140,12 @@ const AppSettingsPage = ({
           Notification Settings
         </Text>
         <View style={styles.notificationChoice}>
-          <Text style={[styles.typeNotificationText, { color: theme === "Dark" ? "#fff" : "#000", }]}>
+          <Text
+            style={[
+              styles.typeNotificationText,
+              { color: theme === "Dark" ? "#fff" : "#000" },
+            ]}
+          >
             E-Mail Notifications
           </Text>
           <Switch
@@ -149,7 +158,12 @@ const AppSettingsPage = ({
           />
         </View>
         <View style={styles.notificationChoice}>
-          <Text style={[styles.typeNotificationText, { color: theme === "Dark" ? "#fff" : "#000", }]}>
+          <Text
+            style={[
+              styles.typeNotificationText,
+              { color: theme === "Dark" ? "#fff" : "#000" },
+            ]}
+          >
             Push Notifications
           </Text>
           <Switch
@@ -181,12 +195,11 @@ const AppSettingsPage = ({
       onRequestClose={closeModal}
     >
       {content}
-
     </Modal>
-  ) : content;
-
+  ) : (
+    content
+  );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -194,8 +207,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   settingItem: {
-    flexDirection: 'row', // Align children horizontally
-    alignItems: 'center', // Center items vertically in the container
+    flexDirection: "row", // Align children horizontally
+    alignItems: "center", // Center items vertically in the container
     marginBottom: 10, // Optional: add some space between this setting item and the next
   },
   titleView: {
@@ -234,7 +247,7 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "flex-start",
     height: 70,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   textSpace: {
     alignItems: "flex-start",
@@ -268,14 +281,14 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "white",
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 10,
     fontSize: 18,
     width: 150,
     height: 50,
   },
-  backButtonContainer :{
-    position: 'absolute',
+  backButtonContainer: {
+    position: "absolute",
     top: 0,
     left: 0,
     margin: 20,
