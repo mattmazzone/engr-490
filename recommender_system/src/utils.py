@@ -323,9 +323,9 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
                     '%Y-%m-%dT%H:%M:%S.%f%Z',]
     activity_duration = timedelta(hours=1.5)
     broken_up_free_slots = []
-    formatted = False
     # Break up free slots
     for slot in free_slots:
+        formatted = False
         for format in format_slots:
             try:
                 start = datetime.strptime(slot['start'], format)
