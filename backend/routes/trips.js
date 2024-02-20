@@ -69,6 +69,30 @@ async function getCoords(meeting) {
   return responseData;
 }
 
+async function getTimezone(lat, lng, start) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const secondsSinceEpoch = Math.floor(new Date(start).getTime() / 1000);
+  const url = `https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${lng}&timestamp=${secondsSinceEpoch}&key=${apiKey}`;
+  try {
+    const response = await axios.get(url);
+    // Check if the API call was successful and if results were found
+    if (response.data.status === "OK") {
+      // Getting first result
+      const timeZoneData = response.data;
+      return timeZoneData;
+    } else {
+      // Handle no results or other API errors
+      return [
+        REQUEST.ERROR,
+        { message: "Geocoding failed: " + response.data.status },
+      ];
+    }
+  } catch (error) {
+    console.error(error);
+    return [REQUEST.ERROR, error.response ? error.response.data : error];
+  }
+}
+
 // Route to create a new trip
 router.post("/create_trip/:uid", authenticate, async (req, res) => {
   try {
@@ -127,6 +151,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         continue;
       }
       const location = await getCoords(meeting);
+      const timeZone = await getTimezone(location.lat, location.lng, meeting.start);
+      console.log(timeZone);
       console.log(location);
       const responseData = await useGetNearbyPlacesSevice(
         location.lat,
@@ -136,7 +162,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         includedTypes
       );
 
-      nearbyPlaces.push(responseData.places);
+      nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
     }
 
     // Get user's recent trips from firestore
@@ -209,7 +235,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       tripMeetings,
       scheduledActivities,
     };
-    console.log(JSON.stringify(tripData, null, 4));
+    //console.log(JSON.stringify(tripData, null, 4));
 
     const tripRef = await db.collection("trips").add(tripData);
     const tripId = tripRef.id;
@@ -219,7 +245,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     return res.status(200).json({ trip: tripData });
   } catch (error) {
-    console.error("Error creating trip\n", error);
+    //console.error("Error creating trip\n", error);
     res.status(500).send(error.message);
   }
 });
