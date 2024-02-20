@@ -11,9 +11,10 @@ const {
   getPlaceDetails,
   getPlaceTextSearch,
   getUserInterests,
+  getCoords,
 } = require("../utils/services");
 const {
-  getRestaurants,
+  processDaysAndGetRestaurants,
 } = require("../utils/here")
 const axios = require("axios");
 
@@ -57,20 +58,10 @@ async function useGetNearbyPlacesSevice(
   return responseData;
 }
 
-async function getCoords(meeting) {
-  // console.log("Getting coords for meeting location", meeting);
-  const [successOrNot, responseData] = await getPlaceTextSearch(
-    meeting.location
-  );
-  if (successOrNot != REQUEST.SUCCESSFUL) {
-    error = responseData;
-    console.error(error);
-    throw new BadRequestException(error);
-  }
 
-  // should only be 1 result
-  return responseData;
-}
+
+
+
 
 // Route to create a new trip
 router.post("/create_trip/:uid", authenticate, async (req, res) => {
@@ -84,6 +75,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       maxNearbyPlaces,
       nearByPlaceRadius,
     } = req.body; // Destructure expected properties
+    console.log(tripStart, tripEnd);
 
     // Validate trip data
     if (!tripStart || !tripEnd || !tripMeetings) {
@@ -103,6 +95,9 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       dailyEndTime,
       bufferInMinutes
     );
+    console.log("tripMeetings", tripMeetings);
+
+
 
     const [success, interests] = await getUserInterests(uid, db);
     if (success != REQUEST.SUCCESSFUL) {
@@ -139,11 +134,13 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         nearByPlaceRadius,
         includedTypes
       );
-      const restoData = await getRestaurants(location.lat, location.lng, maxNearbyPlaces, includedTypes)
 
       nearbyPlaces.push(responseData.places);
-      nearbyRestaurants.push(restoData);
     }
+
+    // Get nearby restaurants
+    nearbyRestaurants = await processDaysAndGetRestaurants(tripStart, tripEnd, tripMeetings);
+    console.log("NEARBY RESTAURANTS", nearbyRestaurants[3].lunchDinner);
 
     // Get user's recent trips from firestore
     let [successOrNotTrips, responseDataTrips] = await getRecentTrips(
