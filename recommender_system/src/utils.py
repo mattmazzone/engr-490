@@ -319,20 +319,30 @@ def addHighestPlace(places, nearby_places_picked):
 def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings):
 
     format_trips = '%Y-%m-%dT%H:%M:%S%z'
-    format_slots = '%Y-%m-%dT%H:%M:%S.%f%z'
+    format_slots = ['%Y-%m-%dT%H:%M:%S.%f%z',
+                    '%Y-%m-%dT%H:%M:%S.%f%Z',]
     activity_duration = timedelta(hours=1.5)
     broken_up_free_slots = []
-
+    formatted = False
     # Break up free slots
     for slot in free_slots:
-        start = datetime.strptime(slot['start'], format_slots)
-        end = datetime.strptime(slot['end'],  format_slots)
-        current_end = start + activity_duration
-        while current_end <= end:
-            current_start = current_end - activity_duration
-            broken_up_free_slots.append(
-                {"start": current_start, "end": current_end})
-            current_end = current_end + activity_duration
+        for format in format_slots:
+            try:
+                start = datetime.strptime(slot['start'], format)
+                end = datetime.strptime(slot['end'],  format)
+                current_end = start + activity_duration
+                while current_end <= end:
+                    current_start = current_end - activity_duration
+                    broken_up_free_slots.append(
+                        {"start": current_start, "end": current_end})
+                    current_end = current_end + activity_duration
+                formatted = True
+                break
+            except Exception as e:
+                print(e)
+
+        if not formatted:
+            raise ValueError('No valid date format found')
 
     if len(trip_meetings) == 0:
         # Since there are no trip meetings, there can only be 1 similarity table and 1 nearby places array
@@ -392,6 +402,12 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
             restaurant_places, key=lambda x: x['similarity'])
         other_places = sorted(
             other_places, key=lambda x: x['similarity'])
+
+        # print(f'length of breakfast_places {len(breakfast_places)}')
+        # print(f'length of restaurant_places {len(restaurant_places)}')
+        # print(f'length of other_places {len(other_places)}')
+        # print()
+
         highestPlace = None
         if len(breakfast_places) > 0 and breakfast_time_range['start'] <= slot_start.time() and slot_end.time() <= breakfast_time_range['end']:
             highestPlace = addHighestPlace(
@@ -404,6 +420,7 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
         if highestPlace is None:
             highestPlace = addHighestPlace(
                 other_places, nearby_places_picked)
+        print(highestPlace)
         slot['place_similarity'] = highestPlace
         del slot['places_dict']
 
