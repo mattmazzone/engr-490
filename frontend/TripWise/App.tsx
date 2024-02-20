@@ -20,7 +20,9 @@ import * as UserService from "./services/userServices";
 import { RootStackParamList } from "./types/navigationTypes";
 import { MainStackParamList } from "./types/navigationTypes";
 import { BottomTabParamList } from "./types/navigationTypes";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from "react-native";
+import { UserProfile } from "firebase/auth";
 // import your component here
 // import NotificationScreen from "./components/AccountScreen/NotificationScreen";
 
@@ -152,7 +154,9 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [isUserCreated, setIsUserCreated] = useState(false);
   const [userHasInterests, setUserHasInterests] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
+  /*
   useEffect(() => {
     console.log("Setting up auth state change listener");
     const unsubscribe = onAuthStateChanged(
@@ -160,7 +164,7 @@ export default function App() {
       async (user: User | null) => {
         if (user) {
           setUser(user);
-          setIsUserCreated(true);
+          //setIsUserCreated(true);
           if (isUserCreated) {
             // Check if user has interests after setting the user
             checkUserInterests();
@@ -176,10 +180,14 @@ export default function App() {
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [isUserCreated]);
+
   
   const onUserCreationComplete: () => void = () => {
     setIsUserCreated(true);
-  };
+  };*/
+  const onUserCreationComplete = async () => {
+    setIsUserCreated(true);
+  }
 
   const checkUserInterests = async () => {
     // Check if user has interests
@@ -197,6 +205,41 @@ export default function App() {
     setUserHasInterests(hasInterests);
   };
 
+  useEffect(() => {
+    const checkUserAuthState = async () => {
+      const storedUser = await AsyncStorage.getItem("user");
+      if (storedUser) {
+        const userObj = JSON.parse(storedUser);
+        setUser(userObj);
+        if (isUserCreated) {
+          checkUserInterests();
+        }
+      } else {
+        setIsLoading(false); 
+      }
+    };
+    if (Platform.OS === "web") {
+      checkUserAuthState();
+    }
+      const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, async (user) => {
+        if (user) {
+          const userData = { uid: user.uid }; 
+          await AsyncStorage.setItem("user", JSON.stringify(userData));
+          setUser(user);
+          checkUserInterests();
+          onUserCreationComplete();
+        } else {
+          console.log("No user logged in, clearing profile");
+          await AsyncStorage.removeItem("user");
+          setUser(null);
+          setIsUserCreated(false);
+          setUserHasInterests(false);
+        }
+        setIsLoading(false);
+      });
+      return () => unsubscribe();
+    }, []);
+    
   return (
     <ThemeProvider>
        <NavigationContainer>
@@ -210,4 +253,4 @@ export default function App() {
       </NavigationContainer>
     </ThemeProvider>
   );
-}
+  }
