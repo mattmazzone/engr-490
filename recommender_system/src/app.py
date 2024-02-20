@@ -47,7 +47,15 @@ def authenticate(f):
 @authenticate
 def recommend():
     request_body = request.get_json()
-    nearby_places = request_body["nearbyPlaces"]
+    nearby_places_object = request_body["nearbyPlaces"]
+    nearby_places = []
+    for object in nearby_places_object:
+        if "places" in object:
+            nearby_places.append(object["places"])
+    time_zones = []
+    for object in nearby_places_object:
+        if "timeZone" in object:
+            time_zones.append(object["timeZone"])
     recent_places = request_body["recentTripsPlaceDetails"]
     free_slots = request_body["freeSlots"]
     trip_meetings = request_body["tripMeetings"]
@@ -84,7 +92,7 @@ def recommend():
             similarity_tables.append(similarity_df)
 
         scheduled_activities = create_scheduled_activities(
-            similarity_tables, nearby_places, free_slots, trip_meetings)
+            similarity_tables, nearby_places, free_slots, trip_meetings, time_zones)
         return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
 
     else:
@@ -131,7 +139,7 @@ def recommend():
             similarity_tables.append(mean_vals_df)
 
         scheduled_activities = create_scheduled_activities(
-            similarity_tables, nearby_places, free_slots, trip_meetings)
+            similarity_tables, nearby_places, free_slots, trip_meetings, time_zones)
         return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
 
 
