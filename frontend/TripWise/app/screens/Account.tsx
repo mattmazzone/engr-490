@@ -129,7 +129,6 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
           ]}
         >
           <View style={styles.header}>
-            {/* Profile image and name */}
             {userProfile && (
               <>
                 <ProfilePictureUploader userID={userProfile.uid} />
@@ -205,8 +204,6 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
         <View style={styles.container}>
           <ScrollView style={styles.settings}>
             <View style={styles.header}>
-              {/* Profile image and name */}
-
               {userProfile && (
                 <>
                   <ProfilePictureUploader userID={userProfile.uid} />
@@ -221,7 +218,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
                 </>
               )}
             </View>
-            {/* Settings options with icons */}
+
             <SettingOption
               icon={<AccountLogo focused={false} />}
               title="Account Settings"
@@ -266,7 +263,6 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
               }}
               hasBorder={true}
             />
-            {/* Logout button */}
             <SettingOption
               title="Sign Out"
               onPress={handleLogout}
