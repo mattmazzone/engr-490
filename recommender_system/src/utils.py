@@ -1,6 +1,7 @@
 from ast import Raise
 import copy
 from datetime import date, datetime, timedelta, time
+from tkinter import NO
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import random
@@ -306,11 +307,13 @@ def find_relavent_meeting(trip_meetings, end_time):
 
 
 def addHighestPlace(places, nearby_places_picked):
-    for place in places:
+    while len(places) > 0:
+        place = places.pop()
         best_place_id = place['info']['id']
         if best_place_id not in nearby_places_picked:
             nearby_places_picked.add(best_place_id)
             return {'place_id': best_place_id, 'place_name': place['info']['displayName']['text'], 'address': place['info']['formattedAddress'], 'score': place['similarity']}
+    return None
 
 
 def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings):
@@ -333,7 +336,6 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
 
     if len(trip_meetings) == 0:
         # Since there are no trip meetings, there can only be 1 similarity table and 1 nearby places array
-
         if len(nearby_places) != 1 or len(similarity_tables) != 1:
             raise ValueError(
                 "nearby_places or similarity_table incorrect length")
@@ -342,7 +344,6 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
             slot['place_similarity'] = similarity_tables[0]
             slot['places_dict'] = nearby_places[0]
     else:
-
         for meeting in trip_meetings:
             meeting['start'] = datetime.strptime(
                 meeting['start'], format_trips)
@@ -386,21 +387,24 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
                 other_places.append(obj)
 
         breakfast_places = sorted(
-            breakfast_places, key=lambda x: x['similarity'], reverse=True)
+            breakfast_places, key=lambda x: x['similarity'])
         restaurant_places = sorted(
-            restaurant_places, key=lambda x: x['similarity'], reverse=True)
+            restaurant_places, key=lambda x: x['similarity'])
         other_places = sorted(
-            other_places, key=lambda x: x['similarity'], reverse=True)
-
+            other_places, key=lambda x: x['similarity'])
+        highestPlace = None
         if len(breakfast_places) > 0 and breakfast_time_range['start'] <= slot_start.time() and slot_end.time() <= breakfast_time_range['end']:
-            slot['place_similarity'] = addHighestPlace(
+            highestPlace = addHighestPlace(
                 breakfast_places, nearby_places_picked)
-        elif len(restaurant_places) > 0 and ((lunch_time_range['start'] <= slot_start.time() and slot_end.time() <= lunch_time_range['end']) or (dinner_time_range['start'] <= slot_start.time() and slot_end.time() <= dinner_time_range['end'])):
-            slot['place_similarity'] = addHighestPlace(
+
+        if highestPlace is None and len(restaurant_places) > 0 and ((lunch_time_range['start'] <= slot_start.time() and slot_end.time() <= lunch_time_range['end']) or (dinner_time_range['start'] <= slot_start.time() and slot_end.time() <= dinner_time_range['end'])):
+            highestPlace = addHighestPlace(
                 restaurant_places, nearby_places_picked)
-        else:
-            slot['place_similarity'] = addHighestPlace(
+
+        if highestPlace is None:
+            highestPlace = addHighestPlace(
                 other_places, nearby_places_picked)
+        slot['place_similarity'] = highestPlace
         del slot['places_dict']
 
     # raise NotImplemented('WIP')
