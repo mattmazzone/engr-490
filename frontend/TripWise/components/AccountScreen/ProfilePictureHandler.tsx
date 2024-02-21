@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Image,
   Alert,
@@ -11,11 +11,13 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { FIREBASE_STORAGE } from "../../FirebaseConfig";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import ThemeContext from "../../context/ThemeContext";
 
 const ProfilePictureUploader = ({ userID }: { userID: string }) => {
   const [profileImageUrl, setProfileImageUrl] = useState<string>("");
   const [imageNotFound, setImageNotFound] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { theme } = useContext(ThemeContext);
 
   useEffect(() => {
     setIsLoading(true);
@@ -130,7 +132,7 @@ const ProfilePictureUploader = ({ userID }: { userID: string }) => {
             borderColor: "#ccc",
           }}
         >
-          <Text style={{ textAlign: "center" }}>
+          <Text style={{ textAlign: "center", color: theme === "Dark" ? "white" : "black" }}>
             Click to upload a Profile Picture
           </Text>
         </View>
