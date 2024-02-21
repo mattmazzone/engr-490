@@ -23,7 +23,7 @@ async function useGetNearbyPlacesSevice(
   longitude,
   maxNearbyPlaces,
   nearByPlaceRadius,
-  includedTypes
+  includedTypes,
 ) {
   const payload = {
     includedTypes,
@@ -43,7 +43,7 @@ async function useGetNearbyPlacesSevice(
   // Get nearby place ids and types
   let [successOrNot, responseData] = await getNearbyPlaces(
     payload,
-    "places.id,places.types,places.displayName,places.formattedAddress,places.priceLevel,places.rating,places.regularOpeningHours"
+    "places.id,places.types,places.displayName,places.formattedAddress,places.priceLevel,places.rating,places.regularOpeningHours",
   );
 
   if (successOrNot != REQUEST.SUCCESSFUL) {
@@ -57,7 +57,7 @@ async function useGetNearbyPlacesSevice(
 async function getCoords(meeting) {
   // console.log("Getting coords for meeting location", meeting);
   const [successOrNot, responseData] = await getPlaceTextSearch(
-    meeting.location
+    meeting.location,
   );
   if (successOrNot != REQUEST.SUCCESSFUL) {
     error = responseData;
@@ -98,7 +98,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       tripMeetings,
       dailyStartTime,
       dailyEndTime,
-      bufferInMinutes
+      bufferInMinutes,
     );
 
     const [success, interests] = await getUserInterests(uid, db);
@@ -133,7 +133,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         location.lng,
         maxNearbyPlaces,
         nearByPlaceRadius,
-        includedTypes
+        includedTypes,
       );
 
       nearbyPlaces.push(responseData.places);
@@ -144,7 +144,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       admin,
       db,
       uid,
-      maxRecentTrips
+      maxRecentTrips,
     );
 
     if (successOrNotTrips != REQUEST.SUCCESSFUL) {
@@ -199,7 +199,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
           "Content-Type": "application/json",
           Authorization: token,
         },
-      }
+      },
     );
     const { scheduledActivities } = response.data;
     // Construct trip data for database
@@ -249,7 +249,64 @@ router.post("/end_trip/:uid", authenticate, async (req, res) => {
     const user = await db.collection("users").doc(uid).get();
     const userData = user.data();
     const tripId = userData.currentTrip;
-    console.log(tripId);
+
+    // Select a picture for the trip
+    const trip = await db.collection("trips").doc(tripId).get();
+    const tripData = trip.data();
+    const scheduledActivities = tripData.scheduledActivities;
+    const scheduledActivity = scheduledActivities[0];
+    const placeId = scheduledActivity.place_similarity.place_id;
+
+    // Get place details
+    const [successOrNotPlaceDetails, responsePlaceDetails] =
+      await getPlaceDetails(placeId, "id,displayName,photos");
+    if (successOrNotPlaceDetails != REQUEST.SUCCESSFUL) {
+      error = responsePlaceDetails;
+      console.error("Error getting place details");
+      res.status(400).json(error);
+      return;
+    }
+    const placeDetails = responsePlaceDetails;
+    const photos = placeDetails.photos;
+
+    // Loop through photos and select the first horizontal photo
+    // If no horizontal photo is found, select the first photo
+    let photoName = "";
+    for (const photo of photos) {
+      if (photo.widthPx > photo.heightPx) {
+        photoName = photo.name;
+        break;
+      }
+    }
+    if (photoName === "") {
+      photoName = photos[0].name;
+    }
+
+    // Get the photo
+    const photoUrl = `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=400&maxWidthPx=400&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+
+    // Download the photo then upload to firebase storage
+    const photoResponse = await axios.get(photoUrl, {
+      responseType: "arraybuffer",
+    });
+    const photoBuffer = Buffer.from(photoResponse.data, "binary");
+    const fileName = `${tripId}.jpg`;
+    const photoPath = `trip-pictures/${fileName}`;
+    const bucket = admin.storage().bucket();
+    const file = bucket.file(photoPath);
+    const stream = file.createWriteStream({
+      metadata: {
+        contentType: "image/jpeg",
+      },
+    });
+    stream.end(photoBuffer);
+    stream.on("error", (err) => {
+      console.error("Error uploading file to Firebase Storage:", err);
+    });
+
+    stream.on("finish", () => {
+      console.log("File uploaded successfully to Firebase Storage.");
+    });
 
     // Add trip to user's past trips
     await db
@@ -310,10 +367,9 @@ router.get("/searchAddress:query", authenticate, async (req, res) => {
     const data = await response.json();
     return res.status(200).json(data);
   } catch (error) {
-    console.error('Error fetching from Google Places API:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error("Error fetching from Google Places API:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
-
 });
 
 module.exports = router;

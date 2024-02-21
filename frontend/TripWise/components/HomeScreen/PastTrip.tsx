@@ -17,12 +17,14 @@ import ThemeContext from "../../context/ThemeContext";
 const PastTrip = ({ pastTrip }: any) => {
   const { theme } = useContext(ThemeContext);
   const [pastTripData, setPastTripData] = useState<TripType | null>(null);
-  const [isFetching, setIsFetching] = useState<boolean>(true);
   const [tripDetailsModalVisible, setTripDetailsModalVisible] =
     useState<boolean>(false);
+  const [pastTripImageUrl, setPastTripImageUrl] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [fadeAnim] = useState(new Animated.Value(0)); // Initial opacity is 0
 
   useEffect(() => {
+    setIsLoading(true);
     const fetchPastTripData = async () => {
       try {
         const fetchedData = await UserService.fetchPastTripData(pastTrip);
@@ -37,7 +39,7 @@ const PastTrip = ({ pastTrip }: any) => {
       } catch (error) {
         console.error("Error fetching past trip data:", error);
       } finally {
-        setTimeout(() => setIsFetching(false), 3000); // Delay hiding skeleton
+        setTimeout(() => setIsLoading(false), 3000); // Delay hiding skeleton
       }
     };
     fetchPastTripData();
@@ -66,7 +68,7 @@ const PastTrip = ({ pastTrip }: any) => {
       month: "short",
       day: "numeric",
       year: "numeric",
-    }
+    },
   );
 
   const formattedEndDate = new Date(pastTripData.tripEnd).toLocaleString(
@@ -75,7 +77,7 @@ const PastTrip = ({ pastTrip }: any) => {
       month: "short",
       day: "numeric",
       year: "numeric",
-    }
+    },
   );
 
   return (
