@@ -43,7 +43,7 @@ const Home = ({ navigation }: RouterProps) => {
   useFocusEffect(
     React.useCallback(() => {
       loadTripData();
-    }, [])
+    }, []),
   );
 
   if (isFetchingProfile) {
