@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     columnGap: 15,
     width: "100%",
     marginBottom: 20,
