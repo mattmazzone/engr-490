@@ -117,7 +117,7 @@ const ProfilePictureUploader = ({ userID }: { userID: string }) => {
   return (
     <Pressable onPress={handleChoosePhoto}>
       {isLoading ? (
-        <ActivityIndicator size="large" color="rgba(34, 170, 85, 1" /> // Display a loading indicator when isLoading is true
+        <ActivityIndicator size="large" color="rgba(34, 170, 85, 1)" /> // Display a loading indicator when isLoading is true
       ) : imageNotFound ? (
         <View
           style={{
