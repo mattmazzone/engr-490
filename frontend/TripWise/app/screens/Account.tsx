@@ -6,12 +6,10 @@ import {
   ScrollView,
   Text,
   StyleSheet,
-  TouchableOpacity,
   useWindowDimensions,
-  Image,
   Modal,
 } from "react-native";
-import SettingOption from '../../components/AccountScreen/SettingOption';
+import SettingOption from "../../components/AccountScreen/SettingOption";
 import { UserSettings } from "../../types/userTypes";
 import * as UserService from "../../services/userServices";
 import { NavigationProp } from "@react-navigation/native";
@@ -21,12 +19,13 @@ import PrivacySettingsLogo from "../../components/SVGLogos/PrivacySettingsLogo";
 import BackupAndRestoreLogo from "../../components/SVGLogos/BackupAndRestoreLogo";
 import HelpAndSupportLogo from "../../components/SVGLogos/HelpAndSupportLogo";
 import AccountLogo from "../../components/SVGLogos/AccountLogo";
-import LogoutLogo from "../../components/SVGLogos/LogoutLogo"
+import LogoutLogo from "../../components/SVGLogos/LogoutLogo";
 import AccountSettingPage from "../../components/AccountScreen/AccountSettings";
-import AppSettingsPage from '../../components/AccountScreen/AppSettings'
-import About from '../../components/AccountScreen/About';
-import NotificationScreen from '../../components/AccountScreen/NotificationScreen'; // Your SettingOption component
-import ThemeContext from '../../context/ThemeContext';
+import ProfilePictureUploader from "../../components/AccountScreen/ProfilePictureHandler";
+import AppSettingsPage from "../../components/AccountScreen/AppSettings";
+import About from "../../components/AccountScreen/About";
+import NotificationScreen from "../../components/AccountScreen/NotificationScreen"; // Your SettingOption component
+import ThemeContext from "../../context/ThemeContext";
 import TripWiseLogoSmall from "../../components/SVGLogos/TripWiseLogoSmall";
 import Background from "../../components/Background";
 
@@ -35,10 +34,9 @@ interface RouterProps {
 }
 
 const SettingsScreen = ({ navigation }: RouterProps) => {
-
   const { width } = useWindowDimensions();
   const isLargeScreen = width > 766;
-  const [activeSetting, setActiveSetting] = useState('app');
+  const [activeSetting, setActiveSetting] = useState("app");
 
   const { theme } = useContext(ThemeContext);
   const { userProfile, isFetchingProfile } = useUserProfile({
@@ -56,7 +54,8 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
     useState<boolean>(false);
   const [appSettingsVisible, setAppSettingsModalVisible] =
     useState<boolean>(false);
-  const [accountSettingsVisible, setAccountSettingsVisible] = useState<boolean>(false)
+  const [accountSettingsVisible, setAccountSettingsVisible] =
+    useState<boolean>(false);
 
   // Get user settings
   useEffect(() => {
@@ -85,51 +84,78 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
 
   const renderContent = () => {
     switch (activeSetting) {
-      case 'app':
-        return <AccountSettingPage isVisible closeModal={() => setActiveSetting('')} useModal={false} />
-      case 'settings':
-        return <AppSettingsPage isVisible={true} userSettings={userSettings} updateUserSettings={updateUserSettings} closeModal={() => setActiveSetting('')} useModal={false} />;
-      case 'notification':
-        return <NotificationScreen />
-      case 'about':
-        return <About />
+      case "app":
+        return (
+          <AccountSettingPage
+            isVisible
+            closeModal={() => setActiveSetting("")}
+            useModal={false}
+          />
+        );
+      case "settings":
+        return (
+          <AppSettingsPage
+            isVisible={true}
+            userSettings={userSettings}
+            updateUserSettings={updateUserSettings}
+            closeModal={() => setActiveSetting("")}
+            useModal={false}
+          />
+        );
+      case "notification":
+        return <NotificationScreen />;
+      case "about":
+        return <About />;
       default:
         return <View />;
     }
   };
 
   if (isLargeScreen) {
-
     return (
-      <View style={[styles.container, { backgroundColor: theme === 'Dark' ? '#171F21' : 'white' }]}>
-        <ScrollView style={[styles.sidebar, { backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }]}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: theme === "Dark" ? "#171F21" : "white" },
+        ]}
+      >
+        <ScrollView
+          style={[
+            styles.sidebar,
+            {
+              backgroundColor:
+                theme === "Dark" ? "#12181A" : "rgba(240, 241, 241, 0.69)",
+            },
+          ]}
+        >
           <View style={styles.header}>
-            {/* Profile image and name */}
-            <Image source={{}} style={styles.profileImage} />
             {userProfile && (
-              <Text
-                style={[
-                  styles.profileName,
-                  { color: theme === "Dark" ? "white" : "black" },
-                ]}
-              >
-                {`${userProfile.firstName} ${userProfile.lastName}`}
-              </Text>
+              <>
+                <ProfilePictureUploader userID={userProfile.uid} />
+                <Text
+                  style={[
+                    styles.profileName,
+                    { color: theme === "Dark" ? "white" : "black" },
+                  ]}
+                >
+                  {`${userProfile.firstName} ${userProfile.lastName}`}
+                </Text>
+              </>
             )}
           </View>
           <SettingOption
             icon={<AccountLogo focused={true} />}
             title="Account Settings"
-            onPress={() => setActiveSetting('app')}
+            onPress={() => setActiveSetting("app")}
             hasBorder={false}
-            isActive={activeSetting === 'app'}
+            isActive={activeSetting === "app"}
           />
           <SettingOption
             icon={<AppSettingsLogo />}
             title="App Settings"
-            onPress={() => setActiveSetting('settings')}
+            onPress={() => setActiveSetting("settings")}
             hasBorder={false}
-            isActive={activeSetting === 'settings'}
+            isActive={activeSetting === "settings"}
           />
           <SettingOption
             icon={<PrivacySettingsLogo />}
@@ -157,10 +183,10 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
           />
           <SettingOption
             title="About"
-            onPress={() => setActiveSetting('about')}
+            onPress={() => setActiveSetting("about")}
             icon={<TripWiseLogoSmall />}
             hasBorder={false}
-            isActive={activeSetting === 'about'}
+            isActive={activeSetting === "about"}
           />
           <SettingOption
             title="Sign Out"
@@ -169,33 +195,30 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             hasBorder={false}
           />
         </ScrollView>
-        <View style={styles.contentArea}>
-          {renderContent()}
-        </View>
+        <View style={styles.contentArea}>{renderContent()}</View>
       </View>
     );
-
-  }
-  else {
+  } else {
     return (
       <Background>
         <View style={styles.container}>
           <ScrollView style={styles.settings}>
             <View style={styles.header}>
-              {/* Profile image and name */}
-              <Image source={{}} style={styles.profileImage} />
               {userProfile && (
-                <Text
-                  style={[
-                    styles.profileName,
-                    { color: theme === "Dark" ? "white" : "black" },
-                  ]}
-                >
-                  {`${userProfile.firstName} ${userProfile.lastName}`}
-                </Text>
+                <>
+                  <ProfilePictureUploader userID={userProfile.uid} />
+                  <Text
+                    style={[
+                      styles.profileName,
+                      { color: theme === "Dark" ? "white" : "black" },
+                    ]}
+                  >
+                    {`${userProfile.firstName} ${userProfile.lastName}`}
+                  </Text>
+                </>
               )}
             </View>
-            {/* Settings options with icons */}
+
             <SettingOption
               icon={<AccountLogo focused={false} />}
               title="Account Settings"
@@ -240,7 +263,6 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
               }}
               hasBorder={true}
             />
-            {/* Logout button */}
             <SettingOption
               title="Sign Out"
               onPress={handleLogout}
@@ -251,7 +273,8 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
           <AccountSettingPage
             isVisible={accountSettingsVisible}
             closeModal={() => setAccountSettingsVisible(false)}
-            useModal={true} />
+            useModal={true}
+          />
           <AppSettingsPage
             isVisible={appSettingsVisible}
             userSettings={userSettings}
@@ -267,14 +290,11 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
               setAboutModalVisible(!aboutModalVisible);
             }}
           >
-
             <About
               closeModal={() => setAboutModalVisible(false)}
               navigation={navigation}
             />
           </Modal>
-
-
         </View>
       </Background>
     );
@@ -284,8 +304,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'row',
-
+    flexDirection: "row",
   },
   sidebar: {
     flexGrow: 0,
@@ -294,7 +313,7 @@ const styles = StyleSheet.create({
     padding: 20, // Adjust padding to your preference
     borderRadius: 10, // Rounded corners
     // Shadow for iOS
-    shadowColor: '#184D47',
+    shadowColor: "#184D47",
     shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -313,12 +332,6 @@ const styles = StyleSheet.create({
 
     borderRadius: 3,
   },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#ccc", // Placeholder color
-  },
   profileName: {
     fontSize: 20,
     marginTop: 10,
@@ -326,19 +339,18 @@ const styles = StyleSheet.create({
   },
   settings: {
     borderRadius: 3,
-
   },
   logoutButton: {
     backgroundColor: "rgba(255, 0, 0, 0.8)",
     padding: 10,
     alignItems: "center",
-    justifyContent: 'center',
+    justifyContent: "center",
     marginTop: 10,
     borderRadius: 3,
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   logoutIcon: {
-    justifyContent: 'flex-start',
+    justifyContent: "flex-start",
   },
   logoutButtonText: {
     color: "#fff",
