@@ -62,7 +62,7 @@ const Home = ({ navigation }: RouterProps) => {
         <View
           style={[
             styles.header,
-            { backgroundColor: theme === "Dark" ? "black" : "white" },
+            { backgroundColor: theme === "Dark" ? "#171F21" : "#FFFFFF" },
           ]}
         >
           <View style={styles.logoContainer}>
@@ -83,10 +83,7 @@ const Home = ({ navigation }: RouterProps) => {
               style={styles.button}
             >
               <Text
-                style={[
-                  styles.buttonText,
-                  { color: theme === "Dark" ? "white" : "black" },
-                ]}
+                style={styles.buttonText}
               >
                 {currentTrip ? "View Trip Details" : "Plan a Trip"}
               </Text>
@@ -135,12 +132,13 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "rgba(34, 170, 85, 1)",
     padding: 10,
-    borderRadius: 25,
+    borderRadius: 5,
     justifyContent: "center",
   },
   buttonText: {
+    color: "white",
     textAlign: "center",
     fontWeight: "bold",
-    fontSize: 12,
+    fontSize: 16,
   },
 });
