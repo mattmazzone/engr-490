@@ -70,7 +70,7 @@ const About = ({ closeModal, navigation }: any) => {
   return (
     <Background>
       <SafeAreaView style={styles.container}>
-        {isScreenSmall && <BackButton onPress={() => closeModal()} />} {/* Conditionally render the Back Button */}
+        {isScreenSmall && <BackButton onPress={() => closeModal()} />} 
         <Text style={{ color: theme === "Dark" ? "white" : "black" }}>About Modal</Text>
         <Pressable onPress={() => testGoogleAPI()} style={styles.button}>
           <Text style={styles.buttonText}>Test Google API</Text>
