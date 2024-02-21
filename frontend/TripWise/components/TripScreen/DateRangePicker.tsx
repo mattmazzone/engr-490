@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
+import { Text, View, Pressable, StyleSheet } from "react-native";
 import {
   DatePickerModal,
   registerTranslation,
@@ -52,7 +52,7 @@ const DateRangePicker = ({ onData }: DateRangePickerProps) => {
         Start by selecting the dates of your trip
       </Text>
       <View style={styles.dateContainer}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => setOpenDate(true)}
           style={styles.pickRangeBtn}
         >
@@ -61,7 +61,7 @@ const DateRangePicker = ({ onData }: DateRangePickerProps) => {
           ) : (
             <Text style={styles.pickRangeBtnTxt}>Select Dates</Text>
           )}
-        </TouchableOpacity>
+        </Pressable>
         {rangeDate.startDate && rangeDate.endDate ? (
           <View>
             <Text style={[styles.dateRangeText, {color: theme === "Dark" ? "#fff" : "#000",}]}>

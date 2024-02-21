@@ -2,7 +2,7 @@ import { NavigationProp } from "@react-navigation/native";
 import React, { useState, useContext } from "react";
 import {
   Text,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   SafeAreaView,
   ScrollView,
@@ -180,7 +180,7 @@ const Trip = ({ navigation }: RouterProps) => {
                 meetings={meetings}
                 onDeleteMeeting={deleteMeeting}
               />
-              <TouchableOpacity
+              <Pressable
                 onPressIn={() => {
                   setConfirmTripModalVisible(true);
                 }}
@@ -188,7 +188,7 @@ const Trip = ({ navigation }: RouterProps) => {
                 disabled={!rangeDate.startDate || !rangeDate.endDate}
               >
                 <Text style={styles.buttonText}>Create Trip</Text>
-              </TouchableOpacity>
+              </Pressable>
             </>
           ) : (
             <></>

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { TouchableOpacity, Text, View, StyleSheet, Platform } from 'react-native';
+import { Pressable, Text, View, StyleSheet, Platform } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import ThemeContext from '../../context/ThemeContext';
 
@@ -31,7 +31,7 @@ const SettingOption = ({ icon, title, onPress, hasBorder, isActive }: SettingOpt
 
   return (
     <View>
-      <TouchableOpacity style={[styles.settingOption,
+      <Pressable style={[styles.settingOption,
       hasBorder && styles.settingOptionBorder,
         dynamicStyle // Use dynamic style based on hover or active state,
 
@@ -46,7 +46,7 @@ const SettingOption = ({ icon, title, onPress, hasBorder, isActive }: SettingOpt
         <Text style={[styles.settingTitle, { color: theme === 'Dark' ? 'lightgrey' : 'black' }]}>
           {title}
         </Text>
-      </TouchableOpacity>
+      </Pressable>
       {hasBorder && <View style={[styles.separator, { borderBottomColor: theme === 'Dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)' }]} />}
     </View>
   );
