@@ -12,6 +12,9 @@ const {
   getPlaceTextSearch,
   getUserInterests,
 } = require("../utils/services");
+const {
+  getRestaurants,
+} = require("../utils/here")
 const axios = require("axios");
 
 const recommenderPort = 4000;
@@ -141,6 +144,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     // 2d array of places for each meeting location except the 1st one
     let nearbyPlaces = [];
+    let nearbyRestaurants = [];
 
     const numMeetings = tripMeetings.length;
 
@@ -161,8 +165,11 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         nearByPlaceRadius,
         includedTypes
       );
+      const restoData = await getRestaurants(location.lat, location.lng, maxNearbyPlaces, includedTypes)
 
       nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
+      nearbyPlaces.push(responseData.places);
+      nearbyRestaurants.push(restoData);
     }
 
     // Get user's recent trips from firestore
@@ -229,7 +236,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     );
     const { scheduledActivities } = response.data;
     // Construct trip data for database
-    const tripData = {
+    let tripData = {
       tripStart,
       tripEnd,
       tripMeetings,
