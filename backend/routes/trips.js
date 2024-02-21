@@ -168,7 +168,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       const restoData = await getRestaurants(location.lat, location.lng, maxNearbyPlaces, includedTypes)
 
       nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
-      nearbyPlaces.push(responseData.places);
       nearbyRestaurants.push(restoData);
     }
 
