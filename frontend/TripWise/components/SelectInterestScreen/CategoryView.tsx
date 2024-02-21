@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   selectedInterestButton: {
-    backgroundColor: "#2a5",
+    backgroundColor: "rgba(34, 170, 85, 1)",
   },
   interestButton: {
     padding: 10,
