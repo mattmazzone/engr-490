@@ -4,6 +4,8 @@ from datetime import date, datetime, timedelta, time
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import random
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
 
 # https://developers.google.com/maps/documentation/places/web-service/place-types
 place_types = {
@@ -402,3 +404,41 @@ def create_interests_df(interests):
     data.append(place_types_copy)
     interests_df = pd.DataFrame(data)
     return interests_df
+
+
+def create_type_vector(item_types, all_types):
+    """Create a binary vector for the item types based on all_types."""
+    return [1 if typ in item_types else 0 for typ in all_types]
+
+def calculate_cosine_similarity(vector1, vector2):
+    """Calculate cosine similarity between two vectors."""
+    v1, v2 = np.array(vector1).reshape(1, -1), np.array(vector2).reshape(1, -1)
+    return cosine_similarity(v1, v2)[0][0]
+
+def calculate_similarity_score(current_item, past_items, all_types):
+    """
+    Calculate the maximum cosine similarity score between the current item and past items based on their types.
+
+    Parameters:
+    - current_item: dict with 'types' key representing categories of the current item.
+    - past_items: list of dicts, each with a 'types' key representing categories of past items.
+    - all_types: list or set of all predefined unique types for vectorization.
+
+    Returns:
+    - max_similarity: The highest cosine similarity score between the current item and any of the past items.
+    """
+    
+    # Create binary vectors for the current and past items types
+    current_vector = np.array(create_type_vector(current_item['types'], all_types)).reshape(1, -1)
+    
+    # Initialize max similarity
+    max_similarity = 0
+    
+    # Iterate through past items to calculate similarities
+    for past_item in past_items:
+        past_vector = np.array(create_type_vector(past_item['types'], all_types)).reshape(1, -1)
+        similarity = cosine_similarity(current_vector, past_vector)[0][0]
+        max_similarity = max(max_similarity, similarity)
+    
+    return max_similarity
+
