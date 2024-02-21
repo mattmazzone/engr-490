@@ -145,7 +145,7 @@ const AccountPage = ({
     <Background>
 
       <View style={[styles.container, { backgroundColor: theme === 'Dark' ? '#12181A' : 'rgba(240, 241, 241, 0.69)' }, isScreenSmall ? { margin: 10, alignItems: 'center', alignSelf: 'center', width: '90%' } : { margin: 80, alignSelf: 'flex-start' },]}>
-        {isScreenSmall && <BackButton onPress={() => closeModal()} />} {/* Conditionally render the Back Button */}
+        {isScreenSmall && <BackButton onPress={() => closeModal()} />} 
         <Text style={[styles.header, { color: theme === 'Dark' ? 'white' : 'black' }]}>
           Account
         </Text >
