@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     maxWidth: 300, // Set a max-width for large screens
     alignSelf: 'center',
     width: '100%',
-    marginBottom:12,
+    marginBottom: 12,
   },
   inputTitles : {
     fontSize: 15,

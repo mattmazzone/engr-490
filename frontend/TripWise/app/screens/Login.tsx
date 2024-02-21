@@ -54,9 +54,7 @@ const Login = ({ navigation }: RouterProps) => {
     setPasswordError(null);
     
     try {
-      const user = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
-      console.log(user);
-      // Assuming user always already has they're interests set
+      await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
 
     } catch (error) {
       console.log(error);
@@ -188,6 +186,7 @@ const styles = StyleSheet.create({
     maxWidth: 300, // Set a max-width for large screens
     alignSelf: 'center',
     width: '100%',
+    marginBottom: 12,
   },
   inputTitles : {
     fontSize: 15,
@@ -196,7 +195,6 @@ const styles = StyleSheet.create({
   },
   input: {
     marginTop: 10,
-    marginBottom: 12,
     width: 300,
     height: 45, // Adjusted height
     borderRadius: 10, // Rounded corners
