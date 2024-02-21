@@ -117,6 +117,10 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     let nearbyPlaces = [];
     let nearbyRestaurants = [];
 
+    // Get nearby restaurants
+    nearbyRestaurants = await processDaysAndGetRestaurants(tripStart, tripEnd, tripMeetings);
+    console.log("NEARBY RESTAURANTS", nearbyRestaurants[3].lunchDinner);
+
     const numMeetings = tripMeetings.length;
 
     for (let i = 0; i < numMeetings; i++) {
@@ -138,9 +142,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       nearbyPlaces.push(responseData.places);
     }
 
-    // Get nearby restaurants
-    nearbyRestaurants = await processDaysAndGetRestaurants(tripStart, tripEnd, tripMeetings);
-    console.log("NEARBY RESTAURANTS", nearbyRestaurants[3].lunchDinner);
+
 
     // Get user's recent trips from firestore
     let [successOrNotTrips, responseDataTrips] = await getRecentTrips(
@@ -161,11 +163,18 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     // Extract google place IDs and types from recent trips
     // using the places details API
     let recentTripsPlaceDetails = [];
+    let recentRestaurants = [];
     for (const trip of recentTrips) {
       const recentTripMeetings = trip.data().scheduledActivities;
 
       for (const place of recentTripMeetings) {
+        console.log('Place', place);
         const placeId = place.place_similarity.place_id;
+        //Seperate the here places from the google places
+        if (placeId.startsWith("here")) {
+          recentRestaurants.push(place);
+          continue;
+        }
         const [successOrNotPlaceDetails, responsePlaceDetails] =
           await getPlaceDetails(placeId, "id,types");
         if (successOrNotPlaceDetails != REQUEST.SUCCESSFUL) {
@@ -179,10 +188,10 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         placeDetails.rating = place.rating;
         recentTripsPlaceDetails.push(placeDetails);
 
-        if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
+        if (recentTripsPlaceDetails.length >= maxRecentTrips || recentRestaurants.length >= maxRecentTrips) break;
       }
 
-      if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
+      if (recentTripsPlaceDetails.length >= maxRecentTrips || recentRestaurants.length >= maxRecentTrips) break;
     }
 
     // console.log(nearbyPlaces);
@@ -192,7 +201,9 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       recommenderURL,
       {
         nearbyPlaces,
+        nearbyRestaurants,
         recentTripsPlaceDetails,
+        recentRestaurants,
         freeSlots,
         tripMeetings,
         interests,
