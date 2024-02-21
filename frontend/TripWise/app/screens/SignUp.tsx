@@ -51,7 +51,6 @@ const SignUp = ({ navigation, route }: RouterProps) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [firstNameValid, setFirstNameValid] = useState(true);
-  const [lastNameValid, setLastNameValid] = useState(true);
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [isPasswordValid, setIsPasswordValid] = useState(true);
 
@@ -76,13 +75,6 @@ const SignUp = ({ navigation, route }: RouterProps) => {
       isFormValid = false;
     } else {
       setFirstNameValid(true);
-    }
-
-    if (!isValidName(lastName)) {
-      setLastNameValid(false);
-      isFormValid = false;
-    } else {
-      setLastNameValid(true);
     }
 
     if (!isValidEmail(email)) {
@@ -161,21 +153,14 @@ const SignUp = ({ navigation, route }: RouterProps) => {
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputTitles}>
                     Last Name
-                    <Text style={{ color: "red" }}>*</Text>
                   </Text>
                   <TextInput
                     placeholder="Enter your last name"
-                    style={[
-                      styles.input,
-                      !lastNameValid ? styles.inputInvalid: null,
-                    ]}
+                    style={styles.input}
                     value={lastName}
                     onChangeText={setLastName}
                     placeholderTextColor={'#c7c7c7'}
                   />
-                  {!lastNameValid && (
-                      <Text style={styles.errorText}>Required Field</Text>
-                  )}
                 </View>
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputTitles}>
