@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 18,
+    fontWeight: "bold",
     marginRight: 30, // add some space between text and logo
     color: "white",
   },

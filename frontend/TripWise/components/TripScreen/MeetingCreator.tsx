@@ -251,7 +251,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
-
   pickRangeBtn: {
     backgroundColor: "rgba(34, 170, 85, 1)",
     padding: 10,
