@@ -2,6 +2,7 @@ from ast import Raise
 import copy
 from datetime import date, datetime, timedelta, time, timezone
 from weakref import ref
+from tkinter import NO
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import random
@@ -307,16 +308,19 @@ def find_relavent_meeting(trip_meetings, end_time):
 
 
 def addHighestPlace(places, nearby_places_picked):
-    for place in places:
+    while len(places) > 0:
+        place = places.pop()
         best_place_id = place['info']['id']
         if best_place_id not in nearby_places_picked:
             nearby_places_picked.add(best_place_id)
             return {'place_id': best_place_id, 'place_name': place['info']['displayName']['text'], 'address': place['info']['formattedAddress'], 'score': place['similarity']}
+    return None
 
 
 def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings, time_zones):
     format_trips = '%Y-%m-%dT%H:%M:%S%z'
-    format_slots = '%Y-%m-%dT%H:%M:%S.%f%z'
+    format_slots = ['%Y-%m-%dT%H:%M:%S.%f%z',
+                    '%Y-%m-%dT%H:%M:%S.%f%Z',]
     activity_duration = timedelta(hours=1.5)
     broken_up_free_slots = []
 
@@ -333,29 +337,59 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
         trip_meetings[i]['nearby_place_similarities'] = similarity_tables[i]
 
     for slot in free_slots:
-        slot_start = datetime.strptime(slot['start'], format_slots)
-        slot_start = slot_start.replace(tzinfo=timezone.utc)
-        slot_end = datetime.strptime(slot['end'],  format_slots)
-        slot_end = slot_end.replace(tzinfo=timezone.utc)
-        timezone_offset = timedelta(seconds=time_zones[0]['rawOffset'] + time_zones[0]['dstOffset'])
-        new_timezone = timezone(timedelta(hours = ((timezone_offset.seconds/3600) - 24)))
-        slot_start = slot_start + timezone_offset
-        slot_start = slot_start.replace(tzinfo=new_timezone)
-        slot_end = slot_end + timezone_offset
-        slot_end = slot_end.replace(tzinfo=new_timezone)
+        formatted = False
+        for format in format_slots:
+            try:
+                slot_start = datetime.strptime(slot['start'], format)
+                slot_start = slot_start.replace(tzinfo=timezone.utc)
+                slot_end = datetime.strptime(slot['end'],  format)
+                slot_end = slot_end.replace(tzinfo=timezone.utc)
+                timezone_offset = timedelta(seconds=time_zones[0]['rawOffset'] + time_zones[0]['dstOffset'])
+                new_timezone = timezone(timedelta(hours = ((timezone_offset.seconds/3600) - 24)))
+                slot_start = slot_start + timezone_offset
+                slot_start = slot_start.replace(tzinfo=new_timezone)
+                slot_end = slot_end + timezone_offset
+                slot_end = slot_end.replace(tzinfo=new_timezone)
 
-        current_end = slot_start + activity_duration
-        while current_end <= slot_end:
-            current_start = current_end - activity_duration
-            broken_up_free_slots.append(
-                {"start": current_start, "end": current_end})
-            current_end = current_end + activity_duration
+                current_end = slot_start + activity_duration
+                while current_end <= slot_end:
+                    current_start = current_end - activity_duration
+                    broken_up_free_slots.append(
+                        {"start": current_start, "end": current_end})
+                    current_end = current_end + activity_duration
+                formatted = True
+                break
+            except Exception as e:
+                print(e)
 
-    for slot in broken_up_free_slots:
-        index = find_relavent_meeting(trip_meetings, slot['end'])
-        relevant_meeting = trip_meetings[index]
-        slot['place_similarity'] = relevant_meeting['nearby_place_similarities']
-        slot['places_dict'] = nearby_places[index]
+        if not formatted:
+            raise ValueError('No valid date format found')
+
+    if len(trip_meetings) == 0:
+        # Since there are no trip meetings, there can only be 1 similarity table and 1 nearby places array
+        if len(nearby_places) != 1 or len(similarity_tables) != 1:
+            raise ValueError(
+                "nearby_places or similarity_table incorrect length")
+
+        for slot in broken_up_free_slots:
+            slot['place_similarity'] = similarity_tables[0]
+            slot['places_dict'] = nearby_places[0]
+    else:
+        for meeting in trip_meetings:
+            meeting['start'] = datetime.strptime(
+                meeting['start'], format_trips)
+            meeting['end'] = datetime.strptime(meeting['end'], format_trips)
+
+        trip_meetings.sort(key=lambda x: x['start'])
+
+        for i in range(len(similarity_tables)):
+            trip_meetings[i]['nearby_place_similarities'] = similarity_tables[i]
+
+        for slot in broken_up_free_slots:
+            index = find_relavent_meeting(trip_meetings, slot['end'])
+            relevant_meeting = trip_meetings[index]
+            slot['place_similarity'] = relevant_meeting['nearby_place_similarities']
+            slot['places_dict'] = nearby_places[index]
 
     nearby_places_picked = set()
     breakfast_time_range = {"start": time(8, 0, 0), "end": time(10, 0, 0)}
@@ -384,21 +418,31 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
                 other_places.append(obj)
 
         breakfast_places = sorted(
-            breakfast_places, key=lambda x: x['similarity'], reverse=True)
+            breakfast_places, key=lambda x: x['similarity'])
         restaurant_places = sorted(
-            restaurant_places, key=lambda x: x['similarity'], reverse=True)
+            restaurant_places, key=lambda x: x['similarity'])
         other_places = sorted(
-            other_places, key=lambda x: x['similarity'], reverse=True)
+            other_places, key=lambda x: x['similarity'])
 
+        # print(f'length of breakfast_places {len(breakfast_places)}')
+        # print(f'length of restaurant_places {len(restaurant_places)}')
+        # print(f'length of other_places {len(other_places)}')
+        # print()
+
+        highestPlace = None
         if len(breakfast_places) > 0 and breakfast_time_range['start'] <= slot_start.time() and slot_end.time() <= breakfast_time_range['end']:
-            slot['place_similarity'] = addHighestPlace(
+            highestPlace = addHighestPlace(
                 breakfast_places, nearby_places_picked)
-        elif len(restaurant_places) > 0 and ((lunch_time_range['start'] <= slot_start.time() and slot_end.time() <= lunch_time_range['end']) or (dinner_time_range['start'] <= slot_start.time() and slot_end.time() <= dinner_time_range['end'])):
-            slot['place_similarity'] = addHighestPlace(
+
+        if highestPlace is None and len(restaurant_places) > 0 and ((lunch_time_range['start'] <= slot_start.time() and slot_end.time() <= lunch_time_range['end']) or (dinner_time_range['start'] <= slot_start.time() and slot_end.time() <= dinner_time_range['end'])):
+            highestPlace = addHighestPlace(
                 restaurant_places, nearby_places_picked)
-        else:
-            slot['place_similarity'] = addHighestPlace(
+
+        if highestPlace is None:
+            highestPlace = addHighestPlace(
                 other_places, nearby_places_picked)
+        print(highestPlace)
+        slot['place_similarity'] = highestPlace
         del slot['places_dict']
 
     # raise NotImplemented('WIP')
