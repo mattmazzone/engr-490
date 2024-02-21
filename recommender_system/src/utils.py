@@ -436,7 +436,8 @@ def calculate_similarity_score(current_item, past_items, all_types):
     
     # Iterate through past items to calculate similarities
     for past_item in past_items:
-        past_vector = np.array(create_type_vector(past_item['types'], all_types)).reshape(1, -1)
+        past_types = past_item['place_similarity']['types']
+        past_vector = np.array(create_type_vector(past_types, all_types)).reshape(1, -1)
         similarity = cosine_similarity(current_vector, past_vector)[0][0]
         max_similarity = max(max_similarity, similarity)
     
