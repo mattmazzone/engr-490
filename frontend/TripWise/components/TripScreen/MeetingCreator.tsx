@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   addMeetingBtn: {
-    backgroundColor: "#2a5",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     padding: 10,
     borderRadius: 5,
     marginBottom: 5,
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   },
 
   pickRangeBtn: {
-    backgroundColor: "#2a5",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     padding: 10,
     borderRadius: 5,
     marginBottom: 15,
