@@ -4,7 +4,6 @@ import {
   TextInput,
   View,
   StyleSheet,
-  Dimensions,
   Platform,
   Keyboard,
   Pressable,
@@ -142,7 +141,8 @@ const SignUp = ({ navigation, route }: RouterProps) => {
               <View style={styles.loginInputContainer}>
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputTitles}>
-                    First Name*
+                    First Name
+                    <Text style={{ color: "red" }}>*</Text>
                   </Text>
                   <TextInput
                     placeholder="Enter your first name"
@@ -160,7 +160,8 @@ const SignUp = ({ navigation, route }: RouterProps) => {
                 </View>
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputTitles}>
-                    Last Name*
+                    Last Name
+                    <Text style={{ color: "red" }}>*</Text>
                   </Text>
                   <TextInput
                     placeholder="Enter your last name"
@@ -178,7 +179,8 @@ const SignUp = ({ navigation, route }: RouterProps) => {
                 </View>
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputTitles}>
-                    Email*
+                    Email
+                    <Text style={{ color: "red" }}>*</Text>
                   </Text>
                   <TextInput
                     placeholder="Enter your email"
@@ -196,7 +198,8 @@ const SignUp = ({ navigation, route }: RouterProps) => {
                 </View>
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputTitles}>
-                    Password*
+                    Password
+                    <Text style={{ color: "red" }}>*</Text>
                   </Text>
                   <TextInput
                     placeholder="Enter your password"
@@ -280,7 +283,7 @@ const styles = StyleSheet.create({
     height: 45, // Adjusted height
     borderRadius: 10, // Rounded corners
     padding: 10,
-    backgroundColor: "#",
+    backgroundColor: "#f5f7fa",
   },
   inputInvalid: {
     marginTop: 10,
