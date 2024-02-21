@@ -143,6 +143,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     const numMeetings = tripMeetings.length;
 
+    //Checking if atleast 1 meeting has a location
     if (!tripLocation || tripLocation == "") {
       // Get all meeting locations
       let locations = [];
@@ -163,7 +164,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         }
 
         const location = await getCoords(meeting.location);
-      const timeZone = await getTimezone(location.lat, location.lng, meeting.start);
+        const timeZone = await getTimezone(location.lat, location.lng, meeting.start);
       console.log(timeZone);
         const responseData = await useGetNearbyPlacesSevice(
           location.lat,
@@ -173,9 +174,10 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
           includedTypes
         );
 
-        nearbyPlaces.push(responseData.places);
+        nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
       }
     } else {
+      //Need to use tripLocation
       const location = await getCoords(tripLocation);
       const responseData = await useGetNearbyPlacesSevice(
         location.lat,
@@ -184,8 +186,22 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         nearByPlaceRadius,
         includedTypes
       );
+      //No meeting has location
+      if(numMeetings > 0) {
+        for(let i = 0; i < numMeetings; i++){
+          let meeting = tripMeetings[i];
+          const timeZone = await getTimezone(location.lat, location.lng, meeting.start);
+          nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
 
-      nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
+        }
+      }
+      //No meetings at all
+      else {
+        console.log("Trip Start", tripStart);
+        const timeZone = await getTimezone(location.lat, location.lng, tripStart);
+        console.log("TimeZone", timeZone);
+        nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
+    }
     }
     console.log("Nearby Places ", nearbyPlaces);
 
