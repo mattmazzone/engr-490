@@ -4,7 +4,7 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
 } from "react-native";
 import { TimePickerModal } from "react-native-paper-dates";
 import MeetingDateSelector from "./MeetingDateSelector";
@@ -168,7 +168,7 @@ const MeetingCreator = ({
         
       />
       <View style={styles.timeContainer}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => setOpenTimeStart(true)}
           style={styles.pickRangeBtn}
         >
@@ -179,8 +179,8 @@ const MeetingCreator = ({
           ) : (
             <Text style={styles.pickRangeBtnTxt}>Start time</Text>
           )}
-        </TouchableOpacity>
-        <TouchableOpacity
+        </Pressable>
+        <Pressable
           onPress={() => setOpenTimeEnd(true)}
           style={styles.pickRangeBtn}
         >
@@ -191,7 +191,7 @@ const MeetingCreator = ({
           ) : (
             <Text style={styles.pickRangeBtnTxt}>End time</Text>
           )}
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       <MeetingDateSelector
@@ -199,12 +199,12 @@ const MeetingCreator = ({
         onData={getSelectedMeetingDate}
       />
 
-      <TouchableOpacity
+      <Pressable
         onPress={() => addMeeting()}
         style={styles.addMeetingBtn}
       >
         <Text style={styles.addMeetingBtnTxt}>Add Meeting</Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 };
