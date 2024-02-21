@@ -63,13 +63,9 @@ function BottomTabNavigation() {
         },
       })}
     >
-      {/*Change back to Home when done*/}
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Trip" component={Trip} />
-      {/* Dont display in nav */}
-
       <Tab.Screen name="Account" component={Account} />
-      {/* <Tab.Screen name="SelectInterests" component={SelectInterests} /> */}
     </Tab.Navigator>
   );
 }
@@ -84,7 +80,6 @@ function LoggedInStack() {
         options={{ headerShown: false }}
       />
       <MainStack.Screen name="SelectInterests" component={SelectInterests} />
-      {/* Add more screens that should be part of the main stack here */}
     </MainStack.Navigator>
   );
 }
@@ -196,7 +191,6 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      {/*This removes the white top bar on Android */}
       <StatusBar backgroundColor="transparent" translucent={true} />
       <ThemeProvider>
         <NavigationContainer>
