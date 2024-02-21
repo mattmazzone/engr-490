@@ -267,7 +267,7 @@ async function processRestaurantData(data) {
       // Only proceed if all required fields are present and not empty
       if (hasCategories && hasFoodTypes && hasAddress && hasPosition && hasOpeningHours) {
         // Combine categories and foodTypes names into a single list of strings
-        const types = item.categories.map(cat => cat.name).concat(item.foodTypes.map(ft => ft.name));
+        const types = item.categories.map(cat => cat.id).concat(item.foodTypes.map(ft => ft.id));
 
         // Extract the required fields
         const processedItem = {
@@ -276,7 +276,7 @@ async function processRestaurantData(data) {
           address: item.address.label, // Address as a string
           position: item.position, //address coordinates (latitude, longitude)
           openingHours: item.openingHours.map(oh => oh.text), // Opening hours as an array of strings ex: "Mon-Fri: 09:00 - 18:00"
-          types: types // Array of strings with categories and food types
+          types: types // Array of strings with categories and food types IDS
         };
 
         // Add the processed item to the array

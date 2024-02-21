@@ -119,28 +119,28 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     // Get nearby restaurants
     nearbyRestaurants = await processDaysAndGetRestaurants(tripStart, tripEnd, tripMeetings);
-    console.log("NEARBY RESTAURANTS", nearbyRestaurants[3].lunchDinner);
+    console.log("NEARBY RESTAURANTS", nearbyRestaurants[0].lunchDinner);
 
     const numMeetings = tripMeetings.length;
 
-    for (let i = 0; i < numMeetings; i++) {
-      let meeting = tripMeetings[i];
-      if (!meeting.location || meeting.location === "") {
-        console.log("No location for meeting: ", meeting);
-        continue;
-      }
-      const location = await getCoords(meeting);
-      console.log(location);
-      const responseData = await useGetNearbyPlacesSevice(
-        location.lat,
-        location.lng,
-        maxNearbyPlaces,
-        nearByPlaceRadius,
-        includedTypes
-      );
+    // for (let i = 0; i < numMeetings; i++) {
+    //   let meeting = tripMeetings[i];
+    //   if (!meeting.location || meeting.location === "") {
+    //     console.log("No location for meeting: ", meeting);
+    //     continue;
+    //   }
+    //   const location = await getCoords(meeting);
+    //   console.log(location);
+    //   const responseData = await useGetNearbyPlacesSevice(
+    //     location.lat,
+    //     location.lng,
+    //     maxNearbyPlaces,
+    //     nearByPlaceRadius,
+    //     includedTypes
+    //   );
 
-      nearbyPlaces.push(responseData.places);
-    }
+    //   nearbyPlaces.push(responseData.places);
+    // }
 
 
 
