@@ -11,9 +11,10 @@ const {
   getPlaceDetails,
   getPlaceTextSearch,
   getUserInterests,
+  getCoords,
 } = require("../utils/services");
 const {
-  getRestaurants,
+  processDaysAndGetRestaurants,
 } = require("../utils/here")
 const axios = require("axios");
 
@@ -107,6 +108,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       maxNearbyPlaces,
       nearByPlaceRadius,
     } = req.body; // Destructure expected properties
+    console.log(tripStart, tripEnd);
 
     // Validate trip data
     if (!tripStart || !tripEnd) {
@@ -126,6 +128,9 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       dailyEndTime,
       bufferInMinutes
     );
+    console.log("tripMeetings", tripMeetings);
+
+
 
     const [success, interests] = await getUserInterests(uid, db);
     if (success != REQUEST.SUCCESSFUL) {
@@ -144,6 +149,9 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     // 2d array of places for each meeting location except the 1st one
     let nearbyPlaces = [];
     let nearbyRestaurants = [];
+
+    // Get nearby restaurants
+    nearbyRestaurants = await processDaysAndGetRestaurants(tripStart, tripEnd, tripMeetings);
 
     const numMeetings = tripMeetings.length;
 
@@ -226,15 +234,23 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       return;
     }
     const recentTrips = responseDataTrips;
+    console.log("Recent trips", recentTrips);
 
     // Extract google place IDs and types from recent trips
     // using the places details API
     let recentTripsPlaceDetails = [];
+    let recentRestaurants = [];
     for (const trip of recentTrips) {
       const recentTripMeetings = trip.data().scheduledActivities;
 
       for (const place of recentTripMeetings) {
         const placeId = place.place_similarity.place_id;
+
+        //Seperate the here places from the google places
+        if (placeId.startsWith("here")) {
+          recentRestaurants.push(place);
+          continue;
+        }
         const [successOrNotPlaceDetails, responsePlaceDetails] =
           await getPlaceDetails(placeId, "id,types");
         if (successOrNotPlaceDetails != REQUEST.SUCCESSFUL) {
@@ -248,10 +264,10 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         placeDetails.rating = place.rating;
         recentTripsPlaceDetails.push(placeDetails);
 
-        if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
+        if (recentTripsPlaceDetails.length >= maxRecentTrips || recentRestaurants.length >= maxRecentTrips) break;
       }
 
-      if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
+      if (recentTripsPlaceDetails.length >= maxRecentTrips || recentRestaurants.length >= maxRecentTrips) break;
     }
 
     // console.log(nearbyPlaces);
@@ -262,7 +278,9 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       recommenderURL,
       {
         nearbyPlaces,
+        nearbyRestaurants,
         recentTripsPlaceDetails,
+        recentRestaurants,
         freeSlots,
         tripMeetings,
         interests,
