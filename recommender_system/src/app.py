@@ -46,6 +46,21 @@ def authenticate(f):
 
 
 foodTypes = {
+#Categories
+    "100-1000-0000": "Restaurant",
+    "100-1000-0001": "Casual Dining",
+    "100-1000-0002": "Fine Dining",
+    "100-1000-0003": "Take Out and Delivery Only",
+    "100-1000-0004": "Food Market-Stall",
+    "100-1000-0005": "Taqueria",
+    "100-1000-0006": "Deli",
+    "100-1000-0007": "Cafeteria",
+    "100-1000-0008": "Bistro",
+    "100-1000-0009": "Fast Food",
+    "100-1100-0000": "Coffee-Tea",
+    "100-1100-0010": "Coffee Shop",
+    "100-1100-0331": "Tea House",
+    #Cuisines
   "101-000": "American",
   "101-001": "American-Californian",
   "101-002": "American-Southwestern",
@@ -224,18 +239,25 @@ def recommend():
     nearbyRestaurants = request_body['nearbyRestaurants']
     recentRestaurants = request_body['recentRestaurants']
     
-    print("recentRestaurants: ", recentRestaurants)
     
     
     restoTypeList = list(foodTypes.keys())
     
-    for resto in nearbyRestaurants:
-        # Adding similarity score to each restaurant
-        resto["similarity"] = calculate_similarity_score(resto, recentRestaurants, all_types=restoTypeList)
-        print("Resto: ", resto)
+    if len(recent_places) < 5:
+        print("Interests:")
+        # Use interests
+        
+    else:
+        # Do similarity based off past Trips
+        for day_value in nearbyRestaurants.items():
+            for restaurants in day_value.items():
+                for resto in restaurants:
+                    # Adding similarity score to each restaurant
+                    resto["similarity"] = calculate_similarity_score(resto, recentRestaurants, all_types=restoTypeList)
+
         
 
-    if (len(recent_places) + len(recentRestaurants)) < 5:
+    if len(recent_places) < 5:
         # Use interests
         similarity_tables = []
         for places in nearby_places:
@@ -273,9 +295,6 @@ def recommend():
         return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
 
     else:
-        
-
-        
         # Create recent places df & user rating df for the recent places
         # Doesn't ever change
         recent_places_df = create_df(recent_places)
