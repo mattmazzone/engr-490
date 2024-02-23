@@ -1,4 +1,5 @@
 from ast import Raise
+from contextlib import closing
 import copy
 from datetime import date, datetime, timedelta, time, timezone
 from weakref import ref
@@ -306,13 +307,36 @@ def find_relavent_meeting(trip_meetings, end_time):
     return -1
 
 
-def addHighestPlace(places, nearby_places_picked):
+def addHighestPlace(places, nearby_places_picked, start_time, end_time):
+    if start_time.weekday() == 6:
+        weekday = 0
+    else:
+        weekday = start_time.weekday()+1
+
+    print ("Weekday: ", weekday)
+
     for place in places:
         best_place_id = place['info']['id']
         if best_place_id not in nearby_places_picked:
-            nearby_places_picked.add(best_place_id)
-            return {'place_id': best_place_id, 'place_name': place['info']['displayName']['text'], 'address': place['info']['formattedAddress'], 'score': place['similarity']}
+            print("Start time: ", start_time.time())
+            #get the opening time
+            openingDay = place['info']['regularOpeningHours']['periods'][weekday]['open']['day']
+            openingHour = place['info']['regularOpeningHours']['periods'][weekday]['open']['hour']
+            openingMinute = place['info']['regularOpeningHours']['periods'][weekday]['open']['minute']
+            openingTime = time(openingHour, openingMinute)
+            print("Opening time: ", openingTime)
+            print("End time: ", end_time.time())
+            #get the closing time
+            closingDay = place['info']['regularOpeningHours']['periods'][weekday]['close']['day']
+            closingHour = place['info']['regularOpeningHours']['periods'][weekday]['close']['hour']
+            closingMinute = place['info']['regularOpeningHours']['periods'][weekday]['close']['minute']
+            closingTime = time(closingHour, closingMinute)
+            print ("Closing time: ", closingTime)
 
+            if openingTime <= start_time.time() and (openingDay != closingDay or closingTime >= end_time.time()):
+                print("Place scheduled: ", place['info']['displayName']['text'])
+                nearby_places_picked.add(best_place_id)
+                return {'place_id': best_place_id, 'place_name': place['info']['displayName']['text'], 'address': place['info']['formattedAddress'], 'score': place['similarity']}
 
 def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings, time_zones):
     format_trips = '%Y-%m-%dT%H:%M:%S%z'
@@ -392,16 +416,16 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
 
         if len(breakfast_places) > 0 and breakfast_time_range['start'] <= slot_start.time() and slot_end.time() <= breakfast_time_range['end']:
             slot['place_similarity'] = addHighestPlace(
-                breakfast_places, nearby_places_picked)
+                breakfast_places, nearby_places_picked, slot_start, slot_end)
         elif len(restaurant_places) > 0 and ((lunch_time_range['start'] <= slot_start.time() and slot_end.time() <= lunch_time_range['end']) or (dinner_time_range['start'] <= slot_start.time() and slot_end.time() <= dinner_time_range['end'])):
             slot['place_similarity'] = addHighestPlace(
-                restaurant_places, nearby_places_picked)
+                restaurant_places, nearby_places_picked, slot_start, slot_end)
         else:
             slot['place_similarity'] = addHighestPlace(
-                other_places, nearby_places_picked)
+                other_places, nearby_places_picked, slot_start, slot_end)
         del slot['places_dict']
 
-    # raise NotImplemented('WIP')
+    #raise NotImplemented('WIP')
     return broken_up_free_slots
 
 
