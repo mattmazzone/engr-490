@@ -87,7 +87,7 @@ def recommend():
                 index={0: 'similarity'})
             similarity_df = similarity_df.transpose()
 
-            print(similarity_df)
+            #print(similarity_df)
 
             similarity_tables.append(similarity_df)
 
