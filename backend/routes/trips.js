@@ -15,6 +15,7 @@ const {
 } = require("../utils/services");
 const {
   processDaysAndGetRestaurants,
+  getRestaurantsWithNoMeetings
 } = require("../utils/here")
 const axios = require("axios");
 
@@ -58,18 +59,6 @@ async function useGetNearbyPlacesSevice(
   return responseData;
 }
 
-async function getCoords(meeting) {
-  console.log("Getting coords for meeting location", meeting);
-  const [successOrNot, responseData] = await getPlaceTextSearch(meeting);
-  if (successOrNot != REQUEST.SUCCESSFUL) {
-    error = responseData;
-    console.error(error);
-    throw new BadRequestException(error);
-  }
-
-  // should only be 1 result
-  return responseData;
-}
 
 async function getTimezone(lat, lng, start) {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -198,7 +187,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         nearByPlaceRadius,
         includedTypes
       );
-      const restoData = await getRestaurants(location.lat, location.lng, maxNearbyPlaces, includedTypes)
+      
+      nearbyRestaurants = await getRestaurantsWithNoMeetings(tripStart, tripEnd, location);
       //No meeting has location
       if(numMeetings > 0) {
         for(let i = 0; i < numMeetings; i++){

@@ -106,7 +106,7 @@ const foodTypes = {
   "301-032": "French-Provencale",
   "301-033": "French-Sud-ouest",
   "302-000": "German",
-  "303-000": "Greek",
+  "303-000": "Greek", 
   "304-000": "Italian",
   "305-000": "Irish",
   "306-000": "Austrian",
@@ -272,7 +272,7 @@ async function processRestaurantData(data) {
         // Extract the required fields
         const processedItem = {
           title: item.title, // Name of the restaurant
-          id: item.id, // Unique identifier
+          placeId: item.id, // Unique identifier
           address: item.address.label, // Address as a string
           position: item.position, //address coordinates (latitude, longitude)
           openingHours: item.openingHours.map(oh => oh.text), // Opening hours as an array of strings ex: "Mon-Fri: 09:00 - 18:00"
@@ -345,9 +345,24 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
   return restaurantsByDate;
 }
 
+//No meetings have locations or no meetings at all
+async function getRestaurantsWithNoMeetings(tripStart, tripEnd, location) {
+    let restaurantsByDate = {};
+  const numberOfDays = calculateNumberOfDays(tripStart, tripEnd);
+
+  for (let dayIndex = 0; dayIndex < numberOfDays; dayIndex++) {
+      restaurantsByDate[dayIndex].breakfast = await getRestaurants(location.lat, location.lng, 10, "Breakfast");
+      restaurantsByDate[dayIndex].lunchDinner = await getRestaurants(location.lat, location.lng, 20, "restaurant");  
+  }
+
+  return restaurantsByDate;
+
+}
+
 
 
 
 module.exports = {
     processDaysAndGetRestaurants,
+    getRestaurantsWithNoMeetings
 }
