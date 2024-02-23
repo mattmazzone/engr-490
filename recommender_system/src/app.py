@@ -266,10 +266,17 @@ def recommend():
     
     restoTypeList = list(foodTypes.keys())
     
+    # Extracting the restaurants from the interests
+    pattern = re.compile(r'^\d{3}-\d{3}$')
+    resto_interests = [interest for interest in interests if pattern.match(interest)]
+    
     if len(recent_places) < 5:
         print("Interests:")
-        # Use interests
-        
+        for day_value in nearbyRestaurants.items():
+            for restaurants in day_value.items():
+                for resto in restaurants:
+                    # Calculate the similarity score for the restaurant based on user interests
+                    resto["similarity"] = calculate_similarity_score(resto, [{'place_similarity': {'types': resto_interests}}], all_types=restoTypeList)
     else:
         # Do similarity based off past Trips
         for day_value in nearbyRestaurants.items():
