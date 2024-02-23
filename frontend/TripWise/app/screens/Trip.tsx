@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   ScrollView,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import Background from "../../components/Background";
@@ -129,10 +130,7 @@ const Trip = ({ navigation }: RouterProps) => {
   if (isFetching) {
     return (
       <Background>
-        <SafeAreaView style={styles.container}>
-          <Text style={styles.title}>Trip Planner</Text>
-          <Text style={styles.subTitle}>Loading...</Text>
-        </SafeAreaView>
+          <ActivityIndicator style={styles.spinner} size="large" color="rgba(34, 170, 85, 1)" />
       </Background>
     );
   }
@@ -217,6 +215,11 @@ const Trip = ({ navigation }: RouterProps) => {
 export default Trip;
 
 const styles = StyleSheet.create({
+  spinner: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     flex: 1,
     alignItems: "flex-start",

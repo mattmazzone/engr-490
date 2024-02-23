@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from "react-native";
 import Background from "../../components/Background";
 import { UserProfile } from "../../types/userTypes";
 import * as UserService from "../../services/userServices";
@@ -216,7 +216,7 @@ const SelectInterests = ({ navigation, route }: RouterProps) => {
   if (isFetchingProfile) {
     return (
       <Background>
-        <Text>Loading...</Text>
+        <ActivityIndicator style={styles.spinner} size="large" color="rgba(34, 170, 85, 1)" />
       </Background>
     );
   }
@@ -272,6 +272,11 @@ const SelectInterests = ({ navigation, route }: RouterProps) => {
 
 // Styles for the component
 const styles = StyleSheet.create({
+  spinner: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     padding: 20,
   },
