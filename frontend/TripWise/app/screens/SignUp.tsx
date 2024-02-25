@@ -46,13 +46,13 @@ const SignUp = ({ navigation, route }: RouterProps) => {
   const { onUserCreationComplete }: { onUserCreationComplete: () => void } =
     route.params;
   const auth = FIREBASE_AUTH;
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [firstNameValid, setFirstNameValid] = useState(true);
-  const [isEmailValid, setIsEmailValid] = useState(true);
-  const [isPasswordValid, setIsPasswordValid] = useState(true);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [firstNameValid, setFirstNameValid] = useState<boolean>(true);
+  const [isEmailValid, setIsEmailValid] = useState<boolean>(true);
+  const [isPasswordValid, setIsPasswordValid] = useState<boolean>(true);
 
   const isValidName = (name: string) => {
     return name.trim().length > 0;
