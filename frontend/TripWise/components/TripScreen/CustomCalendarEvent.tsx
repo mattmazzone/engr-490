@@ -1,9 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, StyleSheet, Pressable } from "react-native";
 import { Meeting } from "../../types/tripTypes";
 import {
   CalendarTouchableOpacityProps,
-  ICalendarEventBase,
 } from "react-native-big-calendar";
 
 const CustomCalendarEvent = ({
@@ -18,14 +17,14 @@ const CustomCalendarEvent = ({
     return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true });
   };
   return (
-    <TouchableOpacity
+    <Pressable
       {...touchableOpacityProps}
       style={[styles.eventContainer, touchableOpacityProps.style]}
     >
       <Text style={styles.eventTime}>{`${formatTime(start)} - ${formatTime(end)}`}</Text>
       <Text style={styles.eventTitle}>{title}</Text>
       <Text style={styles.eventLocation}>{location}</Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 

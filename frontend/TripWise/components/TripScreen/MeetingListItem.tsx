@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Meeting } from "../../types/tripTypes"; // Assuming the types are exported from this file
 
 interface MeetingListItemProps {
@@ -38,12 +38,12 @@ const MeetingListItem = ({
             {endDate.toLocaleTimeString(undefined, timeOptions)}
           </Text>
         </View>
-        <TouchableOpacity
+        <Pressable
           onPress={() => onDeleteMeeting(meeting.id)}
           style={styles.deleteMeetingBtn}
         >
           <Text style={styles.deleteMeetingBtnTxt}>X</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
