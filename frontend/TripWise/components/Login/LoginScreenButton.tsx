@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import { Pressable, Text, StyleSheet } from "react-native";
 
 interface LoginScreenButtonProps {
   onPress: () => void;
@@ -8,9 +8,9 @@ interface LoginScreenButtonProps {
 
 const LoginScreenButton = ({ onPress, title }: LoginScreenButtonProps) => {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.button}>
+    <Pressable onPress={onPress} style={styles.button}>
       <Text style={styles.buttonText}>{title}</Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
