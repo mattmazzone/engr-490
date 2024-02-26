@@ -55,6 +55,7 @@ const Trip = ({ navigation }: RouterProps) => {
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
   const { theme } = useContext(ThemeContext);
+  const [isloading, setIsLoading] = useState<boolean>(false);
 
   // useFocusEffect is used to run code when the screen is focused
   useFocusEffect(
@@ -97,6 +98,7 @@ const Trip = ({ navigation }: RouterProps) => {
 
     setConfirmTripModalVisible(true);
 
+    setIsLoading(true);
     // API call to create trip
     const createTripResponse = await createTrip(
       rangeDate.startDate,
@@ -107,6 +109,7 @@ const Trip = ({ navigation }: RouterProps) => {
     if (createTripResponse) {
       const trip = createTripResponse.trip;
       setCurrentTrip(trip);
+      setIsLoading(false);
     }
   };
 
@@ -127,7 +130,7 @@ const Trip = ({ navigation }: RouterProps) => {
     }
   };
 
-  if (isFetching) {
+  if (isFetching || isloading) {
     return (
       <Background>
           <ActivityIndicator style={styles.spinner} size="large" color="rgba(34, 170, 85, 1)" />
