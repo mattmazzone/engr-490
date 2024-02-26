@@ -1,7 +1,8 @@
-import React from "react";
+import React, {useContext} from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { DateRange, Meeting, Time } from "../../types/tripTypes";
+import { Meeting } from "../../types/tripTypes";
 import MeetingListItem from "./MeetingListItem";
+import ThemeContext from "../../context/ThemeContext";
 
 interface MeetingListItemProps {
   meetings: Meeting[];
@@ -9,11 +10,12 @@ interface MeetingListItemProps {
 }
 
 const MeetingList = ({ meetings, onDeleteMeeting }: MeetingListItemProps) => {
+  const { theme } = useContext(ThemeContext);
   return (
     <View style={styles.meetingListContainer}>
-      <Text style={styles.subTitle}>Your Meetings</Text>
+      <Text style={[styles.subTitle, { color: theme === "Dark" ? "white" : "black" }]}>Your Meetings</Text>
       {meetings.length === 0 && (
-        <Text style={styles.smallerSubTitle}>No meetings added yet!</Text>
+        <Text style={[styles.smallerSubTitle, { color: theme === "Dark" ? "white" : "black" }]}>No meetings added yet!</Text>
       )}
       {meetings.map((meeting) => (
         <MeetingListItem
