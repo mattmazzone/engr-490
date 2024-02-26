@@ -11,7 +11,7 @@ from functools import wraps
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import numpy as np
-from utils import create_df, create_rating_df, multiply_rating, create_scheduled_activities, create_interests_df, calculate_similarity_score
+from utils import create_df, create_rating_df, multiply_rating, create_scheduled_activities, create_interests_df, calculate_similarity_score, convert_opening_hours
 import json
 from datetime import date, datetime, timedelta, time
 
@@ -275,6 +275,8 @@ def recommend():
         for day, categories in nearbyRestaurants.items():
             for category, restaurants in categories.items():  # Iterate over each category within the day
                 for restaurant in restaurants:  # Iterate over each restaurant in the category
+                    # Convert the opening hours
+                    restaurant["openingHours"] = convert_opening_hours(restaurant["openingHours"])
                     # Calculate the similarity score for the restaurant based on user interests
                     restaurant["similarity"] = calculate_similarity_score(restaurant, [{'place_similarity': {'types': resto_interests}}], all_types=restoTypeList)
     else:
@@ -282,6 +284,8 @@ def recommend():
         for day, categories in nearbyRestaurants.items():
             for category, restaurants in categories.items():  # Iterate over each category within the day
                 for restaurant in restaurants:  # Iterate over each restaurant in the category
+                    # Convert the opening hours
+                    restaurant["openingHours"] = convert_opening_hours(restaurant["openingHours"])
                     # Calculate and add similarity score to each restaurant
                     restaurant["similarity"] = calculate_similarity_score(restaurant, recentRestaurants, all_types=restoTypeList)
 

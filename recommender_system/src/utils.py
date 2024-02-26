@@ -8,6 +8,7 @@ import pandas as pd
 import random
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+import re
 
 # https://developers.google.com/maps/documentation/places/web-service/place-types
 place_types = {
@@ -500,3 +501,86 @@ def calculate_similarity_score(current_item, past_items, all_types):
     
     return max_similarity
 
+
+def parse_time(time_str):
+    """Parse a time string into hour and minute."""
+    hour, minute = map(int, time_str.split(':'))
+    return hour, minute
+
+def day_range_to_numbers(day_range):
+    """Converts day ranges into a list of day numbers (0=Sunday, 6=Saturday)."""
+    day_map = {'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6, 'Sun': 0}
+    if '-' in day_range:
+        start_day, end_day = day_range.split('-')
+        start_num, end_num = day_map[start_day.strip()], day_map[end_day.strip()]
+        return list(range(start_num, end_num + 1)) if start_num <= end_num else list(range(start_num, 7)) + list(range(0, end_num + 1))
+    else:
+        return [day_map[day_range.strip()]]
+
+def convert_opening_hours(opening_hours_list):
+    results = []
+    for hours_list in opening_hours_list:
+        for hours in hours_list:
+            # Correctly split the string into days_part and hours_part
+            split_index = hours.index(':')
+            days_part = hours[:split_index]
+            hours_part = hours[split_index + 1:]
+            # Handle multiple time ranges within the same day
+            time_ranges = hours_part.strip().split(',')
+            for time_range in time_ranges:
+                start_time_str, end_time_str = time_range.strip().split(' - ')
+                start_hour, start_minute = parse_time(start_time_str)
+                end_hour, end_minute = parse_time(end_time_str)
+
+                if ',' in days_part:
+                    days = days_part.split(',')
+                else:
+                    days = [days_part]
+                
+                for day in days:
+                    for day_num in day_range_to_numbers(day):
+                        results.append({
+                            "open": {"day": day_num, "hour": start_hour, "minute": start_minute},
+                            "close": {"day": day_num, "hour": end_hour, "minute": end_minute},
+                        })
+    return results
+    results = []
+    for hours_list in opening_hours_list:
+        for hours in hours_list:
+            # Splitting the string by the colon gives us the days part and the hours part
+            days_part, hours_part = hours.split(':')
+            start_time_str, end_time_str = hours_part.strip().split(' - ')
+            start_hour, start_minute = parse_time(start_time_str)
+            end_hour, end_minute = parse_time(end_time_str)
+
+            if ',' in days_part:
+                days = days_part.split(',')
+            else:
+                days = [days_part]
+            
+            for day_range in days:
+                for day_num in day_range_to_numbers(day_range):
+                    results.append({
+                        "open": {"day": day_num, "hour": start_hour, "minute": start_minute},
+                        "close": {"day": day_num, "hour": end_hour, "minute": end_minute},
+                    })
+    return results
+    opening_hours_converted = []
+    for day_time_pairs in opening_hours_list:
+        for day_time_pair in day_time_pairs:
+            days, times = day_time_pair.split(': ')
+            # Handle multiple time ranges (e.g., split by ', ')
+            for time_range in times.split(', '):
+                start_time, end_time = parse_time_range(time_range)
+                # Handle day ranges (e.g., Mon-Sun) and individual days
+                if ',' in days:  # Handle comma-separated days
+                    days_split = days.split(', ')
+                    for day in days_split:
+                        day_nums = day_range_to_numbers(day)
+                        for day_num in day_nums:
+                            opening_hours_converted.append((day_num, start_time, end_time))
+                else:
+                    day_nums = day_range_to_numbers(days)
+                    for day_num in day_nums:
+                        opening_hours_converted.append((day_num, start_time, end_time))
+    return opening_hours_converted
