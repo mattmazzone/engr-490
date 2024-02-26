@@ -222,6 +222,7 @@ async function getRestaurants(latitude, longitude, limit, mealType) {
     const params = new URLSearchParams({
       at: `${latitude},${longitude}`,
       q: `restaurant ${mealType}`,
+      lang: "en",
       limit: limit, //Can set limit
       apiKey: process.env.HERE_API_KEY 
     });
