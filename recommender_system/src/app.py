@@ -272,20 +272,20 @@ def recommend():
     
     if len(recent_places) < 5:
         print("Interests:")
-        for day_value in nearbyRestaurants.items():
-            for restaurants in day_value.items():
-                for resto in restaurants:
+        for day, categories in nearbyRestaurants.items():
+            for category, restaurants in categories.items():  # Iterate over each category within the day
+                for restaurant in restaurants:  # Iterate over each restaurant in the category
                     # Calculate the similarity score for the restaurant based on user interests
-                    resto["similarity"] = calculate_similarity_score(resto, [{'place_similarity': {'types': resto_interests}}], all_types=restoTypeList)
+                    restaurant["similarity"] = calculate_similarity_score(restaurant, [{'place_similarity': {'types': resto_interests}}], all_types=restoTypeList)
     else:
         # Do similarity based off past Trips
-        for day_value in nearbyRestaurants.items():
-            for restaurants in day_value.items():
-                for resto in restaurants:
-                    # Adding similarity score to each restaurant
-                    resto["similarity"] = calculate_similarity_score(resto, recentRestaurants, all_types=restoTypeList)
+        for day, categories in nearbyRestaurants.items():
+            for category, restaurants in categories.items():  # Iterate over each category within the day
+                for restaurant in restaurants:  # Iterate over each restaurant in the category
+                    # Calculate and add similarity score to each restaurant
+                    restaurant["similarity"] = calculate_similarity_score(restaurant, recentRestaurants, all_types=restoTypeList)
 
-        
+
 
     if len(recent_places) < 5:
         # Use interests
