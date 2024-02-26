@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    backgroundColor: "#2a5",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     flexDirection: "row",
     width: "55%",
     height: 45,
@@ -114,6 +114,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 18,
+    fontWeight: "bold",
     marginRight: 30, // add some space between text and logo
     color: "white",
   },

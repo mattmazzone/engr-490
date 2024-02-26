@@ -150,7 +150,7 @@ const AppSettingsPage = ({
           </Text>
           <Switch
             style={{ height: 25 }}
-            trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
+            trackColor={{ false: "#767577", true: "rgba(34, 170, 85, 1)" }}
             thumbColor={isEmailEnabled ? "#32cd32" : "#f4f3f4"}
             ios_backgroundColor="#3e3e3e"
             onValueChange={toggleEmailSwitch}
@@ -168,7 +168,7 @@ const AppSettingsPage = ({
           </Text>
           <Switch
             style={{ height: 25 }}
-            trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
+            trackColor={{ false: "#767577", true: "rgba(34, 170, 85, 1)" }}
             thumbColor={"#f4f3f4"}
             ios_backgroundColor="#3e3e3e"
             onValueChange={togglePushSwitch}
@@ -275,17 +275,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "75%",
     height: 45,
-    borderRadius: 7,
+    borderRadius: 5,
     justifyContent: "center",
+    alignItems: "center",
     alignSelf: "center",
+    padding: 10,
   },
   buttonText: {
     color: "white",
     textAlign: "center",
-    marginTop: 10,
     fontSize: 18,
-    width: 150,
-    height: 50,
+    fontWeight: "bold",
+    width: 120,
+    flex: 1,
   },
   backButtonContainer: {
     position: "absolute",

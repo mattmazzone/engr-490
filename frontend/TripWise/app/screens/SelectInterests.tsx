@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
   button: {
     padding: 15,
     borderRadius: 25,
-    backgroundColor: "#2a5",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     marginTop: 20,
   },
   buttonText: {
