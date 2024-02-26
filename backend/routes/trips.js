@@ -127,7 +127,10 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       throw interests;
     }
 
-    const includedTypes = interests;
+    // Filter out restaurant interests
+    const nonRestaurantInterests = interests.filter(interest => !interest.match(/^\d{3}-\d{3}$/));
+
+
 
     /*
     =--=-=-=-=-=-=-=-=
@@ -139,13 +142,15 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     let nearbyPlaces = [];
     let nearbyRestaurants = [];
 
-    // Get nearby restaurants
-    nearbyRestaurants = await processDaysAndGetRestaurants(tripStart, tripEnd, tripMeetings);
+
 
     const numMeetings = tripMeetings.length;
 
     //Checking if atleast 1 meeting has a location
     if (!tripLocation || tripLocation == "") {
+      // Get nearby restaurants
+      nearbyRestaurants = await processDaysAndGetRestaurants(tripStart, tripEnd, tripMeetings);
+      console.log("Nearby Restaurants", nearbyRestaurants[0].breakfast[0]);
       // Get all meeting locations
       let locations = [];
       for (let i = 0; i < numMeetings; i++) {
@@ -172,7 +177,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
           location.lng,
           maxNearbyPlaces,
           nearByPlaceRadius,
-          includedTypes
+          nonRestaurantInterests
         );
 
         nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
@@ -185,7 +190,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         location.lng,
         maxNearbyPlaces,
         nearByPlaceRadius,
-        includedTypes
+        nonRestaurantInterests
       );
       
       nearbyRestaurants = await getRestaurantsWithNoMeetings(tripStart, tripEnd, location);
