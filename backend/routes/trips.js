@@ -55,7 +55,6 @@ async function useGetNearbyPlacesSevice(
 }
 
 async function getCoords(meeting) {
-  // console.log("Getting coords for meeting location", meeting);
   const [successOrNot, responseData] = await getPlaceTextSearch(
     meeting.location
   );
@@ -152,8 +151,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       }
       const location = await getCoords(meeting);
       const timeZone = await getTimezone(location.lat, location.lng, meeting.start);
-      console.log(timeZone);
-      console.log(location);
       const responseData = await useGetNearbyPlacesSevice(
         location.lat,
         location.lng,
@@ -208,7 +205,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
     }
 
-    // console.log(nearbyPlaces);
     // Finally pass data into the recommender system and get the activities
     const token = req.headers.authorization;
     const response = await axios.post(
@@ -235,7 +231,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       tripMeetings,
       scheduledActivities,
     };
-    //console.log(JSON.stringify(tripData, null, 4));
 
     const tripRef = await db.collection("trips").add(tripData);
     const tripId = tripRef.id;
@@ -275,7 +270,6 @@ router.post("/end_trip/:uid", authenticate, async (req, res) => {
     const user = await db.collection("users").doc(uid).get();
     const userData = user.data();
     const tripId = userData.currentTrip;
-    console.log(tripId);
 
     // Add trip to user's past trips
     await db
