@@ -173,8 +173,6 @@ export default function App() {
   const checkUserInterests = async () => {
     // Check if user has interests
     UserService.fetchUserProfile().then((profile) => {
-      console.log("Profile");
-      console.log(profile);
       //profile &&
       //profile.interests.length &&
       //setUserHasInterests(profile.interests.length > 0);
