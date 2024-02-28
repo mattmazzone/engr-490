@@ -316,7 +316,6 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
 
     for place in places:
         best_place_id = place['info']['id']
-        
         #make sure there is information when accessing the regular opening hours of the place
         openingHours = place['info'].get('regularOpeningHours')
         information = place.get('info')
@@ -434,8 +433,6 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
             restaurant_places, key=lambda x: x['similarity'], reverse=True)
         other_places = sorted(
             other_places, key=lambda x: x['similarity'], reverse=True)
-        
-        print("Other places", other_places)
 
         if len(breakfast_places) > 0 and breakfast_time_range['start'] <= slot_start.time() and slot_end.time() <= breakfast_time_range['end']:
             slot['place_similarity'] = addHighestPlace(
@@ -447,8 +444,6 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
             slot['place_similarity'] = addHighestPlace(
                 other_places, nearby_places_picked, slot_start, slot_end)
         del slot['places_dict']
-
-    print ("Other places", other_places)
 
     raise NotImplemented('WIP')
     #return broken_up_free_slots
