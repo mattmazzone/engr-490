@@ -1,4 +1,5 @@
 from ast import Raise
+from calendar import week
 from contextlib import closing
 import copy
 from datetime import date, datetime, timedelta, time, timezone
@@ -313,25 +314,45 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
     else:
         weekday = start_time.weekday()+1
 
-    print ("Weekday: ", weekday)
-
     for place in places:
         best_place_id = place['info']['id']
+        
+        #make sure there is information when accessing the regular opening hours of the place
+        openingHours = place['info'].get('regularOpeningHours')
+        information = place.get('info')
+        if openingHours is None or information is None:
+            continue
         if best_place_id not in nearby_places_picked:
-            print("Start time: ", start_time.time())
+            #make sure to select the right index for the day of the week
+            print("Activity look: ", place['info']['displayName']['text'])
+            if len(place['info']['regularOpeningHours']['periods']) < 7:
+                print("Start of looking for the right day")
+                comparison = weekday
+                change = False
+                for i in range(len(place['info']['regularOpeningHours']['periods'])-1):
+                    if weekday == place['info']['regularOpeningHours']['periods'][i]['open']['day']:
+                        weekday = i
+                        change = True
+                        break
+                if weekday == comparison and change == False:
+                    continue    
+            
             #get the opening time
             openingDay = place['info']['regularOpeningHours']['periods'][weekday]['open']['day']
             openingHour = place['info']['regularOpeningHours']['periods'][weekday]['open']['hour']
             openingMinute = place['info']['regularOpeningHours']['periods'][weekday]['open']['minute']
             openingTime = time(openingHour, openingMinute)
-            print("Opening time: ", openingTime)
-            print("End time: ", end_time.time())
+            
             #get the closing time
             closingDay = place['info']['regularOpeningHours']['periods'][weekday]['close']['day']
             closingHour = place['info']['regularOpeningHours']['periods'][weekday]['close']['hour']
             closingMinute = place['info']['regularOpeningHours']['periods'][weekday]['close']['minute']
             closingTime = time(closingHour, closingMinute)
-            print ("Closing time: ", closingTime)
+
+            print("Opening time: ", openingTime)
+            print("Start time: ", start_time.time())
+            print("End time: ", end_time.time())
+            print ("Closing time: ", closingTime) 
 
             if openingTime <= start_time.time() and (openingDay != closingDay or closingTime >= end_time.time()):
                 print("Place scheduled: ", place['info']['displayName']['text'])
@@ -413,6 +434,8 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
             restaurant_places, key=lambda x: x['similarity'], reverse=True)
         other_places = sorted(
             other_places, key=lambda x: x['similarity'], reverse=True)
+        
+        print("Other places", other_places)
 
         if len(breakfast_places) > 0 and breakfast_time_range['start'] <= slot_start.time() and slot_end.time() <= breakfast_time_range['end']:
             slot['place_similarity'] = addHighestPlace(
@@ -425,8 +448,10 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
                 other_places, nearby_places_picked, slot_start, slot_end)
         del slot['places_dict']
 
-    #raise NotImplemented('WIP')
-    return broken_up_free_slots
+    print ("Other places", other_places)
+
+    raise NotImplemented('WIP')
+    #return broken_up_free_slots
 
 
 def create_interests_df(interests):
