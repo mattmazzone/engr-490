@@ -4,9 +4,13 @@ from contextlib import closing
 import copy
 from datetime import date, datetime, timedelta, time, timezone
 from weakref import ref
+from tkinter import NO
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import random
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+import re
 
 # https://developers.google.com/maps/documentation/places/web-service/place-types
 place_types = {
@@ -360,7 +364,8 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
 
 def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings, time_zones):
     format_trips = '%Y-%m-%dT%H:%M:%S%z'
-    format_slots = '%Y-%m-%dT%H:%M:%S.%f%z'
+    format_slots = ['%Y-%m-%dT%H:%M:%S.%f%z',
+                    '%Y-%m-%dT%H:%M:%S.%f%Z',]
     activity_duration = timedelta(hours=1.5)
     broken_up_free_slots = []
 
@@ -377,29 +382,59 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
         trip_meetings[i]['nearby_place_similarities'] = similarity_tables[i]
 
     for slot in free_slots:
-        slot_start = datetime.strptime(slot['start'], format_slots)
-        slot_start = slot_start.replace(tzinfo=timezone.utc)
-        slot_end = datetime.strptime(slot['end'],  format_slots)
-        slot_end = slot_end.replace(tzinfo=timezone.utc)
-        timezone_offset = timedelta(seconds=time_zones[0]['rawOffset'] + time_zones[0]['dstOffset'])
-        new_timezone = timezone(timedelta(hours = ((timezone_offset.seconds/3600) - 24)))
-        slot_start = slot_start + timezone_offset
-        slot_start = slot_start.replace(tzinfo=new_timezone)
-        slot_end = slot_end + timezone_offset
-        slot_end = slot_end.replace(tzinfo=new_timezone)
+        formatted = False
+        for format in format_slots:
+            try:
+                slot_start = datetime.strptime(slot['start'], format)
+                slot_start = slot_start.replace(tzinfo=timezone.utc)
+                slot_end = datetime.strptime(slot['end'],  format)
+                slot_end = slot_end.replace(tzinfo=timezone.utc)
+                timezone_offset = timedelta(seconds=time_zones[0]['rawOffset'] + time_zones[0]['dstOffset'])
+                new_timezone = timezone(timedelta(hours = ((timezone_offset.seconds/3600) - 24)))
+                slot_start = slot_start + timezone_offset
+                slot_start = slot_start.replace(tzinfo=new_timezone)
+                slot_end = slot_end + timezone_offset
+                slot_end = slot_end.replace(tzinfo=new_timezone)
 
-        current_end = slot_start + activity_duration
-        while current_end <= slot_end:
-            current_start = current_end - activity_duration
-            broken_up_free_slots.append(
-                {"start": current_start, "end": current_end})
-            current_end = current_end + activity_duration
+                current_end = slot_start + activity_duration
+                while current_end <= slot_end:
+                    current_start = current_end - activity_duration
+                    broken_up_free_slots.append(
+                        {"start": current_start, "end": current_end})
+                    current_end = current_end + activity_duration
+                formatted = True
+                break
+            except Exception as e:
+                print(e)
 
-    for slot in broken_up_free_slots:
-        index = find_relavent_meeting(trip_meetings, slot['end'])
-        relevant_meeting = trip_meetings[index]
-        slot['place_similarity'] = relevant_meeting['nearby_place_similarities']
-        slot['places_dict'] = nearby_places[index]
+        if not formatted:
+            raise ValueError('No valid date format found')
+
+    if len(trip_meetings) == 0:
+        # Since there are no trip meetings, there can only be 1 similarity table and 1 nearby places array
+        if len(nearby_places) != 1 or len(similarity_tables) != 1:
+            raise ValueError(
+                "nearby_places or similarity_table incorrect length")
+
+        for slot in broken_up_free_slots:
+            slot['place_similarity'] = similarity_tables[0]
+            slot['places_dict'] = nearby_places[0]
+    else:
+        for meeting in trip_meetings:
+            meeting['start'] = datetime.strptime(
+                meeting['start'], format_trips)
+            meeting['end'] = datetime.strptime(meeting['end'], format_trips)
+
+        trip_meetings.sort(key=lambda x: x['start'])
+
+        for i in range(len(similarity_tables)):
+            trip_meetings[i]['nearby_place_similarities'] = similarity_tables[i]
+
+        for slot in broken_up_free_slots:
+            index = find_relavent_meeting(trip_meetings, slot['end'])
+            relevant_meeting = trip_meetings[index]
+            slot['place_similarity'] = relevant_meeting['nearby_place_similarities']
+            slot['places_dict'] = nearby_places[index]
 
     nearby_places_picked = set()
     breakfast_time_range = {"start": time(8, 0, 0), "end": time(10, 0, 0)}
@@ -428,12 +463,18 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
                 other_places.append(obj)
 
         breakfast_places = sorted(
-            breakfast_places, key=lambda x: x['similarity'], reverse=True)
+            breakfast_places, key=lambda x: x['similarity'])
         restaurant_places = sorted(
-            restaurant_places, key=lambda x: x['similarity'], reverse=True)
+            restaurant_places, key=lambda x: x['similarity'])
         other_places = sorted(
-            other_places, key=lambda x: x['similarity'], reverse=True)
+            other_places, key=lambda x: x['similarity'])
 
+        # print(f'length of breakfast_places {len(breakfast_places)}')
+        # print(f'length of restaurant_places {len(restaurant_places)}')
+        # print(f'length of other_places {len(other_places)}')
+        # print()
+
+        highestPlace = None
         if len(breakfast_places) > 0 and breakfast_time_range['start'] <= slot_start.time() and slot_end.time() <= breakfast_time_range['end']:
             slot['place_similarity'] = addHighestPlace(
                 breakfast_places, nearby_places_picked, slot_start, slot_end)
@@ -459,3 +500,125 @@ def create_interests_df(interests):
     data.append(place_types_copy)
     interests_df = pd.DataFrame(data)
     return interests_df
+
+
+def create_type_vector(item_types, all_types):
+    """Create a binary vector for the item types based on all_types."""
+    return [1 if typ in item_types else 0 for typ in all_types]
+
+def calculate_cosine_similarity(vector1, vector2):
+    """Calculate cosine similarity between two vectors."""
+    v1, v2 = np.array(vector1).reshape(1, -1), np.array(vector2).reshape(1, -1)
+    return cosine_similarity(v1, v2)[0][0]
+
+def calculate_similarity_score(current_item, past_items, all_types):
+    """
+    Calculate the maximum cosine similarity score between the current item and past items based on their types.
+
+    Parameters:
+    - current_item: dict with 'types' key representing categories of the current item.
+    - past_items: list of dicts, each with a 'types' key representing categories of past items.
+    - all_types: list or set of all predefined unique types for vectorization.
+
+    Returns:
+    - max_similarity: The highest cosine similarity score between the current item and any of the past items.
+    """
+    
+    # Create binary vectors for the current and past items types
+    current_vector = np.array(create_type_vector(current_item['types'], all_types)).reshape(1, -1)
+    
+    # Initialize max similarity
+    max_similarity = 0
+    
+    # Iterate through past items to calculate similarities
+    for past_item in past_items:
+        past_types = past_item['place_similarity']['types']
+        past_vector = np.array(create_type_vector(past_types, all_types)).reshape(1, -1)
+        similarity = cosine_similarity(current_vector, past_vector)[0][0]
+        max_similarity = max(max_similarity, similarity)
+    
+    return max_similarity
+
+
+def parse_time(time_str):
+    """Parse a time string into hour and minute."""
+    hour, minute = map(int, time_str.split(':'))
+    return hour, minute
+
+def day_range_to_numbers(day_range):
+    """Converts day ranges into a list of day numbers (0=Sunday, 6=Saturday)."""
+    day_map = {'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6, 'Sun': 0}
+    if '-' in day_range:
+        start_day, end_day = day_range.split('-')
+        start_num, end_num = day_map[start_day.strip()], day_map[end_day.strip()]
+        return list(range(start_num, end_num + 1)) if start_num <= end_num else list(range(start_num, 7)) + list(range(0, end_num + 1))
+    else:
+        return [day_map[day_range.strip()]]
+
+def convert_opening_hours(opening_hours_list):
+    results = []
+    for hours_list in opening_hours_list:
+        for hours in hours_list:
+            # Correctly split the string into days_part and hours_part
+            split_index = hours.index(':')
+            days_part = hours[:split_index]
+            hours_part = hours[split_index + 1:]
+            # Handle multiple time ranges within the same day
+            time_ranges = hours_part.strip().split(',')
+            for time_range in time_ranges:
+                start_time_str, end_time_str = time_range.strip().split(' - ')
+                start_hour, start_minute = parse_time(start_time_str)
+                end_hour, end_minute = parse_time(end_time_str)
+
+                if ',' in days_part:
+                    days = days_part.split(',')
+                else:
+                    days = [days_part]
+                
+                for day in days:
+                    for day_num in day_range_to_numbers(day):
+                        results.append({
+                            "open": {"day": day_num, "hour": start_hour, "minute": start_minute},
+                            "close": {"day": day_num, "hour": end_hour, "minute": end_minute},
+                        })
+    return results
+    results = []
+    for hours_list in opening_hours_list:
+        for hours in hours_list:
+            # Splitting the string by the colon gives us the days part and the hours part
+            days_part, hours_part = hours.split(':')
+            start_time_str, end_time_str = hours_part.strip().split(' - ')
+            start_hour, start_minute = parse_time(start_time_str)
+            end_hour, end_minute = parse_time(end_time_str)
+
+            if ',' in days_part:
+                days = days_part.split(',')
+            else:
+                days = [days_part]
+            
+            for day_range in days:
+                for day_num in day_range_to_numbers(day_range):
+                    results.append({
+                        "open": {"day": day_num, "hour": start_hour, "minute": start_minute},
+                        "close": {"day": day_num, "hour": end_hour, "minute": end_minute},
+                    })
+    return results
+    opening_hours_converted = []
+    for day_time_pairs in opening_hours_list:
+        for day_time_pair in day_time_pairs:
+            days, times = day_time_pair.split(': ')
+            # Handle multiple time ranges (e.g., split by ', ')
+            for time_range in times.split(', '):
+                start_time, end_time = parse_time_range(time_range)
+                # Handle day ranges (e.g., Mon-Sun) and individual days
+                if ',' in days:  # Handle comma-separated days
+                    days_split = days.split(', ')
+                    for day in days_split:
+                        day_nums = day_range_to_numbers(day)
+                        for day_num in day_nums:
+                            opening_hours_converted.append((day_num, start_time, end_time))
+                else:
+                    day_nums = day_range_to_numbers(days)
+                    for day_num in day_nums:
+                        opening_hours_converted.append((day_num, start_time, end_time))
+    return opening_hours_converted

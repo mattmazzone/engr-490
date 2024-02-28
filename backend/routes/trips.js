@@ -11,7 +11,12 @@ const {
   getPlaceDetails,
   getPlaceTextSearch,
   getUserInterests,
+  getCoords,
 } = require("../utils/services");
+const {
+  processDaysAndGetRestaurants,
+  getRestaurantsWithNoMeetings
+} = require("../utils/here")
 const axios = require("axios");
 
 const recommenderPort = 4000;
@@ -54,20 +59,6 @@ async function useGetNearbyPlacesSevice(
   return responseData;
 }
 
-async function getCoords(meeting) {
-  // console.log("Getting coords for meeting location", meeting);
-  const [successOrNot, responseData] = await getPlaceTextSearch(
-    meeting.location
-  );
-  if (successOrNot != REQUEST.SUCCESSFUL) {
-    error = responseData;
-    console.error(error);
-    throw new BadRequestException(error);
-  }
-
-  // should only be 1 result
-  return responseData;
-}
 
 async function getTimezone(lat, lng, start) {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -101,13 +92,15 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       tripStart,
       tripEnd,
       tripMeetings,
+      tripLocation,
       maxRecentTrips,
       maxNearbyPlaces,
       nearByPlaceRadius,
     } = req.body; // Destructure expected properties
+    console.log(tripStart, tripEnd);
 
     // Validate trip data
-    if (!tripStart || !tripEnd || !tripMeetings) {
+    if (!tripStart || !tripEnd) {
       return res.status(400).send("Missing required trip data");
     }
 
@@ -124,6 +117,9 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       dailyEndTime,
       bufferInMinutes
     );
+    console.log("tripMeetings", tripMeetings);
+
+
 
     const [success, interests] = await getUserInterests(uid, db);
     if (success != REQUEST.SUCCESSFUL) {
@@ -131,7 +127,10 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       throw interests;
     }
 
-    const includedTypes = interests;
+    // Filter out restaurant interests
+    const nonRestaurantInterests = interests.filter(interest => !interest.match(/^\d{3}-\d{3}$/));
+
+
 
     /*
     =--=-=-=-=-=-=-=-=
@@ -141,29 +140,79 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     // 2d array of places for each meeting location except the 1st one
     let nearbyPlaces = [];
+    let nearbyRestaurants = [];
+
+
 
     const numMeetings = tripMeetings.length;
 
-    for (let i = 0; i < numMeetings; i++) {
-      let meeting = tripMeetings[i];
-      if (!meeting.location || meeting.location === "") {
-        console.log("No location for meeting: ", meeting);
-        continue;
+    //Checking if atleast 1 meeting has a location
+    if (!tripLocation || tripLocation == "") {
+      // Get nearby restaurants
+      nearbyRestaurants = await processDaysAndGetRestaurants(tripStart, tripEnd, tripMeetings);
+      console.log("Nearby Restaurants", nearbyRestaurants[0].breakfast[0]);
+      // Get all meeting locations
+      let locations = [];
+      for (let i = 0; i < numMeetings; i++) {
+        let meeting = tripMeetings[i];
+        if (meeting.location && meeting.location != "") {
+          locations.push(meeting.location);
+        }
       }
-      const location = await getCoords(meeting);
-      const timeZone = await getTimezone(location.lat, location.lng, meeting.start);
+
+      let locationIndex = 0;
+      for (let i = 0; i < numMeetings; i++) {
+        let meeting = tripMeetings[i];
+
+        if (!meeting.location || meeting.location === "") {
+          meeting.location = locations[locationIndex];
+          if (locationIndex < locations.length - 1) locationIndex++;
+        }
+
+        const location = await getCoords(meeting.location);
+        const timeZone = await getTimezone(location.lat, location.lng, meeting.start);
       console.log(timeZone);
-      console.log(location);
+        const responseData = await useGetNearbyPlacesSevice(
+          location.lat,
+          location.lng,
+          maxNearbyPlaces,
+          nearByPlaceRadius,
+          nonRestaurantInterests
+        );
+
+        nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
+      }
+    } else {
+      //Need to use tripLocation
+      const location = await getCoords(tripLocation);
       const responseData = await useGetNearbyPlacesSevice(
         location.lat,
         location.lng,
         maxNearbyPlaces,
         nearByPlaceRadius,
-        includedTypes
+        nonRestaurantInterests
       );
+      
+      nearbyRestaurants = await getRestaurantsWithNoMeetings(tripStart, tripEnd, location);
+      //No meeting has location
+      if(numMeetings > 0) {
+        for(let i = 0; i < numMeetings; i++){
+          let meeting = tripMeetings[i];
+          const timeZone = await getTimezone(location.lat, location.lng, meeting.start);
+          nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
 
-      nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
+        }
+      }
+      //No meetings at all
+      else {
+        console.log("Trip Start", tripStart);
+        const timeZone = await getTimezone(location.lat, location.lng, tripStart);
+        console.log("TimeZone", timeZone);
+        nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
+      nearbyRestaurants.push(restoData);
     }
+    }
+    console.log("Nearby Places ", nearbyPlaces);
 
     // Get user's recent trips from firestore
     let [successOrNotTrips, responseDataTrips] = await getRecentTrips(
@@ -180,15 +229,23 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       return;
     }
     const recentTrips = responseDataTrips;
+    console.log("Recent trips", recentTrips);
 
     // Extract google place IDs and types from recent trips
     // using the places details API
     let recentTripsPlaceDetails = [];
+    let recentRestaurants = [];
     for (const trip of recentTrips) {
       const recentTripMeetings = trip.data().scheduledActivities;
 
       for (const place of recentTripMeetings) {
         const placeId = place.place_similarity.place_id;
+
+        //Seperate the here places from the google places
+        if (placeId.startsWith("here")) {
+          recentRestaurants.push(place);
+          continue;
+        }
         const [successOrNotPlaceDetails, responsePlaceDetails] =
           await getPlaceDetails(placeId, "id,types");
         if (successOrNotPlaceDetails != REQUEST.SUCCESSFUL) {
@@ -202,20 +259,23 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         placeDetails.rating = place.rating;
         recentTripsPlaceDetails.push(placeDetails);
 
-        if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
+        if (recentTripsPlaceDetails.length >= maxRecentTrips || recentRestaurants.length >= maxRecentTrips) break;
       }
 
-      if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
+      if (recentTripsPlaceDetails.length >= maxRecentTrips || recentRestaurants.length >= maxRecentTrips) break;
     }
 
     // console.log(nearbyPlaces);
     // Finally pass data into the recommender system and get the activities
     const token = req.headers.authorization;
+    //TODO: add TripLocation to the request
     const response = await axios.post(
       recommenderURL,
       {
         nearbyPlaces,
+        nearbyRestaurants,
         recentTripsPlaceDetails,
+        recentRestaurants,
         freeSlots,
         tripMeetings,
         interests,
@@ -229,7 +289,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     );
     const { scheduledActivities } = response.data;
     // Construct trip data for database
-    const tripData = {
+    let tripData = {
       tripStart,
       tripEnd,
       tripMeetings,
@@ -329,17 +389,18 @@ router.get("/past_trips/:uid/:tripId", authenticate, async (req, res) => {
 router.get("/searchAddress:query", authenticate, async (req, res) => {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   const userQuery = req.params.query;
-  const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${apiKey}&input=${encodeURIComponent(userQuery)}`;
+  const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${apiKey}&input=${encodeURIComponent(
+    userQuery
+  )}`;
 
   try {
     const response = await fetch(apiUrl);
     const data = await response.json();
     return res.status(200).json(data);
   } catch (error) {
-    console.error('Error fetching from Google Places API:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error("Error fetching from Google Places API:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
-
 });
 
 module.exports = router;
