@@ -22,29 +22,11 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 cred = credentials.Certificate(os.path.join(
-    os.path.dirname(__file__), 'tripwise-sdk-key.json'))
+    os.path.dirname(__file__), '../tripwise-sdk-key.json'))
 fb_app = initialize_app(cred)
 
-interests_dict = {
-    "Restaurants": ["restaurant", "cafe", "bakery", "bar"],
-    "Arts": ["art_gallery", "movie_theater", "museum", "tourist_attraction"],
-    "Bars": ["bar", "nightclub", "liquor_store"],
-    "Sports": ["gym", "stadium", "park", "bowling_alley"],
-    "Politics": ["city_hall", "local_government_office", "courthouse", "embassy"],
-    "History": ["museum", "tourist_attraction", "church", "synagogue", "mosque"],
-    "Social Media": ["cafe"],
-    "Real Estate": ["lodging"],
-    "Dating": ["cafe", "movie_theater", "park", "bar"],
-    "Religion": ["church", "mosque", "synagogue", "hindu_temple"],
-    "Sightseeing": ["tourist_attraction", "museum", "art_gallery", "park", "zoo", "aquarium"],
-    "Cars": ["car_rental"],
-    "Coffee": ["cafe", "bakery", "restaurant"],
-    "Nature": ["park", "campground", "zoo", "aquarium"],
-}
 
 # Authentication middleware
-
-
 def authenticate(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -65,7 +47,15 @@ def authenticate(f):
 @authenticate
 def recommend():
     request_body = request.get_json()
-    nearby_places = request_body["nearbyPlaces"]
+    nearby_places_object = request_body["nearbyPlaces"]
+    nearby_places = []
+    for object in nearby_places_object:
+        if "places" in object:
+            nearby_places.append(object["places"])
+    time_zones = []
+    for object in nearby_places_object:
+        if "timeZone" in object:
+            time_zones.append(object["timeZone"])
     recent_places = request_body["recentTripsPlaceDetails"]
     free_slots = request_body["freeSlots"]
     trip_meetings = request_body["tripMeetings"]
@@ -102,7 +92,7 @@ def recommend():
             similarity_tables.append(similarity_df)
 
         scheduled_activities = create_scheduled_activities(
-            similarity_tables, nearby_places, free_slots, trip_meetings)
+            similarity_tables, nearby_places, free_slots, trip_meetings, time_zones)
         return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
 
     else:
@@ -149,7 +139,7 @@ def recommend():
             similarity_tables.append(mean_vals_df)
 
         scheduled_activities = create_scheduled_activities(
-            similarity_tables, nearby_places, free_slots, trip_meetings)
+            similarity_tables, nearby_places, free_slots, trip_meetings, time_zones)
         return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
 
 

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Text, StyleSheet } from "react-native";
 import ModalSelector from "react-native-modal-selector";
 import { DateRange } from "../../types/tripTypes";
+import ThemeContext from "../../context/ThemeContext";
 
 interface MeetingDateSelectorProps {
   rangeDate: DateRange;
@@ -16,6 +17,7 @@ const MeetingDateSelector = ({
   const [dateOptions, setDateOptions] = useState<
     { key: number; label: string }[]
   >([]);
+  const {theme} = useContext(ThemeContext);
 
   useEffect(() => {
     if (meetingDate) {
@@ -44,7 +46,7 @@ const MeetingDateSelector = ({
 
   return (
     <>
-      <Text style={styles.subTitle}>Select the date for this meeting</Text>
+      <Text style={[styles.subTitle, {color: theme === "Dark" ? "#fff" : "#000"}]}>Select the date for this meeting</Text>
       <ModalSelector
         data={dateOptions}
         initValue="Select a date"
@@ -65,6 +67,7 @@ const styles = StyleSheet.create({
   meetingDropdown: {
     width: "100%",
     marginBottom: 10,
+    backgroundColor: "grey",
   },
   initValueTextStyle: {
     textAlign: "center",

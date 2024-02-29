@@ -43,7 +43,7 @@ const CategoryView = ({
             <Text
               style={[
                 styles.interestButtonText,
-                { color: theme === "Dark" ? "white" : "black" },
+                { color: 'black' },
               ]}
             >
               {subcategory.id}
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   selectedInterestButton: {
-    backgroundColor: "#2a5",
+    backgroundColor: "rgba(34, 170, 85, 1)",
   },
   interestButton: {
     padding: 10,
