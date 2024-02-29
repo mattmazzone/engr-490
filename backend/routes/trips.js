@@ -55,7 +55,6 @@ async function useGetNearbyPlacesSevice(
 }
 
 async function getCoords(meeting) {
-  // console.log("Getting coords for meeting location", meeting);
   const [successOrNot, responseData] = await getPlaceTextSearch(
     meeting.location
   );
@@ -67,6 +66,30 @@ async function getCoords(meeting) {
 
   // should only be 1 result
   return responseData;
+}
+
+async function getTimezone(lat, lng, start) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const secondsSinceEpoch = Math.floor(new Date(start).getTime() / 1000);
+  const url = `https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${lng}&timestamp=${secondsSinceEpoch}&key=${apiKey}`;
+  try {
+    const response = await axios.get(url);
+    // Check if the API call was successful and if results were found
+    if (response.data.status === "OK") {
+      // Getting first result
+      const timeZoneData = response.data;
+      return timeZoneData;
+    } else {
+      // Handle no results or other API errors
+      return [
+        REQUEST.ERROR,
+        { message: "Geocoding failed: " + response.data.status },
+      ];
+    }
+  } catch (error) {
+    console.error(error);
+    return [REQUEST.ERROR, error.response ? error.response.data : error];
+  }
 }
 
 // Route to create a new trip
@@ -127,7 +150,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         continue;
       }
       const location = await getCoords(meeting);
-      console.log(location);
+      const timeZone = await getTimezone(location.lat, location.lng, meeting.start);
       const responseData = await useGetNearbyPlacesSevice(
         location.lat,
         location.lng,
@@ -136,7 +159,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         includedTypes
       );
 
-      nearbyPlaces.push(responseData.places);
+      nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
     }
 
     // Get user's recent trips from firestore
@@ -182,7 +205,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
     }
 
-    // console.log(nearbyPlaces);
     // Finally pass data into the recommender system and get the activities
     const token = req.headers.authorization;
     const response = await axios.post(
@@ -209,7 +231,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       tripMeetings,
       scheduledActivities,
     };
-    console.log(JSON.stringify(tripData, null, 4));
 
     const tripRef = await db.collection("trips").add(tripData);
     const tripId = tripRef.id;
@@ -219,7 +240,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     return res.status(200).json({ trip: tripData });
   } catch (error) {
-    console.error("Error creating trip\n", error);
+    //console.error("Error creating trip\n", error);
     res.status(500).send(error.message);
   }
 });
@@ -249,7 +270,6 @@ router.post("/end_trip/:uid", authenticate, async (req, res) => {
     const user = await db.collection("users").doc(uid).get();
     const userData = user.data();
     const tripId = userData.currentTrip;
-    console.log(tripId);
 
     // Add trip to user's past trips
     await db
@@ -298,6 +318,22 @@ router.get("/past_trips/:uid/:tripId", authenticate, async (req, res) => {
     console.error("Error getting past trip", error);
     res.status(500).send(error.message);
   }
+});
+
+router.get("/searchAddress:query", authenticate, async (req, res) => {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const userQuery = req.params.query;
+  const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${apiKey}&input=${encodeURIComponent(userQuery)}`;
+
+  try {
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Error fetching from Google Places API:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+
 });
 
 module.exports = router;

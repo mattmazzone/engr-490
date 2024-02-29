@@ -31,7 +31,6 @@ export const useUserProfile = ({ refreshData }: UserProfileHook) => {
         setUserProfile(JSON.parse(storedProfile));
       } else {
         // No profile found in storage, fetch from DB
-        console.log("No profile found in storage, fetching from DB");
         await fetchProfileFromDB();
       }
     } catch (error) {
@@ -43,18 +42,22 @@ export const useUserProfile = ({ refreshData }: UserProfileHook) => {
   };
 
   useEffect(() => {
-    if (FIREBASE_AUTH.currentUser) {
-      if (refreshData) {
-        fetchProfileFromDB();
+    const unsubscribe = FIREBASE_AUTH.onAuthStateChanged((user) => {
+      if (user) {
+        if (refreshData) {
+          fetchProfileFromDB();
+        } else {
+          fetchProfileFromStorage();
+        }
       } else {
-        fetchProfileFromStorage();
+        setUserProfile(null);
+        setIsFetchingProfile(false);
       }
-    } else {
-      console.log("No user logged in, clearing profile");
-      setUserProfile(null);
-      setIsFetchingProfile(false);
-    }
-  }, [refreshData, FIREBASE_AUTH.currentUser]);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [refreshData]);
 
   return { userProfile, isFetchingProfile };
 };
