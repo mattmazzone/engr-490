@@ -313,25 +313,67 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
       console.log("Single meeting for day", meetingsForDay[0].location);
       // If there's a single meeting, call getCoords and getRestaurants for breakfast and lunch/dinner
       const location = await getCoords(meetingsForDay[0].location);
-      restaurantsByDate[dayIndex].breakfast = await getRestaurants(location.lat, location.lng, 10, "Breakfast");
-      restaurantsByDate[dayIndex].lunchDinner = await getRestaurants(location.lat, location.lng, 20, "restaurant");
+      restaurantsByDate[dayIndex].breakfast = await getRestaurants(location.lat, location.lng, 20, "Breakfast");
+      restaurantsByDate[dayIndex].lunch = await getRestaurants(location.lat, location.lng, 20, "restaurant");
+      restaurantsByDate[dayIndex].dinner = await getRestaurants(location.lat, location.lng, 20, "restaurant");
     } else if (meetingsForDay.length > 1) {
-      console.log("Multiple meetings for day", meetingsForDay);
-      // If there are multiple meetings, get coords and restaurants for each one
-      const coords = await Promise.all(meetingsForDay.map(meeting => getCoords(meeting.location)));
-      restaurantsByDate[dayIndex].breakfast = await Promise.all(
-        coords.map(coord => getRestaurants(coord.lat, coord.lng, 5, "Breakfast"))
-      );
-      restaurantsByDate[dayIndex].lunchDinner = await Promise.all(
-        coords.map(coord => getRestaurants(coord.lat, coord.lng, 10, "restaurant"))
-      );
-    } else {
+  console.log("Multiple meetings for day", meetingsForDay);
+
+  // Define meal time windows in UTC hours for comparison with meeting start times
+  const breakfastTime = new Date(`${dateStr}T08:00:00.000Z`);
+  const lunchTime = new Date(`${dateStr}T12:00:00.000Z`);
+  const dinnerTime = new Date(`${dateStr}T18:00:00.000Z`);
+
+  // Function to find closest meeting to a given meal time
+const findClosestMeetingToMealTime = (mealTime) => {
+  return meetingsForDay.reduce((closest, meeting) => {
+    const meetingStart = new Date(meeting.start);
+    const distance = Math.abs(meetingStart.getTime() - mealTime.getTime());
+    if (!closest) {
+      return meeting; // If there's no closest yet, return current meeting
+    }
+    const closestDistance = Math.abs(new Date(closest.start).getTime() - mealTime.getTime());
+
+    return distance < closestDistance ? meeting : closest;
+  }, null); // Initially, there's no closest meeting
+};
+
+  // Find closest meetings for each meal time
+  const closestBreakfastMeeting = findClosestMeetingToMealTime(breakfastTime);
+  const closestLunchMeeting = findClosestMeetingToMealTime(lunchTime);
+  const closestDinnerMeeting = findClosestMeetingToMealTime(dinnerTime);
+  console.log("Closest meetings:", closestBreakfastMeeting, closestLunchMeeting, closestDinnerMeeting);
+
+  // Assuming getCoords and getRestaurants are async functions
+  if (closestBreakfastMeeting) {
+    const breakfastLocation = await getCoords(closestBreakfastMeeting.location);
+    restaurantsByDate[dayIndex].breakfast = await getRestaurants(breakfastLocation.lat, breakfastLocation.lng, 20, "Breakfast");
+  } else {
+    restaurantsByDate[dayIndex].breakfast = [];
+  }
+  
+  if (closestLunchMeeting) {
+    const lunchLocation = await getCoords(closestLunchMeeting.location);
+    restaurantsByDate[dayIndex].lunch = await getRestaurants(lunchLocation.lat, lunchLocation.lng, 20, "restaurant");
+  } else {
+    restaurantsByDate[dayIndex].lunch = [];
+  }
+  
+  if (closestDinnerMeeting) {
+    const dinnerLocation = await getCoords(closestDinnerMeeting.location);
+    restaurantsByDate[dayIndex].dinner = await getRestaurants(dinnerLocation.lat, dinnerLocation.lng, 20, "restaurant");
+  } else {
+    restaurantsByDate[dayIndex].dinner = [];
+  }
+}
+else {
       // If there are no meetings for this day, find the closest previous meeting's location
       const closestMeeting = findClosestMeetingToTargetDate(currentDate, meetings);
       if (closestMeeting) {
         const location = await getCoords(closestMeeting.location);
-        restaurantsByDate[dayIndex].breakfast = await getRestaurants(location.lat, location.lng, 10, "Breakfast");
-        restaurantsByDate[dayIndex].lunchDinner = await getRestaurants(location.lat, location.lng, 20, "restaurant");
+      restaurantsByDate[dayIndex].breakfast = await getRestaurants(location.lat, location.lng, 20, "Breakfast");
+      restaurantsByDate[dayIndex].lunch = await getRestaurants(location.lat, location.lng, 20, "restaurant");
+      restaurantsByDate[dayIndex].dinner = await getRestaurants(location.lat, location.lng, 20, "restaurant");
       } else {
         console.log("No meetings for day", currentDate);
         // If there is no closest meeting, you may want to handle this case appropriately
@@ -352,8 +394,9 @@ async function getRestaurantsWithNoMeetings(tripStart, tripEnd, location) {
   const numberOfDays = calculateNumberOfDays(tripStart, tripEnd);
 
   for (let dayIndex = 0; dayIndex < numberOfDays; dayIndex++) {
-      restaurantsByDate[dayIndex].breakfast = await getRestaurants(location.lat, location.lng, 10, "Breakfast");
-      restaurantsByDate[dayIndex].lunchDinner = await getRestaurants(location.lat, location.lng, 20, "restaurant");  
+      restaurantsByDate[dayIndex].breakfast = await getRestaurants(location.lat, location.lng, 20, "Breakfast");
+      restaurantsByDate[dayIndex].lunch = await getRestaurants(location.lat, location.lng, 20, "Lunch");
+      restaurantsByDate[dayIndex].dinner = await getRestaurants(location.lat, location.lng, 20, "Dinner");
   }
 
   return restaurantsByDate;
