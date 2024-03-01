@@ -271,7 +271,7 @@ def recommend():
     resto_interests = [interest for interest in interests if pattern.match(interest)]
     
     if len(recent_places) < 5:
-        print("Interests:")
+        print("Interests:", resto_interests)
         for day, categories in nearbyRestaurants.items():
             for category, restaurants in categories.items():  # Iterate over each category within the day
                 for restaurant in restaurants:  # Iterate over each restaurant in the category
@@ -325,7 +325,7 @@ def recommend():
             
             
         scheduled_activities = create_scheduled_activities(
-            similarity_tables, nearby_places, free_slots, trip_meetings, time_zones)
+            similarity_tables, nearby_places, free_slots, trip_meetings, time_zones, nearbyRestaurants)
         return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
 
     else:

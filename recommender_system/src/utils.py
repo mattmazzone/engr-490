@@ -311,6 +311,55 @@ def find_relavent_meeting(trip_meetings, end_time):
 
     return -1
 
+def addHighestRestaurant(places, nearby_places_picked, start_time, end_time):
+    if start_time.weekday() == 6:
+        weekday = 0
+    else:
+        weekday = start_time.weekday()+1
+    
+    for place in places:
+        newIndex = weekday
+        change = False
+        best_place_id = place['placeId']
+        #make sure there is information when accessing the regular opening hours of the place
+        openingHours = place.get('openingHours')
+        if openingHours is None:
+            continue
+        if best_place_id not in nearby_places_picked:
+            for i in range(len(place['openingHours'])):
+                if weekday == openingHours[i]['open']['day']:
+                    newIndex = i
+                    change = True
+                    break
+            if change == False & newIndex == weekday:
+                continue
+            print('New index: ', newIndex)
+            #get the opening time
+            openingDay = place['openingHours'][newIndex]['open']['day']
+            openingHour = place['openingHours'][newIndex]['open']['hour']
+            openingMinute = place['openingHours'][newIndex]['open']['minute']
+            openingTime = time(openingHour, openingMinute)
+            #get the closing time
+            closingDay = place['openingHours'][newIndex]['close']['day']
+            closingHour = place['openingHours'][newIndex]['close']['hour']
+            closingMinute = place['openingHours'][newIndex]['close']['minute']
+            if closingHour == 24:
+                closingHour = 0
+                closingDay = closingDay + 1
+            closingTime = time(closingHour, closingMinute)
+
+            print("Opening time: ", openingTime)
+            print("Start time: ", start_time.time())
+            print("End time: ", end_time.time())
+            print ("Closing time: ", closingTime) 
+
+            if openingTime <= start_time.time() and (openingDay != closingDay or closingTime >= end_time.time()):
+                print("Place scheduled: ", place['title'])
+                nearby_places_picked.add(best_place_id)
+                return {'place_id': best_place_id, 'place_name': place['title'], 'address': place['position'], 'score': place['similarity']}
+            
+
+
 
 def addHighestPlace(places, nearby_places_picked, start_time, end_time):
     if start_time.weekday() == 6:
@@ -362,7 +411,7 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
                 nearby_places_picked.add(best_place_id)
                 return {'place_id': best_place_id, 'place_name': place['info']['displayName']['text'], 'address': place['info']['formattedAddress'], 'score': place['similarity']}
 
-def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings, time_zones):
+def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings, time_zones, nearbyRestaurants):
     format_trips = '%Y-%m-%dT%H:%M:%S%z'
     format_slots = ['%Y-%m-%dT%H:%M:%S.%f%z',
                     '%Y-%m-%dT%H:%M:%S.%f%Z',]
@@ -420,11 +469,6 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
             slot['place_similarity'] = similarity_tables[0]
             slot['places_dict'] = nearby_places[0]
     else:
-        for meeting in trip_meetings:
-            meeting['start'] = datetime.strptime(
-                meeting['start'], format_trips)
-            meeting['end'] = datetime.strptime(meeting['end'], format_trips)
-
         trip_meetings.sort(key=lambda x: x['start'])
 
         for i in range(len(similarity_tables)):
@@ -441,6 +485,10 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
     lunch_time_range = {"start":   time(12, 0, 0), "end": time(14, 0, 0)}
     dinner_time_range = {"start": time(18, 0, 0), "end": time(20, 0, 0)}
 
+    #start the day index to the first day of the trip for the restaurant
+    dayIndex = 0
+
+    #schedule places in free time slots
     for i in range(len(broken_up_free_slots)):
         slot = broken_up_free_slots[i]
         slot_start = slot['start']
@@ -448,24 +496,23 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
         similarity_table: pd.DataFrame = slot['place_similarity']
         places_dict = slot['places_dict']
 
-        breakfast_places = []
-        restaurant_places = []
+        breakfast_places = nearbyRestaurants[str(dayIndex)]["breakfast"]
+        lunch_places = nearbyRestaurants[str(dayIndex)]["lunch"]
+        dinner_places = nearbyRestaurants[str(dayIndex)]["dinner"]
         other_places = []
 
         for place in places_dict:
             sim = similarity_table.loc[place['id'], 'similarity']
             obj = {"info": place, "similarity": sim}
-            if 'breakfast_restaurant' in place['types'] or 'coffee_shop' in place['types'] or 'cafe' in place['types'] or 'brunch_restaurant' in place['types']:
-                breakfast_places.append(obj)
-            elif 'restaurant' in place['types']:
-                restaurant_places.append(obj)
-            else:
+            if 'breakfast_restaurant' not in place['types'] and 'coffee_shop' not in place['types'] and 'cafe' not in place['types'] and 'brunch_restaurant' not in place['types'] and 'restaurant' not in place['types']:
                 other_places.append(obj)
 
         breakfast_places = sorted(
             breakfast_places, key=lambda x: x['similarity'])
-        restaurant_places = sorted(
-            restaurant_places, key=lambda x: x['similarity'])
+        lunch_places = sorted(
+            lunch_places, key=lambda x: x['similarity'])
+        dinner_places = sorted(
+            dinner_places, key=lambda x: x['similarity'])
         other_places = sorted(
             other_places, key=lambda x: x['similarity'])
 
@@ -476,15 +523,25 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
 
         highestPlace = None
         if len(breakfast_places) > 0 and breakfast_time_range['start'] <= slot_start.time() and slot_end.time() <= breakfast_time_range['end']:
-            slot['place_similarity'] = addHighestPlace(
+            slot['place_similarity'] = addHighestRestaurant(
                 breakfast_places, nearby_places_picked, slot_start, slot_end)
-        elif len(restaurant_places) > 0 and ((lunch_time_range['start'] <= slot_start.time() and slot_end.time() <= lunch_time_range['end']) or (dinner_time_range['start'] <= slot_start.time() and slot_end.time() <= dinner_time_range['end'])):
-            slot['place_similarity'] = addHighestPlace(
-                restaurant_places, nearby_places_picked, slot_start, slot_end)
+        elif len(lunch_places) > 0 and lunch_time_range['start'] <= slot_start.time() and slot_end.time() <= lunch_time_range['end']:
+            slot['place_similarity'] = addHighestRestaurant(
+                lunch_places, nearby_places_picked, slot_start, slot_end)
+        elif len(dinner_places) > 0 and dinner_time_range['start'] <= slot_start.time() and slot_end.time() <= dinner_time_range['end']:
+            slot['place_similarity'] = addHighestRestaurant(
+                dinner_places, nearby_places_picked, slot_start, slot_end)
         else:
             slot['place_similarity'] = addHighestPlace(
                 other_places, nearby_places_picked, slot_start, slot_end)
         del slot['places_dict']
+
+        #change index to the next day if the next free time slot is on the next day of trip
+        if i < len(broken_up_free_slots)-1 and broken_up_free_slots[i]['end'].weekday() != broken_up_free_slots[i+1]['start'].weekday():
+            print("Day index changed")
+            print("Day end free time slot:", broken_up_free_slots[i]['end'].weekday())
+            print("Day start next free time slot:", broken_up_free_slots[i+1]['start'].weekday())
+            dayIndex += 1
 
     raise NotImplemented('WIP')
     #return broken_up_free_slots
@@ -582,43 +639,3 @@ def convert_opening_hours(opening_hours_list):
                             "close": {"day": day_num, "hour": end_hour, "minute": end_minute},
                         })
     return results
-    results = []
-    for hours_list in opening_hours_list:
-        for hours in hours_list:
-            # Splitting the string by the colon gives us the days part and the hours part
-            days_part, hours_part = hours.split(':')
-            start_time_str, end_time_str = hours_part.strip().split(' - ')
-            start_hour, start_minute = parse_time(start_time_str)
-            end_hour, end_minute = parse_time(end_time_str)
-
-            if ',' in days_part:
-                days = days_part.split(',')
-            else:
-                days = [days_part]
-            
-            for day_range in days:
-                for day_num in day_range_to_numbers(day_range):
-                    results.append({
-                        "open": {"day": day_num, "hour": start_hour, "minute": start_minute},
-                        "close": {"day": day_num, "hour": end_hour, "minute": end_minute},
-                    })
-    return results
-    opening_hours_converted = []
-    for day_time_pairs in opening_hours_list:
-        for day_time_pair in day_time_pairs:
-            days, times = day_time_pair.split(': ')
-            # Handle multiple time ranges (e.g., split by ', ')
-            for time_range in times.split(', '):
-                start_time, end_time = parse_time_range(time_range)
-                # Handle day ranges (e.g., Mon-Sun) and individual days
-                if ',' in days:  # Handle comma-separated days
-                    days_split = days.split(', ')
-                    for day in days_split:
-                        day_nums = day_range_to_numbers(day)
-                        for day_num in day_nums:
-                            opening_hours_converted.append((day_num, start_time, end_time))
-                else:
-                    day_nums = day_range_to_numbers(days)
-                    for day_num in day_nums:
-                        opening_hours_converted.append((day_num, start_time, end_time))
-    return opening_hours_converted
