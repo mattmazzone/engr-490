@@ -7,8 +7,8 @@ import pandas as pd
 import random
 
 # https://developers.google.com/maps/documentation/places/web-service/place-types
-#FOR duration: integer represents hour
-#FOR maxAmountPerDay, integer represents number of times to go per day
+#FOR duration: double represents hour
+#FOR maxAmountPerDay, integer represents number of times to recommend per day
 #FOR MorningOrAftertoonOrEvening
 #Morning only: 1 (8am-12pm)
 #Afternoon only: 2 (12pm-6pm)
