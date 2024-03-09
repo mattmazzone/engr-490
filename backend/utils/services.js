@@ -134,10 +134,7 @@ async function getUserInterests(uid, db) {
 }
 
 async function getCoords(location) {
-  // console.log("Getting coords for meeting location", meeting);
-  const [successOrNot, responseData] = await getPlaceTextSearch(
-    location,
-  );
+  const [successOrNot, responseData] = await getPlaceTextSearch(location);
   if (successOrNot != REQUEST.SUCCESSFUL) {
     error = responseData;
     console.error(error);

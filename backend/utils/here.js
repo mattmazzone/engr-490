@@ -216,8 +216,6 @@ async function lookupPlaceById(placeId) {
 }
 
 async function getRestaurants(latitude, longitude, limit, mealType) {
-  console.log(latitude, longitude, limit, mealType);
-
   // Define the API endpoint and parameters
   const url = "https://discover.search.hereapi.com/v1/discover";
   const params = new URLSearchParams({
@@ -360,12 +358,6 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
         findClosestMeetingToMealTime(breakfastTime);
       const closestLunchMeeting = findClosestMeetingToMealTime(lunchTime);
       const closestDinnerMeeting = findClosestMeetingToMealTime(dinnerTime);
-      console.log(
-        "Closest meetings:",
-        closestBreakfastMeeting,
-        closestLunchMeeting,
-        closestDinnerMeeting
-      );
 
       // Assuming getCoords and getRestaurants are async functions
       if (closestBreakfastMeeting) {
@@ -433,7 +425,6 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
         );
       } else {
         console.log("No meetings for day", currentDate);
-        // If there is no closest meeting, you may want to handle this case appropriately
         restaurantsByDate[dayIndex] =
           "No meetings and no previous location found.";
       }
