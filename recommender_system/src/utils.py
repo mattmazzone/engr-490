@@ -333,7 +333,6 @@ def addHighestRestaurant(places, nearby_places_picked, start_time, end_time):
                     break
             if change == False & newIndex == weekday:
                 continue
-            print('New index: ', newIndex)
             #get the opening time
             openingDay = place['openingHours'][newIndex]['open']['day']
             openingHour = place['openingHours'][newIndex]['open']['hour']
@@ -357,7 +356,16 @@ def addHighestRestaurant(places, nearby_places_picked, start_time, end_time):
                 print("Place scheduled: ", place['title'])
                 nearby_places_picked.add(best_place_id)
                 return {'place_id': best_place_id, 'place_name': place['title'], 'address': place['position'], 'score': place['similarity']}
-            
+
+# Function to parse datetime with multiple formats        
+def parse_datetime(date_str, format_str):
+    
+    for fmt in format_str:
+        try:
+            return datetime.strptime(date_str, fmt)
+        except ValueError:
+            continue
+    raise ValueError(f"Time data '{date_str}' does not match any format in {format_str}")
 
 
 
@@ -412,15 +420,16 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
                 return {'place_id': best_place_id, 'place_name': place['info']['displayName']['text'], 'address': place['info']['formattedAddress'], 'score': place['similarity']}
 
 def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings, time_zones, nearbyRestaurants):
-    format_trips = '%Y-%m-%dT%H:%M:%S%z'
+    format_trips = ['%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dT%H:%M:%S.%f%z', '%Y-%m-%dT%H:%M:%S.%f%Z']
     format_slots = ['%Y-%m-%dT%H:%M:%S.%f%z',
                     '%Y-%m-%dT%H:%M:%S.%f%Z',]
     activity_duration = timedelta(hours=1.5)
     broken_up_free_slots = []
 
     for index,meeting in enumerate(trip_meetings):
-        meeting['start'] = datetime.strptime(meeting['start'], format_trips)
-        meeting['end'] = datetime.strptime(meeting['end'], format_trips)
+        print(f"Meeting {index} start: {meeting['start']}")
+        meeting['start'] = parse_datetime(meeting['start'], format_trips)
+        meeting['end'] = parse_datetime(meeting['end'], format_trips)
         timezone_offset = timedelta(seconds=time_zones[index]['rawOffset'] + time_zones[index]['dstOffset'])
         meeting['start'] = meeting['start'] + timezone_offset
         meeting['end'] = meeting['end'] + timezone_offset
@@ -542,6 +551,7 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
             print("Day end free time slot:", broken_up_free_slots[i]['end'].weekday())
             print("Day start next free time slot:", broken_up_free_slots[i+1]['start'].weekday())
             dayIndex += 1
+    print(broken_up_free_slots)
 
     raise NotImplemented('WIP')
     #return broken_up_free_slots
@@ -613,29 +623,51 @@ def day_range_to_numbers(day_range):
         return [day_map[day_range.strip()]]
 
 def convert_opening_hours(opening_hours_list):
+    all_days = set(range(7))  # Representing days as 0-6 for Sun-Sat
     results = []
+    open_days = set()
+
     for hours_list in opening_hours_list:
         for hours in hours_list:
-            # Correctly split the string into days_part and hours_part
-            split_index = hours.index(':')
-            days_part = hours[:split_index]
-            hours_part = hours[split_index + 1:]
-            # Handle multiple time ranges within the same day
-            time_ranges = hours_part.strip().split(',')
-            for time_range in time_ranges:
-                start_time_str, end_time_str = time_range.strip().split(' - ')
-                start_hour, start_minute = parse_time(start_time_str)
-                end_hour, end_minute = parse_time(end_time_str)
+            # Splitting the days part and the hours part
+            days_part, hours_part = hours.split(': ', 1)
+            time_ranges = [time_range.strip() for time_range in hours_part.split(',')]
 
-                if ',' in days_part:
-                    days = days_part.split(',')
-                else:
-                    days = [days_part]
-                
-                for day in days:
-                    for day_num in day_range_to_numbers(day):
+            # Parse the days, which might be ranges or individual days
+            if ',' in days_part:
+                days = [day.strip() for day in days_part.split(',')]
+            else:
+                days = [days_part]
+
+            for day in days:
+                day_nums = day_range_to_numbers(day)
+                open_days.update(day_nums)
+                for day_num in day_nums:
+                    for time_range in time_ranges:
+                        start_time_str, end_time_str = time_range.split(' - ')
+                        start_hour, start_minute = parse_time(start_time_str)
+                        end_hour, end_minute = parse_time(end_time_str)
+
+                        # Adjusting for the case when the end time is 24:00, which is equivalent to 00:00 of the next day
+                        if end_hour == 24:
+                            end_hour = 0
+                            end_minute = 0
+                            day_num = (day_num + 1) % 7
+
                         results.append({
                             "open": {"day": day_num, "hour": start_hour, "minute": start_minute},
                             "close": {"day": day_num, "hour": end_hour, "minute": end_minute},
                         })
+
+    # Determine closed days
+    closed_days = all_days - open_days
+    for closed_day in closed_days:
+        results.append({
+            "open": {"day": closed_day, "hour": 0, "minute": 0},
+            "close": {"day": closed_day, "hour": 0, "minute": 0},
+        })
+
+    # Sort results by day and opening time for consistency
+    results.sort(key=lambda x: (x['open']['day'], x['open']['hour'], x['open']['minute']))
+
     return results

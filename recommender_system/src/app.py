@@ -1,4 +1,5 @@
 from math import e
+from operator import ne
 import re
 from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
@@ -372,7 +373,7 @@ def recommend():
             similarity_tables.append(mean_vals_df)
 
         scheduled_activities = create_scheduled_activities(
-            similarity_tables, nearby_places, free_slots, trip_meetings, time_zones)
+            similarity_tables, nearby_places, free_slots, trip_meetings, time_zones, nearbyRestaurants)
         return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
 
 

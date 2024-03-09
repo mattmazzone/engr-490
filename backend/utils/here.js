@@ -1,10 +1,13 @@
 const axios = require("axios");
-const { calculateNumberOfDays, findClosestMeetingToTargetDate } = require("./timeSlotCalculator");
+const {
+  calculateNumberOfDays,
+  findClosestMeetingToTargetDate,
+} = require("./timeSlotCalculator");
 const { getCoords } = require("./services");
 
 const categories = {
-  "1000": {
-    "categories": {
+  1000: {
+    categories: {
       "100-1000-0000": "Restaurant",
       "100-1000-0001": "Casual Dining",
       "100-1000-0002": "Fine Dining",
@@ -17,10 +20,10 @@ const categories = {
       "100-1000-0009": "Fast Food",
       "100-1100-0000": "Coffee-Tea",
       "100-1100-0010": "Coffee Shop",
-      "100-1100-0331": "Tea House"
-    }
-  }
-}
+      "100-1100-0331": "Tea House",
+    },
+  },
+};
 const foodTypes = {
   "101-000": "American",
   "101-001": "American-Californian",
@@ -106,7 +109,7 @@ const foodTypes = {
   "301-032": "French-Provencale",
   "301-033": "French-Sud-ouest",
   "302-000": "German",
-  "303-000": "Greek", 
+  "303-000": "Greek",
   "304-000": "Italian",
   "305-000": "Irish",
   "306-000": "Austrian",
@@ -185,8 +188,8 @@ const foodTypes = {
   "800-082": "Dinner",
   "800-083": "Natural/Healthy",
   "800-084": "Organic",
-  "800-085": "Noodles"
-}
+  "800-085": "Noodles",
+};
 
 //To get info on specific place
 async function lookupPlaceById(placeId) {
@@ -196,68 +199,77 @@ async function lookupPlaceById(placeId) {
   const url = `https://lookup.search.hereapi.com/v1/lookup?id=${placeId}&apiKey=${apiKey}`;
 
   // Make the GET request using Axios
-  axios.get(url)
-    .then(response => {
+  axios
+    .get(url)
+    .then((response) => {
       const processedData = processPlaceData(response.data);
       return processedData;
     })
-    .catch(error => {
+    .catch((error) => {
       // Handle any errors
-      console.error('Error:', error.response ? error.response.status : error.message);
+      console.error(
+        "Error:",
+        error.response ? error.response.status : error.message
+      );
       return null;
     });
 }
 
-
-
-
-
-
 async function getRestaurants(latitude, longitude, limit, mealType) {
   console.log(latitude, longitude, limit, mealType);
 
-  
-    // Define the API endpoint and parameters
-    const url = "https://discover.search.hereapi.com/v1/discover";
-    const params = new URLSearchParams({
-      at: `${latitude},${longitude}`,
-      q: `restaurant ${mealType}`,
-      lang: "en",
-      limit: limit, //Can set limit
-      apiKey: process.env.HERE_API_KEY 
-    });
-  
-    try {
-      // Make the GET request
-      const response = await axios.get(url, { params });
-      if (response.status >= 200 && response.status < 300) { // Check if the response status is 200-299
-        const data = response.data;
-        
-    
-        const processedData = processRestaurantData(data);
-        return processedData; // Return the formatted data
-      } else {
-        console.error("Failed to fetch restaurants:", response.status);
-        return null;
-      }
-    } catch (error) {
-      console.error("Error fetching restaurants:", error);
-      return null; // Handle axios errors
+  // Define the API endpoint and parameters
+  const url = "https://discover.search.hereapi.com/v1/discover";
+  const params = new URLSearchParams({
+    at: `${latitude},${longitude}`,
+    q: `restaurant ${mealType}`,
+    lang: "en",
+    limit: limit, //Can set limit
+    apiKey: process.env.HERE_API_KEY,
+  });
+
+  try {
+    // Make the GET request
+    const response = await axios.get(url, { params });
+    if (response.status >= 200 && response.status < 300) {
+      // Check if the response status is 200-299
+      const data = response.data;
+
+      const processedData = processRestaurantData(data);
+      return processedData; // Return the formatted data
+    } else {
+      console.error("Failed to fetch restaurants:", response.status);
+      return null;
     }
+  } catch (error) {
+    console.error("Error fetching restaurants:", error);
+    return null; // Handle axios errors
+  }
 }
 
+// Function to find closest meeting to a given meal time
+// TODO: Take into account time Zones
+const findClosestMeetingToMealTime = (mealTime) => {
+  return meetingsForDay.reduce((closest, meeting) => {
+    const meetingStart = new Date(meeting.start);
+    const distance = Math.abs(meetingStart.getTime() - mealTime.getTime());
+    if (!closest) {
+      return meeting; // If there's no closest yet, return current meeting
+    }
+    const closestDistance = Math.abs(
+      new Date(closest.start).getTime() - mealTime.getTime()
+    );
 
-function selectRandomItem(array) {
-  const randomIndex = Math.floor(Math.random() * array.length);
-  return array[randomIndex];
-}
+    return distance < closestDistance ? meeting : closest;
+  }, null); // Initially, there's no closest meeting
+};
 
 async function processRestaurantData(data) {
   const processedItems = [];
 
   // Check if the response has items and iterate over them
   if (data.items && data.items.length > 0) {
-    data.items.forEach(item => {
+    data.items.forEach((item) => {
       // Check for missing or empty fields
       const hasCategories = item.categories && item.categories.length > 0;
       const hasFoodTypes = item.foodTypes && item.foodTypes.length > 0;
@@ -266,9 +278,17 @@ async function processRestaurantData(data) {
       const hasOpeningHours = item.openingHours && item.openingHours.length > 0;
 
       // Only proceed if all required fields are present and not empty
-      if (hasCategories && hasFoodTypes && hasAddress && hasPosition && hasOpeningHours) {
+      if (
+        hasCategories &&
+        hasFoodTypes &&
+        hasAddress &&
+        hasPosition &&
+        hasOpeningHours
+      ) {
         // Combine categories and foodTypes names into a single list of strings
-        const types = item.categories.map(cat => cat.id).concat(item.foodTypes.map(ft => ft.id));
+        const types = item.categories
+          .map((cat) => cat.id)
+          .concat(item.foodTypes.map((ft) => ft.id));
 
         // Extract the required fields
         const processedItem = {
@@ -276,8 +296,8 @@ async function processRestaurantData(data) {
           placeId: item.id, // Unique identifier
           address: item.address.label, // Address as a string
           position: item.position, //address coordinates (latitude, longitude)
-          openingHours: item.openingHours.map(oh => oh.text), // Opening hours as an array of strings ex: "Mon-Fri: 09:00 - 18:00"
-          types: types // Array of strings with categories and food types IDS
+          openingHours: item.openingHours.map((oh) => oh.text), // Opening hours as an array of strings ex: "Mon-Fri: 09:00 - 18:00"
+          types: types, // Array of strings with categories and food types IDS
         };
 
         // Add the processed item to the array
@@ -299,85 +319,123 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
   currentDate.setUTCHours(0, 0, 0, 0); // Set to start of the day in UTC
 
   for (let dayIndex = 0; dayIndex < numberOfDays; dayIndex++) {
-    const dateStr = currentDate.toISOString().split('T')[0];
+    const dateStr = currentDate.toISOString().split("T")[0];
 
-     restaurantsByDate[dayIndex] = { breakfast: [], lunchDinner: [] };
-    
+    restaurantsByDate[dayIndex] = { breakfast: [], lunchDinner: [] };
 
     // Filter meetings for the current UTC day
-    const meetingsForDay = meetings.filter(meeting => {
-      return meeting.start.split('T')[0] === dateStr;
+    const meetingsForDay = meetings.filter((meeting) => {
+      return meeting.start.split("T")[0] === dateStr;
     });
 
     if (meetingsForDay.length === 1) {
-      console.log("Single meeting for day", meetingsForDay[0].location);
       // If there's a single meeting, call getCoords and getRestaurants for breakfast and lunch/dinner
       const location = await getCoords(meetingsForDay[0].location);
-      restaurantsByDate[dayIndex].breakfast = await getRestaurants(location.lat, location.lng, 20, "Breakfast");
-      restaurantsByDate[dayIndex].lunch = await getRestaurants(location.lat, location.lng, 20, "restaurant");
-      restaurantsByDate[dayIndex].dinner = await getRestaurants(location.lat, location.lng, 20, "restaurant");
+      restaurantsByDate[dayIndex].breakfast = await getRestaurants(
+        location.lat,
+        location.lng,
+        20,
+        "Breakfast"
+      );
+      restaurantsByDate[dayIndex].lunch = await getRestaurants(
+        location.lat,
+        location.lng,
+        20,
+        "restaurant"
+      );
+      restaurantsByDate[dayIndex].dinner = await getRestaurants(
+        location.lat,
+        location.lng,
+        20,
+        "restaurant"
+      );
     } else if (meetingsForDay.length > 1) {
-  console.log("Multiple meetings for day", meetingsForDay);
+      // Define meal time windows in UTC hours for comparison with meeting start times
+      const breakfastTime = new Date(`${dateStr}T08:00:00.000Z`);
+      const lunchTime = new Date(`${dateStr}T12:00:00.000Z`);
+      const dinnerTime = new Date(`${dateStr}T18:00:00.000Z`);
 
-  // Define meal time windows in UTC hours for comparison with meeting start times
-  const breakfastTime = new Date(`${dateStr}T08:00:00.000Z`);
-  const lunchTime = new Date(`${dateStr}T12:00:00.000Z`);
-  const dinnerTime = new Date(`${dateStr}T18:00:00.000Z`);
+      // Find closest meetings for each meal time
+      const closestBreakfastMeeting =
+        findClosestMeetingToMealTime(breakfastTime);
+      const closestLunchMeeting = findClosestMeetingToMealTime(lunchTime);
+      const closestDinnerMeeting = findClosestMeetingToMealTime(dinnerTime);
+      console.log(
+        "Closest meetings:",
+        closestBreakfastMeeting,
+        closestLunchMeeting,
+        closestDinnerMeeting
+      );
 
-  // Function to find closest meeting to a given meal time
-const findClosestMeetingToMealTime = (mealTime) => {
-  return meetingsForDay.reduce((closest, meeting) => {
-    const meetingStart = new Date(meeting.start);
-    const distance = Math.abs(meetingStart.getTime() - mealTime.getTime());
-    if (!closest) {
-      return meeting; // If there's no closest yet, return current meeting
-    }
-    const closestDistance = Math.abs(new Date(closest.start).getTime() - mealTime.getTime());
+      // Assuming getCoords and getRestaurants are async functions
+      if (closestBreakfastMeeting) {
+        const breakfastLocation = await getCoords(
+          closestBreakfastMeeting.location
+        );
+        restaurantsByDate[dayIndex].breakfast = await getRestaurants(
+          breakfastLocation.lat,
+          breakfastLocation.lng,
+          20,
+          "Breakfast"
+        );
+      } else {
+        restaurantsByDate[dayIndex].breakfast = [];
+      }
 
-    return distance < closestDistance ? meeting : closest;
-  }, null); // Initially, there's no closest meeting
-};
+      if (closestLunchMeeting) {
+        const lunchLocation = await getCoords(closestLunchMeeting.location);
+        restaurantsByDate[dayIndex].lunch = await getRestaurants(
+          lunchLocation.lat,
+          lunchLocation.lng,
+          20,
+          "restaurant"
+        );
+      } else {
+        restaurantsByDate[dayIndex].lunch = [];
+      }
 
-  // Find closest meetings for each meal time
-  const closestBreakfastMeeting = findClosestMeetingToMealTime(breakfastTime);
-  const closestLunchMeeting = findClosestMeetingToMealTime(lunchTime);
-  const closestDinnerMeeting = findClosestMeetingToMealTime(dinnerTime);
-  console.log("Closest meetings:", closestBreakfastMeeting, closestLunchMeeting, closestDinnerMeeting);
-
-  // Assuming getCoords and getRestaurants are async functions
-  if (closestBreakfastMeeting) {
-    const breakfastLocation = await getCoords(closestBreakfastMeeting.location);
-    restaurantsByDate[dayIndex].breakfast = await getRestaurants(breakfastLocation.lat, breakfastLocation.lng, 20, "Breakfast");
-  } else {
-    restaurantsByDate[dayIndex].breakfast = [];
-  }
-  
-  if (closestLunchMeeting) {
-    const lunchLocation = await getCoords(closestLunchMeeting.location);
-    restaurantsByDate[dayIndex].lunch = await getRestaurants(lunchLocation.lat, lunchLocation.lng, 20, "restaurant");
-  } else {
-    restaurantsByDate[dayIndex].lunch = [];
-  }
-  
-  if (closestDinnerMeeting) {
-    const dinnerLocation = await getCoords(closestDinnerMeeting.location);
-    restaurantsByDate[dayIndex].dinner = await getRestaurants(dinnerLocation.lat, dinnerLocation.lng, 20, "restaurant");
-  } else {
-    restaurantsByDate[dayIndex].dinner = [];
-  }
-}
-else {
+      if (closestDinnerMeeting) {
+        const dinnerLocation = await getCoords(closestDinnerMeeting.location);
+        restaurantsByDate[dayIndex].dinner = await getRestaurants(
+          dinnerLocation.lat,
+          dinnerLocation.lng,
+          20,
+          "restaurant"
+        );
+      } else {
+        restaurantsByDate[dayIndex].dinner = [];
+      }
+    } else {
       // If there are no meetings for this day, find the closest previous meeting's location
-      const closestMeeting = findClosestMeetingToTargetDate(currentDate, meetings);
+      const closestMeeting = findClosestMeetingToTargetDate(
+        currentDate,
+        meetings
+      );
       if (closestMeeting) {
         const location = await getCoords(closestMeeting.location);
-      restaurantsByDate[dayIndex].breakfast = await getRestaurants(location.lat, location.lng, 20, "Breakfast");
-      restaurantsByDate[dayIndex].lunch = await getRestaurants(location.lat, location.lng, 20, "restaurant");
-      restaurantsByDate[dayIndex].dinner = await getRestaurants(location.lat, location.lng, 20, "restaurant");
+        restaurantsByDate[dayIndex].breakfast = await getRestaurants(
+          location.lat,
+          location.lng,
+          20,
+          "Breakfast"
+        );
+        restaurantsByDate[dayIndex].lunch = await getRestaurants(
+          location.lat,
+          location.lng,
+          20,
+          "restaurant"
+        );
+        restaurantsByDate[dayIndex].dinner = await getRestaurants(
+          location.lat,
+          location.lng,
+          20,
+          "restaurant"
+        );
       } else {
         console.log("No meetings for day", currentDate);
         // If there is no closest meeting, you may want to handle this case appropriately
-        restaurantsByDate[dayIndex] = 'No meetings and no previous location found.';
+        restaurantsByDate[dayIndex] =
+          "No meetings and no previous location found.";
       }
     }
 
@@ -390,23 +448,34 @@ else {
 
 //No meetings have locations or no meetings at all
 async function getRestaurantsWithNoMeetings(tripStart, tripEnd, location) {
-    let restaurantsByDate = {};
+  let restaurantsByDate = {};
   const numberOfDays = calculateNumberOfDays(tripStart, tripEnd);
 
   for (let dayIndex = 0; dayIndex < numberOfDays; dayIndex++) {
-      restaurantsByDate[dayIndex].breakfast = await getRestaurants(location.lat, location.lng, 20, "Breakfast");
-      restaurantsByDate[dayIndex].lunch = await getRestaurants(location.lat, location.lng, 20, "Lunch");
-      restaurantsByDate[dayIndex].dinner = await getRestaurants(location.lat, location.lng, 20, "Dinner");
+    restaurantsByDate[dayIndex].breakfast = await getRestaurants(
+      location.lat,
+      location.lng,
+      20,
+      "Breakfast"
+    );
+    restaurantsByDate[dayIndex].lunch = await getRestaurants(
+      location.lat,
+      location.lng,
+      20,
+      "Lunch"
+    );
+    restaurantsByDate[dayIndex].dinner = await getRestaurants(
+      location.lat,
+      location.lng,
+      20,
+      "Dinner"
+    );
   }
 
   return restaurantsByDate;
-
 }
-
-
-
 
 module.exports = {
-    processDaysAndGetRestaurants,
-    getRestaurantsWithNoMeetings
-}
+  processDaysAndGetRestaurants,
+  getRestaurantsWithNoMeetings,
+};
