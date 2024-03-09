@@ -1,6 +1,6 @@
 // AddressAutocomplete.js
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, FlatList, Text, Pressable, StyleSheet, Alert } from 'react-native';
 import { Platform } from "react-native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 
@@ -86,7 +86,7 @@ const AddressAutocomplete = ({ onAddressSelect }: any) => {
         data={suggestions}
         keyExtractor={(item) => item.place_id}
         renderItem={({ item }) => (
-          <TouchableOpacity
+          <Pressable
             style={styles.item}
             onPress={() => {
               setInput(item.description);
@@ -98,7 +98,7 @@ const AddressAutocomplete = ({ onAddressSelect }: any) => {
             }}
           >
             <Text>{item.description}</Text>
-          </TouchableOpacity>
+          </Pressable>
         )}
       />
     </View>

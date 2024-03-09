@@ -41,9 +41,6 @@ const getCalendarEvents = async (
       }
     );
     const data = await response.json();
-
-    console.log("Google Calendar API response:", data);
-
     // Filter properties to only include what we need (title/summary, start, end, location, googleId)
     const calendarEvents: Meeting[] = data.items.map((item: any) => ({
       title: item.summary,
@@ -127,7 +124,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   buttonYes: {
-    backgroundColor: "#2a5",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     padding: 10,
     width: 100,
     borderRadius: 5,
