@@ -355,7 +355,7 @@ def addHighestRestaurant(places, nearby_places_picked, start_time, end_time):
             if openingTime <= start_time.time() and (openingDay != closingDay or closingTime >= end_time.time()):
                 print("Place scheduled: ", place['title'])
                 nearby_places_picked.add(best_place_id)
-                return {'place_id': best_place_id, 'place_name': place['title'], 'address': place['position'], 'score': place['similarity']}
+                return {'place_id': best_place_id, 'place_name': place['title'], 'address': place['address'], 'score': place['similarity'], 'types': place['types']}
 
 # Function to parse datetime with multiple formats        
 def parse_datetime(date_str, format_str):
@@ -601,6 +601,7 @@ def calculate_similarity_score(current_item, past_items, all_types):
     
     # Iterate through past items to calculate similarities
     for past_item in past_items:
+        print(past_item)
         past_types = past_item['place_similarity']['types']
         past_vector = np.array(create_type_vector(past_types, all_types)).reshape(1, -1)
         similarity = cosine_similarity(current_vector, past_vector)[0][0]
