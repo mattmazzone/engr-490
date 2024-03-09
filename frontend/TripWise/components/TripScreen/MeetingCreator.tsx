@@ -11,6 +11,7 @@ import MeetingDateSelector from "./MeetingDateSelector";
 import { DateRange, Meeting, Time } from "../../types/tripTypes";
 import AddressAutocomplete from "./AddressAutocomplete";
 import ThemeContext from "../../context/ThemeContext";
+import Toast from 'react-native-toast-message';
 
 interface MeetingCreatorProps {
   rangeDate: DateRange;
@@ -99,6 +100,40 @@ const MeetingCreator = ({
   };
 
   const addMeeting = () => {
+    const meetingLocationMissing = !meetingLocation || meetingLocation.trim() === '';
+    const meetingTimeMissing = startTime.hours === 0 && startTime.minutes === 0 || endTime.hours === 0 && endTime.minutes === 0;
+    if (meetingLocationMissing) {
+      Toast.show({
+        type: 'error',
+        text2: 'Please enter a location for the meeting.',
+      });
+      return;
+    }
+    if (meetingTimeMissing) {
+      Toast.show({
+        type: 'error',
+        text2: 'Please enter a start and end time for the meeting.',
+      });
+      return;
+    }
+    if (!selectedMeetingDate) {
+      Toast.show({
+        type: 'error',
+        text2: 'Please select a date for the meeting.'
+      });
+      return;
+    }
+    const startDateTime = new Date(selectedMeetingDate);
+    startDateTime.setHours(startTime.hours, startTime.minutes);
+    const endDateTime = new Date(selectedMeetingDate);
+    endDateTime.setHours(endTime.hours, endTime.minutes);
+    if (endDateTime <= startDateTime) {
+      Toast.show({
+        type: 'error',
+        text2: 'The end time must be after the start time.',
+      });
+      return;
+    }
     if (selectedMeetingDate) {
       const newMeeting: Meeting = {
         title: meetingTitle,
@@ -204,6 +239,7 @@ const MeetingCreator = ({
         style={styles.addMeetingBtn}
       >
         <Text style={styles.addMeetingBtnTxt}>Add Meeting</Text>
+        <Toast />
       </Pressable>
     </View>
   );
