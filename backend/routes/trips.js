@@ -9,7 +9,6 @@ const {
   getRecentTrips,
   REQUEST,
   getPlaceDetails,
-  getPlaceTextSearch,
   getUserInterests,
   getCoords,
 } = require("../utils/services");
@@ -56,20 +55,6 @@ async function useGetNearbyPlacesSevice(
     throw new BadRequestException(error);
   }
 
-  return responseData;
-}
-
-async function getCoords(meeting) {
-  const [successOrNot, responseData] = await getPlaceTextSearch(
-    meeting.location
-  );
-  if (successOrNot != REQUEST.SUCCESSFUL) {
-    error = responseData;
-    console.error(error);
-    throw new BadRequestException(error);
-  }
-
-  // should only be 1 result
   return responseData;
 }
 
@@ -130,7 +115,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       dailyEndTime,
       bufferInMinutes
     );
-    console.log("tripMeetings", tripMeetings);
 
     const [success, interests] = await getUserInterests(uid, db);
     if (success != REQUEST.SUCCESSFUL) {
@@ -163,7 +147,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         tripEnd,
         tripMeetings
       );
-      console.log("Nearby Restaurants", nearbyRestaurants[0].breakfast[0]);
       // Get all meeting locations
       let locations = [];
       for (let i = 0; i < numMeetings; i++) {
@@ -243,7 +226,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         nearbyRestaurants.push(restoData);
       }
     }
-    console.log("Nearby Places ", nearbyPlaces);
 
     // Get user's recent trips from firestore
     let [successOrNotTrips, responseDataTrips] = await getRecentTrips(
@@ -260,7 +242,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       return;
     }
     const recentTrips = responseDataTrips;
-    console.log("Recent trips", recentTrips);
 
     // Extract google place IDs and types from recent trips
     // using the places details API
