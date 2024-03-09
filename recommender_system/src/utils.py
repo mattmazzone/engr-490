@@ -552,9 +552,11 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
             print("Day start next free time slot:", broken_up_free_slots[i+1]['start'].weekday())
             dayIndex += 1
     print(broken_up_free_slots)
+    
+    filtered_data = [entry for entry in broken_up_free_slots if entry['place_similarity'] is not None]
 
-    raise NotImplemented('WIP')
-    #return broken_up_free_slots
+    #raise NotImplemented('WIP')
+    return filtered_data
 
 
 def create_interests_df(interests):
