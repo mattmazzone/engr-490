@@ -2,7 +2,7 @@ import { NavigationProp } from "@react-navigation/native";
 import React, { useState, useContext, useEffect } from "react";
 import {
   Text,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   SafeAreaView,
   ScrollView,
@@ -212,15 +212,17 @@ const Trip = ({ navigation }: RouterProps) => {
                 meetings={meetings}
                 onDeleteMeeting={deleteMeeting}
               />
-              <TouchableOpacity
-                onPressIn={() => {
-                  setConfirmTripModalVisible(true);
-                }}
-                style={styles.button}
-                disabled={!rangeDate.startDate || !rangeDate.endDate}
-              >
-                <Text style={styles.buttonText}>Create Trip</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonContainer}>
+                <Pressable
+                  onPressIn={() => {
+                    setConfirmTripModalVisible(true);
+                  }}
+                  style={styles.button}
+                  disabled={!rangeDate.startDate || !rangeDate.endDate}
+                >
+                  <Text style={styles.buttonText}>Create Trip</Text>
+                </Pressable>
+              </View>
             </>
           ) : (
             <></>
@@ -278,17 +280,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
   },
-  button: {
+  buttonContainer : {
     padding: 15,
-    borderRadius: 25,
-    backgroundColor: "blue",
     marginTop: 20,
     marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "center",
+    columnGap: 15,
+    width: "100%",
+  },
+  button: {
+    backgroundColor: "rgba(34, 170, 85, 1)",
+    padding: 10,
+    borderRadius: 5,
+    justifyContent: "center",
+    width: 200,
   },
   buttonText: {
     textAlign: "center",
-    color: "#fff",
+    color: "white",
     fontWeight: "bold",
+    fontSize: 16,
   },
   overlay: {
     position: 'absolute',

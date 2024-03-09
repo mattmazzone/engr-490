@@ -15,8 +15,8 @@ const {
 } = require("../utils/services");
 const {
   processDaysAndGetRestaurants,
-  getRestaurantsWithNoMeetings
-} = require("../utils/here")
+  getRestaurantsWithNoMeetings,
+} = require("../utils/here");
 const axios = require("axios");
 
 const recommenderPort = 4000;
@@ -59,6 +59,19 @@ async function useGetNearbyPlacesSevice(
   return responseData;
 }
 
+async function getCoords(meeting) {
+  const [successOrNot, responseData] = await getPlaceTextSearch(
+    meeting.location
+  );
+  if (successOrNot != REQUEST.SUCCESSFUL) {
+    error = responseData;
+    console.error(error);
+    throw new BadRequestException(error);
+  }
+
+  // should only be 1 result
+  return responseData;
+}
 
 async function getTimezone(lat, lng, start) {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -119,8 +132,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     );
     console.log("tripMeetings", tripMeetings);
 
-
-
     const [success, interests] = await getUserInterests(uid, db);
     if (success != REQUEST.SUCCESSFUL) {
       error = interests;
@@ -128,9 +139,9 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     }
 
     // Filter out restaurant interests
-    const nonRestaurantInterests = interests.filter(interest => !interest.match(/^\d{3}-\d{3}$/));
-
-
+    const nonRestaurantInterests = interests.filter(
+      (interest) => !interest.match(/^\d{3}-\d{3}$/)
+    );
 
     /*
     =--=-=-=-=-=-=-=-=
@@ -142,14 +153,16 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     let nearbyPlaces = [];
     let nearbyRestaurants = [];
 
-
-
     const numMeetings = tripMeetings.length;
 
     //Checking if atleast 1 meeting has a location
     if (!tripLocation || tripLocation == "") {
       // Get nearby restaurants
-      nearbyRestaurants = await processDaysAndGetRestaurants(tripStart, tripEnd, tripMeetings);
+      nearbyRestaurants = await processDaysAndGetRestaurants(
+        tripStart,
+        tripEnd,
+        tripMeetings
+      );
       console.log("Nearby Restaurants", nearbyRestaurants[0].breakfast[0]);
       // Get all meeting locations
       let locations = [];
@@ -170,8 +183,12 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         }
 
         const location = await getCoords(meeting.location);
-        const timeZone = await getTimezone(location.lat, location.lng, meeting.start);
-      console.log(timeZone);
+        const timeZone = await getTimezone(
+          location.lat,
+          location.lng,
+          meeting.start
+        );
+        console.log(timeZone);
         const responseData = await useGetNearbyPlacesSevice(
           location.lat,
           location.lng,
@@ -180,7 +197,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
           nonRestaurantInterests
         );
 
-        nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
+        nearbyPlaces.push({ places: responseData.places, timeZone: timeZone });
       }
     } else {
       //Need to use tripLocation
@@ -192,25 +209,39 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         nearByPlaceRadius,
         nonRestaurantInterests
       );
-      
-      nearbyRestaurants = await getRestaurantsWithNoMeetings(tripStart, tripEnd, location);
-      //No meeting has location
-      if(numMeetings > 0) {
-        for(let i = 0; i < numMeetings; i++){
-          let meeting = tripMeetings[i];
-          const timeZone = await getTimezone(location.lat, location.lng, meeting.start);
-          nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
 
+      nearbyRestaurants = await getRestaurantsWithNoMeetings(
+        tripStart,
+        tripEnd,
+        location
+      );
+      //No meeting has location
+      if (numMeetings > 0) {
+        for (let i = 0; i < numMeetings; i++) {
+          let meeting = tripMeetings[i];
+          const timeZone = await getTimezone(
+            location.lat,
+            location.lng,
+            meeting.start
+          );
+          nearbyPlaces.push({
+            places: responseData.places,
+            timeZone: timeZone,
+          });
         }
       }
       //No meetings at all
       else {
         console.log("Trip Start", tripStart);
-        const timeZone = await getTimezone(location.lat, location.lng, tripStart);
+        const timeZone = await getTimezone(
+          location.lat,
+          location.lng,
+          tripStart
+        );
         console.log("TimeZone", timeZone);
-        nearbyPlaces.push({places: responseData.places, timeZone: timeZone});
-      nearbyRestaurants.push(restoData);
-    }
+        nearbyPlaces.push({ places: responseData.places, timeZone: timeZone });
+        nearbyRestaurants.push(restoData);
+      }
     }
     console.log("Nearby Places ", nearbyPlaces);
 
@@ -259,13 +290,20 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         placeDetails.rating = place.rating;
         recentTripsPlaceDetails.push(placeDetails);
 
-        if (recentTripsPlaceDetails.length >= maxRecentTrips || recentRestaurants.length >= maxRecentTrips) break;
+        if (
+          recentTripsPlaceDetails.length >= maxRecentTrips ||
+          recentRestaurants.length >= maxRecentTrips
+        )
+          break;
       }
 
-      if (recentTripsPlaceDetails.length >= maxRecentTrips || recentRestaurants.length >= maxRecentTrips) break;
+      if (
+        recentTripsPlaceDetails.length >= maxRecentTrips ||
+        recentRestaurants.length >= maxRecentTrips
+      )
+        break;
     }
 
-    // console.log(nearbyPlaces);
     // Finally pass data into the recommender system and get the activities
     const token = req.headers.authorization;
     //TODO: add TripLocation to the request
@@ -295,7 +333,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       tripMeetings,
       scheduledActivities,
     };
-    //console.log(JSON.stringify(tripData, null, 4));
 
     const tripRef = await db.collection("trips").add(tripData);
     const tripId = tripRef.id;
@@ -335,7 +372,6 @@ router.post("/end_trip/:uid", authenticate, async (req, res) => {
     const user = await db.collection("users").doc(uid).get();
     const userData = user.data();
     const tripId = userData.currentTrip;
-    console.log(tripId);
 
     // Add trip to user's past trips
     await db
