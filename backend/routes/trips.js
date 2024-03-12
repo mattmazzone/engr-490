@@ -102,8 +102,17 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     }
 
     // Filter out restaurant interests
-    const nonRestaurantInterests = interests.filter(
-      (interest) => !interest.match(/^\d{3}-\d{3}$/)
+    const { restaurantInterests, nonRestaurantInterests } = interests.reduce(
+      (acc, interest) => {
+        // Use a regular expression to test if the interest matches the restaurant format
+        if (interest.match(/^\d{3}-\d{3}$/)) {
+          acc.restaurantInterests.push(interest); // Add to restaurant interests
+        } else {
+          acc.nonRestaurantInterests.push(interest); // Otherwise, add to non-restaurant interests
+        }
+        return acc;
+      },
+      { restaurantInterests: [], nonRestaurantInterests: [] }
     );
 
     /*
@@ -131,6 +140,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         tripEnd,
         adsjustedMeetings
       );
+
+      console.log("Nearby Restaurants", nearbyRestaurants);
       // Get all meeting locations
       let locations = [];
       for (let i = 0; i < numMeetings; i++) {
