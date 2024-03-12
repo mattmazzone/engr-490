@@ -5,7 +5,6 @@ const {
   findClosestMeetingToMealTime,
 } = require("./timeSlotCalculator");
 const { getCoords } = require("./services");
-const { get } = require("../routes/trips");
 
 //To get info on specific place
 async function lookupPlaceById(placeId) {
