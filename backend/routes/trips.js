@@ -11,6 +11,9 @@ const {
   getPlaceDetails,
   getUserInterests,
   getCoords,
+  getTimezone,
+  addMeetingCoordinates,
+  adjustMeetingTimes,
 } = require("../utils/services");
 const {
   processDaysAndGetRestaurants,
@@ -58,30 +61,6 @@ async function useGetNearbyPlacesSevice(
   return responseData;
 }
 
-async function getTimezone(lat, lng, start) {
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-  const secondsSinceEpoch = Math.floor(new Date(start).getTime() / 1000);
-  const url = `https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${lng}&timestamp=${secondsSinceEpoch}&key=${apiKey}`;
-  try {
-    const response = await axios.get(url);
-    // Check if the API call was successful and if results were found
-    if (response.data.status === "OK") {
-      // Getting first result
-      const timeZoneData = response.data;
-      return timeZoneData;
-    } else {
-      // Handle no results or other API errors
-      return [
-        REQUEST.ERROR,
-        { message: "Geocoding failed: " + response.data.status },
-      ];
-    }
-  } catch (error) {
-    console.error(error);
-    return [REQUEST.ERROR, error.response ? error.response.data : error];
-  }
-}
-
 // Route to create a new trip
 router.post("/create_trip/:uid", authenticate, async (req, res) => {
   try {
@@ -115,6 +94,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       dailyEndTime,
       bufferInMinutes
     );
+    console.log(tripMeetings);
+    console.log(freeSlots);
 
     const [success, interests] = await getUserInterests(uid, db);
     if (success != REQUEST.SUCCESSFUL) {
@@ -139,13 +120,18 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     const numMeetings = tripMeetings.length;
 
+    const adsjustedMeetings = await adjustMeetingTimes(
+      await addMeetingCoordinates(tripMeetings)
+    );
+    console.log("Adjusted Meetings", adsjustedMeetings);
+
     //Checking if atleast 1 meeting has a location
     if (!tripLocation || tripLocation == "") {
       // Get nearby restaurants
       nearbyRestaurants = await processDaysAndGetRestaurants(
         tripStart,
         tripEnd,
-        tripMeetings
+        adsjustedMeetings
       );
       // Get all meeting locations
       let locations = [];
@@ -171,7 +157,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
           location.lng,
           meeting.start
         );
-        console.log(timeZone);
+        console.log("Timezone", timeZone);
         const responseData = await useGetNearbyPlacesSevice(
           location.lat,
           location.lng,
