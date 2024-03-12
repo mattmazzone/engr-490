@@ -263,6 +263,9 @@ def recommend():
     nearbyRestaurants = request_body['nearbyRestaurants']
     recentRestaurants = request_body['recentRestaurants']
     
+    # Remove meetings without start and end times (all day meetings)
+    trip_meetings = [meeting for meeting in trip_meetings if 'start' in meeting and 'end' in meeting]
+
     
     
     restoTypeList = list(foodTypes.keys())
@@ -272,7 +275,6 @@ def recommend():
     resto_interests = [interest for interest in interests if pattern.match(interest)]
     
     if len(recent_places) < 5:
-        print("Interests:", resto_interests)
         for day, categories in nearbyRestaurants.items():
             for category, restaurants in categories.items():  # Iterate over each category within the day
                 for restaurant in restaurants:  # Iterate over each restaurant in the category
@@ -318,7 +320,6 @@ def recommend():
                 index={0: 'similarity'})
             similarity_df = similarity_df.transpose()
 
-            #print(similarity_df)
 
             similarity_tables.append(similarity_df)
 
@@ -381,7 +382,6 @@ def recommend():
 @app.route('/api/scheduleActivities', methods=['POST'])
 @authenticate
 def scheduleActivities():
-    print("Started python")
     request_body = request.get_json()
 
     #Get the free time slots from the body
@@ -536,7 +536,6 @@ def scheduleActivities():
             current_time += interval_duration
             current_end_time += interval_duration
 
-    print("Schedule: ",tripMeetings)
     return make_response(jsonify({"meetings": tripMeetings}), 200)
 
 # Start the server
