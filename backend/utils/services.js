@@ -65,7 +65,6 @@ async function getRecentTrips(admin, db, uid, numRecentTrips) {
           recentTrips.push(trip);
         });
       });
-    console.log("Retreived recent trip data");
     return [REQUEST.SUCCESSFUL, recentTrips];
   } catch (error) {
     console.log(error.message);
