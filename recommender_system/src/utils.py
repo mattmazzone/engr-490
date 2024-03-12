@@ -353,7 +353,6 @@ def addHighestRestaurant(places, nearby_places_picked, start_time, end_time):
             print ("Closing time: ", closingTime) 
 
             if openingTime <= start_time.time() and (openingDay != closingDay or closingTime >= end_time.time()):
-                print("Place scheduled: ", place['title'])
                 nearby_places_picked.add(best_place_id)
                 return {'place_id': best_place_id, 'place_name': place['title'], 'address': place['address'], 'score': place['similarity'], 'types': place['types']}
 
@@ -384,9 +383,7 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
             continue
         if best_place_id not in nearby_places_picked:
             #make sure to select the right index for the day of the week
-            print("Activity look: ", place['info']['displayName']['text'])
             if len(place['info']['regularOpeningHours']['periods']) < 7:
-                print("Start of looking for the right day")
                 comparison = weekday
                 change = False
                 for i in range(len(place['info']['regularOpeningHours']['periods'])-1):
@@ -415,7 +412,6 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
             print ("Closing time: ", closingTime) 
 
             if openingTime <= start_time.time() and (openingDay != closingDay or closingTime >= end_time.time()):
-                print("Place scheduled: ", place['info']['displayName']['text'])
                 nearby_places_picked.add(best_place_id)
                 return {'place_id': best_place_id, 'place_name': place['info']['displayName']['text'], 'address': place['info']['formattedAddress'], 'score': place['similarity']}
 
@@ -425,9 +421,9 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
                     '%Y-%m-%dT%H:%M:%S.%f%Z',]
     activity_duration = timedelta(hours=1.5)
     broken_up_free_slots = []
+    
 
     for index,meeting in enumerate(trip_meetings):
-        print(f"Meeting {index} start: {meeting['start']}")
         meeting['start'] = parse_datetime(meeting['start'], format_trips)
         meeting['end'] = parse_datetime(meeting['end'], format_trips)
         timezone_offset = timedelta(seconds=time_zones[index]['rawOffset'] + time_zones[index]['dstOffset'])
@@ -525,10 +521,6 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
         other_places = sorted(
             other_places, key=lambda x: x['similarity'])
 
-        # print(f'length of breakfast_places {len(breakfast_places)}')
-        # print(f'length of restaurant_places {len(restaurant_places)}')
-        # print(f'length of other_places {len(other_places)}')
-        # print()
 
         highestPlace = None
         if len(breakfast_places) > 0 and breakfast_time_range['start'] <= slot_start.time() and slot_end.time() <= breakfast_time_range['end']:
@@ -600,7 +592,6 @@ def calculate_similarity_score(current_item, past_items, all_types):
     
     # Iterate through past items to calculate similarities
     for past_item in past_items:
-        print(past_item)
         past_types = past_item['place_similarity']['types']
         past_vector = np.array(create_type_vector(past_types, all_types)).reshape(1, -1)
         similarity = cosine_similarity(current_vector, past_vector)[0][0]

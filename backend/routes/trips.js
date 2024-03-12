@@ -94,8 +94,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       dailyEndTime,
       bufferInMinutes
     );
-    console.log(tripMeetings);
-    console.log(freeSlots);
 
     const [success, interests] = await getUserInterests(uid, db);
     if (success != REQUEST.SUCCESSFUL) {
@@ -145,6 +143,11 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       let locationIndex = 0;
       for (let i = 0; i < numMeetings; i++) {
         let meeting = tripMeetings[i];
+
+        // Skip meetings without start and end times (all day events)
+        if (!meeting.start || !meeting.end) {
+          continue;
+        }
 
         if (!meeting.location || meeting.location === "") {
           meeting.location = locations[locationIndex];

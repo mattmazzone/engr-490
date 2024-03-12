@@ -344,7 +344,6 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
         "restaurant"
       );
     } else if (meetingsForDay.length > 1) {
-      console.log("Multiple meetings for day", currentDate);
       // Define meal time windows in UTC hours for comparison with meeting start times
       const breakfastTime = new Date(`${dateStr}T08:00:00.000Z`);
       const lunchTime = new Date(`${dateStr}T12:00:00.000Z`);
