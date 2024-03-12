@@ -144,6 +144,117 @@ async function getCoords(location) {
   // should only be 1 result
   return responseData;
 }
+
+async function getTimezone(lat, lng, start) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const secondsSinceEpoch = Math.floor(new Date(start).getTime() / 1000);
+  const url = `https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${lng}&timestamp=${secondsSinceEpoch}&key=${apiKey}`;
+  try {
+    const response = await axios.get(url);
+    // Check if the API call was successful and if results were found
+    if (response.data.status === "OK") {
+      // Getting first result
+      const timeZoneData = response.data;
+      return timeZoneData;
+    } else {
+      // Handle no results or other API errors
+      return [
+        REQUEST.ERROR,
+        { message: "Geocoding failed: " + response.data.status },
+      ];
+    }
+  } catch (error) {
+    console.error(error);
+    return [REQUEST.ERROR, error.response ? error.response.data : error];
+  }
+}
+
+async function addMeetingCoordinates(meetings) {
+  const enrichedMeetings = [];
+
+  for (const meeting of meetings) {
+    if (meeting.location) {
+      try {
+        const responseData = await getCoords(meeting.location);
+        const coords = {
+          lat: responseData.lat,
+          lng: responseData.lng,
+        };
+
+        // Create a new enriched meeting object with the coordinates
+        const enrichedMeeting = {
+          ...meeting,
+          coords,
+        };
+
+        enrichedMeetings.push(enrichedMeeting);
+      } catch (error) {
+        console.error(
+          `Failed to get coordinates for meeting at ${meeting.location}:`,
+          error
+        );
+        // Decide how to handle meetings for which coordinates couldn't be fetched
+        // For simplicity, we're adding the meeting without coordinates
+        enrichedMeetings.push(meeting);
+      }
+    }
+  }
+
+  return enrichedMeetings;
+}
+async function adjustMeetingTimes(meetings) {
+  const adjustedMeetings = [];
+
+  for (const meeting of meetings) {
+    if (meeting.location) {
+      try {
+        const timeZoneData = await getTimezone(
+          meeting.coords.lat,
+          meeting.coords.lng,
+          meeting.start
+        );
+
+        // Check if the API call was successful
+        if (!timeZoneData || timeZoneData.status !== "OK") {
+          console.error("Failed to fetch time zone data:", timeZoneData);
+          // Decide how to handle this case. For now, we skip adjustment.
+          adjustedMeetings.push(meeting);
+          continue;
+        }
+
+        // Calculate the total offset (taking into account daylight saving time)
+        const offset = timeZoneData.dstOffset + timeZoneData.rawOffset; // In seconds
+
+        // Adjust the meeting start and end times based on the offset
+        const adjustedStart = new Date(
+          new Date(meeting.start).getTime() + offset * 1000
+        ).toISOString();
+        const adjustedEnd = new Date(
+          new Date(meeting.end).getTime() + offset * 1000
+        ).toISOString();
+
+        // Create a new meeting object with adjusted times
+        const adjustedMeeting = {
+          ...meeting,
+          start: adjustedStart,
+          end: adjustedEnd,
+        };
+
+        adjustedMeetings.push(adjustedMeeting);
+      } catch (error) {
+        console.error(
+          `Failed to adjust time for meeting "${meeting.title}" due to:`,
+          error
+        );
+        // Add the original meeting object in case of failure
+        adjustedMeetings.push(meeting);
+      }
+    }
+  }
+
+  return adjustedMeetings;
+}
+
 module.exports = {
   REQUEST,
   getNearbyPlaces,
@@ -152,4 +263,7 @@ module.exports = {
   getPlaceTextSearch,
   getUserInterests,
   getCoords,
+  getTimezone,
+  addMeetingCoordinates,
+  adjustMeetingTimes,
 };
