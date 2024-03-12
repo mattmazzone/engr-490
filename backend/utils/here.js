@@ -2,8 +2,9 @@ const axios = require("axios");
 const {
   calculateNumberOfDays,
   findClosestMeetingToTargetDate,
+  findClosestMeetingToMealTime,
 } = require("./timeSlotCalculator");
-const { getCoords, getTimezone } = require("./services");
+const { getCoords } = require("./services");
 
 const categories = {
   1000: {
@@ -191,45 +192,6 @@ const foodTypes = {
   "800-085": "Noodles",
 };
 
-// TODO: Take into account time Zones
-const findClosestMeetingToMealTime = async (mealTime, meetingsForDay) => {
-  // Convert meal times to each meeting's local time and find the closest
-  const convertedMeetings = await Promise.all(
-    meetingsForDay.map(async (meeting) => {
-      const timeZoneData = await getTimezone(
-        meeting.lat,
-        meeting.lng,
-        meeting.start
-      );
-      // Convert meeting start time to its local timezone
-      const meetingStartTime = new Date(meeting.start);
-      const offset = timeZoneData.dstOffset + timeZoneData.rawOffset; // Total offset in seconds
-      const localMeetingTime = new Date(
-        meetingStartTime.getTime() + offset * 1000
-      );
-
-      return {
-        ...meeting,
-        localMeetingTime,
-      };
-    })
-  );
-  // Now find the closest meeting based on local times
-  return convertedMeetings.reduce((closest, meeting) => {
-    const distance = Math.abs(
-      meeting.localMeetingTime.getTime() - mealTime.getTime()
-    );
-    if (!closest) {
-      return meeting;
-    }
-    const closestDistance = Math.abs(
-      new Date(closest.start).getTime() - mealTime.getTime()
-    );
-
-    return distance < closestDistance ? meeting : closest;
-  }, null);
-};
-
 //To get info on specific place
 async function lookupPlaceById(placeId) {
   const apiKey = process.env.HERE_API_KEY;
@@ -329,10 +291,23 @@ async function processRestaurantData(data) {
   return processedItems;
 }
 
+async function addCoordsToMeetings(meetings) {
+  for (let i = 0; i < meetings.length; i++) {
+    const meeting = meetings[i];
+    const coords = await getCoords(meeting.location);
+    if (coords) {
+      meeting.coords = coords;
+    }
+  }
+}
+
 // Gets list of restaurants per day per meeting for breakfast lunch and dinner
 async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
   let restaurantsByDate = {};
   const numberOfDays = calculateNumberOfDays(tripStart, tripEnd);
+
+  // Add coordinates to meetings
+  await addCoordsToMeetings(meetings);
 
   // Start date object for iteration
   let currentDate = new Date(tripStart);
@@ -376,12 +351,18 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
       const dinnerTime = new Date(`${dateStr}T18:00:00.000Z`);
 
       // Find closest meetings for each meal time
-      const closestBreakfastMeeting =
-        findClosestMeetingToMealTime(breakfastTime);
-      const closestLunchMeeting = findClosestMeetingToMealTime(lunchTime);
-      const closestDinnerMeeting = findClosestMeetingToMealTime(dinnerTime);
-
-      // Assuming getCoords and getRestaurants are async functions
+      const closestBreakfastMeeting = findClosestMeetingToMealTime(
+        breakfastTime,
+        meetingsForDay
+      );
+      const closestLunchMeeting = findClosestMeetingToMealTime(
+        lunchTime,
+        meetingsForDay
+      );
+      const closestDinnerMeeting = findClosestMeetingToMealTime(
+        dinnerTime,
+        meetingsForDay
+      );
       if (closestBreakfastMeeting) {
         restaurantsByDate[dayIndex].breakfast = await getRestaurants(
           closestBreakfastMeeting.coords.lat,

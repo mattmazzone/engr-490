@@ -1,4 +1,5 @@
 const axios = require("axios");
+const moment = require("moment-timezone");
 
 const REQUEST = {
   SUCCESSFUL: 0,
@@ -169,75 +170,17 @@ async function getTimezone(lat, lng, start) {
   }
 }
 
-async function addMeetingCoordinates(meetings) {
-  const enrichedMeetings = [];
-
-  for (const meeting of meetings) {
-    if (meeting.location) {
-      try {
-        const responseData = await getCoords(meeting.location);
-        const coords = {
-          lat: responseData.lat,
-          lng: responseData.lng,
-        };
-
-        // Create a new enriched meeting object with the coordinates
-        const enrichedMeeting = {
-          ...meeting,
-          coords,
-        };
-
-        enrichedMeetings.push(enrichedMeeting);
-      } catch (error) {
-        console.error(
-          `Failed to get coordinates for meeting at ${meeting.location}:`,
-          error
-        );
-        // Decide how to handle meetings for which coordinates couldn't be fetched
-        // For simplicity, we're adding the meeting without coordinates
-        enrichedMeetings.push(meeting);
-      }
-    }
-  }
-
-  return enrichedMeetings;
-}
-async function adjustMeetingTimes(meetings) {
+async function adjustMeetingTimes(meetings, timezone) {
   const adjustedMeetings = [];
 
   for (const meeting of meetings) {
-    if (meeting.location) {
+    if (meeting.start && meeting.end) {
       try {
-        const timeZoneData = await getTimezone(
-          meeting.coords.lat,
-          meeting.coords.lng,
-          meeting.start
-        );
-
-        // Check if the API call was successful
-        if (!timeZoneData || timeZoneData.status !== "OK") {
-          console.error("Failed to fetch time zone data:", timeZoneData);
-          // Decide how to handle this case. For now, we skip adjustment.
-          adjustedMeetings.push(meeting);
-          continue;
-        }
-
-        // Calculate the total offset (taking into account daylight saving time)
-        const offset = timeZoneData.dstOffset + timeZoneData.rawOffset; // In seconds
-
-        // Adjust the meeting start and end times based on the offset
-        const adjustedStart = new Date(
-          new Date(meeting.start).getTime() + offset * 1000
-        ).toISOString();
-        const adjustedEnd = new Date(
-          new Date(meeting.end).getTime() + offset * 1000
-        ).toISOString();
-
         // Create a new meeting object with adjusted times
         const adjustedMeeting = {
           ...meeting,
-          start: adjustedStart,
-          end: adjustedEnd,
+          start: moment.utc(meeting.start).tz(timezone).format(),
+          end: moment.utc(meeting.end).tz(timezone).format(),
         };
 
         adjustedMeetings.push(adjustedMeeting);
@@ -264,6 +207,5 @@ module.exports = {
   getUserInterests,
   getCoords,
   getTimezone,
-  addMeetingCoordinates,
   adjustMeetingTimes,
 };

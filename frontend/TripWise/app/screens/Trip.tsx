@@ -8,6 +8,8 @@ import {
   ScrollView,
   Modal,
   View,
+  Platform,
+  PermissionsAndroid, Alert
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import Background from "../../components/Background";
@@ -26,6 +28,9 @@ import CurrentTrip from "../../components/TripScreen/CurrentTrip";
 import ThemeContext from "../../context/ThemeContext";
 import { BottomTabParamList } from "../../types/navigationTypes";
 import LocationPopup from "../../components/TripScreen/LocationPopup";
+import useLocationService from "../../services/useLocationService";
+
+
 
 interface RouterProps {
   navigation: NavigationProp<BottomTabParamList, "Trip">;
@@ -57,6 +62,8 @@ const Trip = ({ navigation }: RouterProps) => {
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
   const { theme } = useContext(ThemeContext);
+  const [currentLocation, locationError] = useLocationService();
+
 
   // useFocusEffect is used to run code when the screen is focused
   useFocusEffect(
@@ -86,6 +93,20 @@ const Trip = ({ navigation }: RouterProps) => {
     }, []) // Dependencies for the useCallback hook, if any
   );
 
+  useEffect(() => {
+    if (locationError) {
+      // Show an alert or modal if there is a location error
+      Alert.alert(
+        "Location Required",
+        "Please accept location permissions to continue. Location is required to create a trip.",
+        [
+          { text: "OK" }
+        ],
+        { cancelable: false }
+      );
+    }
+  }, [locationError]);
+
   const getDateRange = (dateRange: DateRange) => {
     setRangeDate(dateRange);
   };
@@ -97,7 +118,7 @@ const Trip = ({ navigation }: RouterProps) => {
       return;
     }
     console.log(meetings);
-    if (!meetings || meetings.length === 0 || meetings.every(meeting => meeting.location === "" || !meeting.location )) {
+    if (!meetings || meetings.length === 0 || meetings.every(meeting => meeting.location === "" || !meeting.location)) {
       setPopupVisible(true);
 
       return;
@@ -106,7 +127,13 @@ const Trip = ({ navigation }: RouterProps) => {
     await continueCreateTrip();
   };
 
-  const continueCreateTrip = async () => {
+  const continueCreateTrip = async (): Promise<void> => {
+    if (locationError) {
+      // Optionally handle the case where there's an error again, or simply return to prevent proceeding
+      console.log("Location error prevents continuing.");
+      return;
+    }
+
 
     setConfirmTripModalVisible(true);
 
@@ -115,7 +142,8 @@ const Trip = ({ navigation }: RouterProps) => {
       rangeDate.startDate,
       rangeDate.endDate,
       meetings,
-      tripLocation
+      tripLocation,
+      currentLocation,
     );
 
     if (createTripResponse) {
@@ -280,7 +308,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
   },
-  buttonContainer : {
+  buttonContainer: {
     padding: 15,
     marginTop: 20,
     marginBottom: 10,

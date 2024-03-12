@@ -12,7 +12,6 @@ const {
   getUserInterests,
   getCoords,
   getTimezone,
-  addMeetingCoordinates,
   adjustMeetingTimes,
 } = require("../utils/services");
 const {
@@ -70,6 +69,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       tripEnd,
       tripMeetings,
       tripLocation,
+      currentLocation,
       maxRecentTrips,
       maxNearbyPlaces,
       nearByPlaceRadius,
@@ -121,9 +121,9 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     const numMeetings = tripMeetings.length;
 
     const adsjustedMeetings = await adjustMeetingTimes(
-      await addMeetingCoordinates(tripMeetings)
+      tripMeetings,
+      currentLocation.timezone
     );
-    console.log("Adjusted Meetings", adsjustedMeetings);
 
     //Checking if atleast 1 meeting has a location
     if (!tripLocation || tripLocation == "") {
