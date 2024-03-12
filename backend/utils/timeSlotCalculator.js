@@ -1,3 +1,5 @@
+const moment = require("moment");
+
 // Helper function to add buffer to meeting times
 function addBufferToMeeting(meeting, bufferInMinutes) {
   let start = new Date(meeting.start);
@@ -116,7 +118,7 @@ function calculateFreeTimeSlots(
   }
 
   return freeSlots;
-};
+}
 
 function calculateNumberOfDays(tripStart, tripEnd) {
   const start = new Date(tripStart);
@@ -130,7 +132,7 @@ function findClosestMeetingToTargetDate(targetDate, meetings) {
   let minDiff = Infinity; // Initialize with the largest possible difference
   const targetDateTime = targetDate.getTime();
 
-  meetings.forEach(meeting => {
+  meetings.forEach((meeting) => {
     const meetingTime = new Date(meeting.start).getTime();
     const diff = Math.abs(targetDateTime - meetingTime); // Use absolute difference
 
@@ -143,11 +145,45 @@ function findClosestMeetingToTargetDate(targetDate, meetings) {
   return closestMeeting;
 }
 
+function findClosestMeetingToMealTime(mealTime, meetings) {
+  if (!meetings || meetings.length === 0) return null;
 
+  // Convert mealTime to moment for easier manipulation and comparison
+  const mealTimeMoment = moment.utc(mealTime);
 
+  let closestMeeting = null;
+  let smallestDiff = Number.MAX_SAFE_INTEGER;
+
+  meetings.forEach((meeting) => {
+    const meetingStartMoment = moment(meeting.start);
+    const meetingEndMoment = moment(meeting.end);
+    const startsBeforeMeal = meetingStartMoment.isBefore(mealTimeMoment);
+    const endsAfterMeal = meetingEndMoment.isAfter(mealTimeMoment);
+
+    // If the meeting encompasses the meal time, it's the closest by default
+    if (startsBeforeMeal && endsAfterMeal) {
+      closestMeeting = meeting;
+      smallestDiff = 0; // No need to look further as this is the closest possible scenario
+      return;
+    }
+
+    // Otherwise, find the meeting with the start or end time closest to the meal time
+    const diffStart = Math.abs(meetingStartMoment.diff(mealTimeMoment));
+    const diffEnd = Math.abs(meetingEndMoment.diff(mealTimeMoment));
+    const diff = Math.min(diffStart, diffEnd); // Consider the closest of the start/end times
+
+    if (diff < smallestDiff) {
+      smallestDiff = diff;
+      closestMeeting = meeting;
+    }
+  });
+
+  return closestMeeting;
+}
 
 module.exports = {
   calculateNumberOfDays,
   calculateFreeTimeSlots,
-  findClosestMeetingToTargetDate
+  findClosestMeetingToTargetDate,
+  findClosestMeetingToMealTime,
 };
