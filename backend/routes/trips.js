@@ -70,6 +70,9 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     const { restaurantInterests, nonRestaurantInterests } =
       categorizeInterests(interests);
 
+    console.log("Restaurant Interests", restaurantInterests);
+    console.log("Non Restaurant Interests", nonRestaurantInterests);
+
     /*
     =--=-=-=-=-=-=-=-=
     Start recommending activities
