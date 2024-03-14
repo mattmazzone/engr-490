@@ -184,11 +184,11 @@ function findClosestMeetingToMealTime(mealTime, meetings) {
 function categorizeInterests(interests) {
   return interests.reduce(
     (acc, interest) => {
-      if (/^\d{3}-\d{3}$/.test(interest)) {
-        // Matches the restaurant format (e.g., "123-456")
-        acc.restaurantInterests.push(interest);
+      // Use a regular expression to test if the interest contains any number
+      if (/\d/.test(interest)) {
+        acc.restaurantInterests.push(interest); // Add to restaurant interests
       } else {
-        acc.nonRestaurantInterests.push(interest);
+        acc.nonRestaurantInterests.push(interest); // Otherwise, add to non-restaurant interests
       }
       return acc;
     },
