@@ -35,7 +35,7 @@ async function getRestaurants(latitude, longitude, limit, mealType) {
   const url = "https://discover.search.hereapi.com/v1/discover";
   const params = new URLSearchParams({
     at: `${latitude},${longitude}`,
-    q: `restaurant ${mealType}`,
+    q: mealType,
     lang: "en",
     limit: limit, //Can set limit
     apiKey: process.env.HERE_API_KEY,
@@ -148,13 +148,13 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
         meetingsForDay[0].coords.lat,
         meetingsForDay[0].coords.lng,
         20,
-        "food"
+        "restaurant"
       );
       restaurantsByDate[dayIndex].dinner = await getRestaurants(
         meetingsForDay[0].coords.lat,
         meetingsForDay[0].coords.lng,
         20,
-        "food"
+        "restaurant"
       );
     } else if (meetingsForDay.length > 1) {
       // Define meal time windows in UTC hours for comparison with meeting start times
@@ -191,7 +191,7 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
           closestLunchMeeting.coords.lat,
           closestLunchMeeting.coords.lng,
           20,
-          "food"
+          "restaurant"
         );
       } else {
         restaurantsByDate[dayIndex].lunch = [];
@@ -202,7 +202,7 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
           closestDinnerMeeting.coords.lat,
           closestDinnerMeeting.coords.lng,
           20,
-          "food"
+          "restaurant"
         );
       } else {
         restaurantsByDate[dayIndex].dinner = [];
@@ -216,21 +216,21 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
       if (closestMeeting) {
         restaurantsByDate[dayIndex].breakfast = await getRestaurants(
           closestMeeting.coords.lat,
-          closestMeeting.coords.lat,
+          closestMeeting.coords.lng,
           20,
           "Breakfast"
         );
         restaurantsByDate[dayIndex].lunch = await getRestaurants(
           closestMeeting.coords.lat,
-          closestMeeting.coords.lat,
+          closestMeeting.coords.lng,
           20,
-          "food"
+          "restaurant"
         );
         restaurantsByDate[dayIndex].dinner = await getRestaurants(
           closestMeeting.coords.lat,
-          closestMeeting.coords.lat,
+          closestMeeting.coords.lng,
           20,
-          "food"
+          "restaurant"
         );
       } else {
         console.log("No meetings for day", currentDate);
@@ -262,13 +262,13 @@ async function getRestaurantsWithNoMeetings(tripStart, tripEnd, location) {
       location.lat,
       location.lng,
       20,
-      "food"
+      "restaurant"
     );
     restaurantsByDate[dayIndex].dinner = await getRestaurants(
       location.lat,
       location.lng,
       20,
-      "food"
+      "restaurant"
     );
   }
 
