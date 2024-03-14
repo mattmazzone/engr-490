@@ -3,9 +3,11 @@ const router = express.Router();
 const admin = require("firebase-admin");
 const db = admin.firestore();
 const authenticate = require("../middlewares/authenticate");
-const { calculateFreeTimeSlots } = require("../utils/timeSlotCalculator");
 const {
-  getNearbyPlaces,
+  calculateFreeTimeSlots,
+  categorizeInterests,
+} = require("../utils/utils.js");
+const {
   getRecentTrips,
   REQUEST,
   getPlaceDetails,
@@ -13,6 +15,7 @@ const {
   getCoords,
   getTimezone,
   adjustMeetingTimes,
+  useGetNearbyPlacesSevice,
 } = require("../utils/services");
 const {
   processDaysAndGetRestaurants,
@@ -23,42 +26,6 @@ const axios = require("axios");
 const recommenderPort = 4000;
 const recommenderRoute = "/api/recommend";
 const recommenderURL = `http://localhost:${recommenderPort}${recommenderRoute}`;
-
-async function useGetNearbyPlacesSevice(
-  latitude,
-  longitude,
-  maxNearbyPlaces,
-  nearByPlaceRadius,
-  includedTypes
-) {
-  const payload = {
-    includedTypes,
-    maxResultCount: maxNearbyPlaces,
-    locationRestriction: {
-      circle: {
-        center: {
-          latitude,
-          longitude,
-        },
-        radius: nearByPlaceRadius,
-      },
-    },
-  };
-
-  let error;
-  // Get nearby place ids and types
-  let [successOrNot, responseData] = await getNearbyPlaces(
-    payload,
-    "places.id,places.types,places.displayName,places.formattedAddress,places.priceLevel,places.rating,places.regularOpeningHours"
-  );
-
-  if (successOrNot != REQUEST.SUCCESSFUL) {
-    error = responseData;
-    throw new BadRequestException(error);
-  }
-
-  return responseData;
-}
 
 // Route to create a new trip
 router.post("/create_trip/:uid", authenticate, async (req, res) => {
@@ -74,7 +41,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       maxNearbyPlaces,
       nearByPlaceRadius,
     } = req.body; // Destructure expected properties
-    console.log(tripStart, tripEnd);
 
     // Validate trip data
     if (!tripStart || !tripEnd) {
@@ -97,23 +63,12 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     const [success, interests] = await getUserInterests(uid, db);
     if (success != REQUEST.SUCCESSFUL) {
-      error = interests;
-      throw interests;
+      throw new Error(interests);
     }
 
-    // Filter out restaurant interests
-    const { restaurantInterests, nonRestaurantInterests } = interests.reduce(
-      (acc, interest) => {
-        // Use a regular expression to test if the interest matches the restaurant format
-        if (interest.match(/^\d{3}-\d{3}$/)) {
-          acc.restaurantInterests.push(interest); // Add to restaurant interests
-        } else {
-          acc.nonRestaurantInterests.push(interest); // Otherwise, add to non-restaurant interests
-        }
-        return acc;
-      },
-      { restaurantInterests: [], nonRestaurantInterests: [] }
-    );
+    // filter out restaurant interests from the list
+    const { restaurantInterests, nonRestaurantInterests } =
+      categorizeInterests(interests);
 
     /*
     =--=-=-=-=-=-=-=-=
@@ -141,7 +96,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         adsjustedMeetings
       );
 
-      console.log("Nearby Restaurants", nearbyRestaurants);
       // Get all meeting locations
       let locations = [];
       for (let i = 0; i < numMeetings; i++) {
@@ -171,7 +125,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
           location.lng,
           meeting.start
         );
-        console.log("Timezone", timeZone);
         const responseData = await useGetNearbyPlacesSevice(
           location.lat,
           location.lng,
@@ -215,13 +168,11 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       }
       //No meetings at all
       else {
-        console.log("Trip Start", tripStart);
         const timeZone = await getTimezone(
           location.lat,
           location.lng,
           tripStart
         );
-        console.log("TimeZone", timeZone);
         nearbyPlaces.push({ places: responseData.places, timeZone: timeZone });
         nearbyRestaurants.push(restoData);
       }
@@ -237,7 +188,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     if (successOrNotTrips != REQUEST.SUCCESSFUL) {
       error = responseDataTrips;
-      console.error("Error getting recent trips");
+      console.error(error, "Error getting recent trips");
       res.status(400).json(error);
       return;
     }
@@ -251,6 +202,15 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       const recentTripMeetings = trip.data().scheduledActivities;
 
       for (const place of recentTripMeetings) {
+        // check for null place_id or place_similarity
+        if (!place.place_similarity || !place.place_similarity.place_id) {
+          console.log(
+            "Place id is null or place_similarity is null for place",
+            place
+          );
+          continue; // Skip to the next iteration if place_similarity is null or place_id is not present
+        }
+
         const placeId = place.place_similarity.place_id;
 
         //Seperate the here places from the google places
@@ -261,10 +221,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         const [successOrNotPlaceDetails, responsePlaceDetails] =
           await getPlaceDetails(placeId, "id,types");
         if (successOrNotPlaceDetails != REQUEST.SUCCESSFUL) {
-          error = responsePlaceDetails;
           console.error("Error getting place details");
-          res.status(400).json(error);
-          return;
+          return res.status(400).json(responsePlaceDetails);
         }
 
         const placeDetails = responsePlaceDetails;
@@ -323,7 +281,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     return res.status(200).json({ trip: tripData });
   } catch (error) {
-    //console.error("Error creating trip\n", error);
     res.status(500).send(error.message);
   }
 });

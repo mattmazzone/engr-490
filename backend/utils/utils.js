@@ -181,9 +181,25 @@ function findClosestMeetingToMealTime(mealTime, meetings) {
   return closestMeeting;
 }
 
+function categorizeInterests(interests) {
+  return interests.reduce(
+    (acc, interest) => {
+      if (/^\d{3}-\d{3}$/.test(interest)) {
+        // Matches the restaurant format (e.g., "123-456")
+        acc.restaurantInterests.push(interest);
+      } else {
+        acc.nonRestaurantInterests.push(interest);
+      }
+      return acc;
+    },
+    { restaurantInterests: [], nonRestaurantInterests: [] }
+  );
+}
+
 module.exports = {
   calculateNumberOfDays,
   calculateFreeTimeSlots,
   findClosestMeetingToTargetDate,
   findClosestMeetingToMealTime,
+  categorizeInterests,
 };
