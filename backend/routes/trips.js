@@ -104,8 +104,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     // Filter out restaurant interests
     const { restaurantInterests, nonRestaurantInterests } = interests.reduce(
       (acc, interest) => {
-        // Use a regular expression to test if the interest matches the restaurant format
-        if (interest.match(/^\d{3}-\d{3}$/)) {
+        // Use a regular expression to test if the interest matches either of the two formats
+        if (interest.match(/^\d{3}-\d{3}(-\d{4})?$/)) {
           acc.restaurantInterests.push(interest); // Add to restaurant interests
         } else {
           acc.nonRestaurantInterests.push(interest); // Otherwise, add to non-restaurant interests
