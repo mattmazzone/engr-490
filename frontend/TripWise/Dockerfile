@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Build your React Native app for the web
-RUN npm run build-web
+RUN npx expo export:web
 
 # Use Nginx to serve the static files
 FROM nginx:alpine
