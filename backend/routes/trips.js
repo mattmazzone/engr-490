@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const admin = require("firebase-admin");
 const db = admin.firestore();
+const fetch = require("node-fetch");
 const authenticate = require("../middlewares/authenticate");
 const {
   calculateFreeTimeSlots,
