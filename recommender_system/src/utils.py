@@ -4,7 +4,6 @@ from contextlib import closing
 import copy
 from datetime import date, datetime, timedelta, time, timezone
 from weakref import ref
-from tkinter import NO
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import random
