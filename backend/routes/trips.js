@@ -99,6 +99,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         tripEnd,
         adsjustedMeetings
       );
+      console.log("Nearby Restaurants", nearbyRestaurants);
 
       // Get all meeting locations
       let locations = [];

@@ -20,6 +20,7 @@ else {
     BASE_API_URL = "http://localhost:3000/api";
   }
 }
+console.log("BASE_API_URL", BASE_API_URL);
 
 // Function to create a new user
 export const createUser = async (
