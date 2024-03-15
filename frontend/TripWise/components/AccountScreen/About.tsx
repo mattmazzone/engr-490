@@ -70,7 +70,7 @@ const About = ({ closeModal, navigation }: any) => {
   return (
     <Background>
       <SafeAreaView style={styles.container}>
-        {isScreenSmall && <BackButton onPress={() => closeModal()} />}
+        {isScreenSmall && <BackButton onPress={() => closeModal()} />} 
         <Text style={{ color: theme === "Dark" ? "white" : "black" }}>About Modal</Text>
         <Pressable onPress={() => testGoogleAPI()} style={styles.button}>
           <Text style={styles.buttonText}>Test Google API</Text>
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    backgroundColor: "#2a5",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     flexDirection: "row",
     width: "55%",
     height: 45,
@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 18,
+    fontWeight: "bold",
     marginRight: 30, // add some space between text and logo
     color: "white",
   },

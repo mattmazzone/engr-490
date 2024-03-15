@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Meeting } from "../../types/tripTypes"; // Assuming the types are exported from this file
 
 interface MeetingListItemProps {
@@ -17,6 +17,9 @@ const MeetingListItem = ({
     minute: "2-digit",
   };
 
+  const startDate = meeting.start instanceof Date ? meeting.start : new Date(meeting.start);
+  const endDate = meeting.end instanceof Date ? meeting.end : new Date(meeting.end);
+
   return (
     <View style={styles.meetingItem}>
       <View style={styles.titleAndLocation}>
@@ -26,21 +29,21 @@ const MeetingListItem = ({
         <Text style={styles.meetingLocation}>{meeting.location}</Text>
       </View>
       <View style={styles.meetingDetails}>
-        <Text>{meeting.start.toDateString()}</Text>
+        <Text>{startDate.toDateString()}</Text>
         <View style={styles.timeContainer}>
           <Text style={styles.timeText}>
-            {meeting.start.toLocaleTimeString(undefined, timeOptions)}
+            {startDate.toLocaleTimeString(undefined, timeOptions)}
           </Text>
           <Text style={styles.timeText}>
-            {meeting.end.toLocaleTimeString(undefined, timeOptions)}
+            {endDate.toLocaleTimeString(undefined, timeOptions)}
           </Text>
         </View>
-        <TouchableOpacity
+        <Pressable
           onPress={() => onDeleteMeeting(meeting.id)}
           style={styles.deleteMeetingBtn}
         >
           <Text style={styles.deleteMeetingBtnTxt}>X</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );

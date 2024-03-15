@@ -1,12 +1,15 @@
 import { NavigationProp } from "@react-navigation/native";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   Text,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   SafeAreaView,
   ScrollView,
   Modal,
+  View,
+  Platform,
+  PermissionsAndroid, Alert
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import Background from "../../components/Background";
@@ -24,6 +27,10 @@ import CalendarConfirmModal from "../../components/TripScreen/CalendarConfimModa
 import CurrentTrip from "../../components/TripScreen/CurrentTrip";
 import ThemeContext from "../../context/ThemeContext";
 import { BottomTabParamList } from "../../types/navigationTypes";
+import LocationPopup from "../../components/TripScreen/LocationPopup";
+import useLocationService from "../../services/useLocationService";
+
+
 
 interface RouterProps {
   navigation: NavigationProp<BottomTabParamList, "Trip">;
@@ -44,6 +51,7 @@ const Trip = ({ navigation }: RouterProps) => {
     endDate: undefined,
   });
   const [meetings, setMeetings] = React.useState<Meeting[]>([]);
+  const [tripLocation, setTripLocation] = React.useState<String | undefined>(undefined);
   const deleteMeeting = (id: number) => {
     setMeetings((prevMeetings) =>
       prevMeetings.filter((meeting) => meeting.id !== id)
@@ -54,6 +62,8 @@ const Trip = ({ navigation }: RouterProps) => {
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
   const { theme } = useContext(ThemeContext);
+  const [currentLocation, locationError] = useLocationService();
+
 
   // useFocusEffect is used to run code when the screen is focused
   useFocusEffect(
@@ -83,6 +93,20 @@ const Trip = ({ navigation }: RouterProps) => {
     }, []) // Dependencies for the useCallback hook, if any
   );
 
+  useEffect(() => {
+    if (locationError) {
+      // Show an alert or modal if there is a location error
+      Alert.alert(
+        "Location Required",
+        "Please accept location permissions to continue. Location is required to create a trip.",
+        [
+          { text: "OK" }
+        ],
+        { cancelable: false }
+      );
+    }
+  }, [locationError]);
+
   const getDateRange = (dateRange: DateRange) => {
     setRangeDate(dateRange);
   };
@@ -93,6 +117,23 @@ const Trip = ({ navigation }: RouterProps) => {
       alert("Please select a date range");
       return;
     }
+    console.log(meetings);
+    if (!meetings || meetings.length === 0 || meetings.every(meeting => meeting.location === "" || !meeting.location)) {
+      setPopupVisible(true);
+
+      return;
+    }
+
+    await continueCreateTrip();
+  };
+
+  const continueCreateTrip = async (): Promise<void> => {
+    if (locationError) {
+      // Optionally handle the case where there's an error again, or simply return to prevent proceeding
+      console.log("Location error prevents continuing.");
+      return;
+    }
+
 
     setConfirmTripModalVisible(true);
 
@@ -100,7 +141,9 @@ const Trip = ({ navigation }: RouterProps) => {
     const createTripResponse = await createTrip(
       rangeDate.startDate,
       rangeDate.endDate,
-      meetings
+      meetings,
+      tripLocation,
+      currentLocation,
     );
 
     if (createTripResponse) {
@@ -125,6 +168,22 @@ const Trip = ({ navigation }: RouterProps) => {
       setImportEventsVisible(false);
     }
   };
+
+  //Popup for location input
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [locationModalClosed, setLocationModalClosed] = useState(false);
+
+  const handleSaveLocation = (location: string) => {
+    setTripLocation(location);
+    console.log('Location saved:', location);
+  };
+
+  useEffect(() => {
+    if (locationModalClosed) {
+      continueCreateTrip();
+    }
+  }, [locationModalClosed]);
+
 
   if (isFetching) {
     return (
@@ -156,6 +215,7 @@ const Trip = ({ navigation }: RouterProps) => {
 
           <DateRangePicker onData={getDateRange} />
 
+
           {rangeDate.startDate && rangeDate.endDate && importEventsVisible ? (
             <ImportEventsFromProvider
               dateRange={rangeDate}
@@ -180,19 +240,30 @@ const Trip = ({ navigation }: RouterProps) => {
                 meetings={meetings}
                 onDeleteMeeting={deleteMeeting}
               />
-              <TouchableOpacity
-                onPressIn={() => {
-                  setConfirmTripModalVisible(true);
-                }}
-                style={styles.button}
-                disabled={!rangeDate.startDate || !rangeDate.endDate}
-              >
-                <Text style={styles.buttonText}>Create Trip</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonContainer}>
+                <Pressable
+                  onPressIn={() => {
+                    setConfirmTripModalVisible(true);
+                  }}
+                  style={styles.button}
+                  disabled={!rangeDate.startDate || !rangeDate.endDate}
+                >
+                  <Text style={styles.buttonText}>Create Trip</Text>
+                </Pressable>
+              </View>
             </>
           ) : (
             <></>
           )}
+          {popupVisible && (
+            <View style={styles.overlay}>
+              <LocationPopup
+                visible={popupVisible}
+                onClose={() => setPopupVisible(false)}
+                onSave={handleSaveLocation}
+                onModalClose={() => setLocationModalClosed(true)}
+              />
+            </View>)}
           <Modal
             animationType="slide"
             transparent={false}
@@ -237,16 +308,35 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
   },
-  button: {
+  buttonContainer: {
     padding: 15,
-    borderRadius: 25,
-    backgroundColor: "blue",
     marginTop: 20,
     marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "center",
+    columnGap: 15,
+    width: "100%",
+  },
+  button: {
+    backgroundColor: "rgba(34, 170, 85, 1)",
+    padding: 10,
+    borderRadius: 5,
+    justifyContent: "center",
+    width: 200,
   },
   buttonText: {
     textAlign: "center",
-    color: "#fff",
+    color: "white",
     fontWeight: "bold",
+    fontSize: 16,
   },
+  overlay: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10, // Ensure this is higher than other content but consider your entire app's layout
+  }
+
 });

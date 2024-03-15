@@ -43,13 +43,38 @@ const Login = ({ navigation }: RouterProps) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const signIn = async () => {
     setLoading(true);
+    setEmailError(null);
+    setPasswordError(null);
+    
     try {
       await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
+
     } catch (error) {
       console.log(error);
+      if (error instanceof Error && 'code' in error) {
+        switch (error.code) {
+          case 'auth/invalid-email':
+            setEmailError('The email address is poorly formatted.');
+            break;
+          case 'auth/wrong-password':
+            setPasswordError('The password is invalid.');
+            break;
+          case 'auth/user-not-found':
+            setEmailError('No user found with this email.');
+            break;
+          default:
+            setEmailError('Login failed. Please try again.');
+            break;
+        }
+      } else {
+        // Handle any other errors that might occur
+        setEmailError('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -71,15 +96,18 @@ const Login = ({ navigation }: RouterProps) => {
               </View>
               <View style={styles.loginInputContainer}>
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputTitles}>Email</Text>
-                  <TextInput
-                    value={email}
-                    style={styles.input}
-                    placeholder="Enter your email"
-                    autoCapitalize="none"
-                    onChangeText={(text) => setEmail(text)}
-                    placeholderTextColor={"#c7c7c7"}
-                  ></TextInput>
+                <Text style={styles.inputTitles}>
+                  Email
+                </Text>
+                <TextInput
+                  value={email}
+                  style={styles.input}
+                  placeholder="Enter your email"
+                  autoCapitalize="none"
+                  onChangeText={(text) => setEmail(text)}
+                  placeholderTextColor={'#c7c7c7'}
+                ></TextInput>
+                {emailError && <Text style={styles.errorText}>{emailError}</Text>}
                 </View>
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputTitles}>Password</Text>
@@ -92,6 +120,7 @@ const Login = ({ navigation }: RouterProps) => {
                     onChangeText={(text) => setPassword(text)}
                     placeholderTextColor={"#c7c7c7"}
                   ></TextInput>
+                  {passwordError && <Text style={styles.errorText}>{passwordError}</Text>}
                 </View>
               </View>
 
@@ -151,8 +180,9 @@ const styles = StyleSheet.create({
   },
   inputGroup: {
     maxWidth: 300, // Set a max-width for large screens
-    alignSelf: "center",
-    width: "100%",
+    alignSelf: 'center',
+    width: '100%',
+    marginBottom: 12,
   },
   inputTitles: {
     fontSize: 15,
@@ -161,7 +191,6 @@ const styles = StyleSheet.create({
   },
   input: {
     marginTop: 10,
-    marginBottom: 12,
     width: 300,
     height: 45, // Adjusted height
     borderRadius: 10, // Rounded corners
@@ -176,5 +205,10 @@ const styles = StyleSheet.create({
   signupButton: {
     fontWeight: "bold",
     color: "rgba(34, 170, 85, 1)",
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    paddingLeft: 5,
   },
 });

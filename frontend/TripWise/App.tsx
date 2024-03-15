@@ -47,7 +47,10 @@ function BottomTabNavigation() {
         headerShown: false,
         tabBarStyle: {
           position: "absolute",
-          borderTopColor: theme === "Dark" ? "rgba(80, 80, 80, 1)" : "rgba(213, 213, 213, 0.8)", // Top border color
+          borderTopColor:
+            theme === "Dark"
+              ? "rgba(80, 80, 80, 1)"
+              : "rgba(213, 213, 213, 0.8)", // Top border color
           borderTopWidth: 2, // Top border width
           borderStyle: "solid", // Add solid border style
           backgroundColor:
@@ -154,15 +157,23 @@ export default function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
       FIREBASE_AUTH,
-      (user: User | null) => {
-        if (user) {
-          setUser(user);
-          if (isUserCreated) {
-            // Check if user has interests after setting the user
-            checkUserInterests();
+      async (currentUser) => {
+        if (currentUser) {
+          setUser(currentUser);
+          try {
+            const profile = await UserService.fetchUserProfile();
+            const hasInterests: boolean | null =
+              profile &&
+              Array.isArray(profile.interests) &&
+              profile.interests.length > 0;
+            setUserHasInterests(hasInterests !== null ? hasInterests : false);
+            setIsUserCreated(true);
+          } catch (error) {
+            setUserHasInterests(false);
+            setIsUserCreated(false);
           }
         } else {
-          // User has signed out, reset all relevant state
+          // Reset state if no user is signed in
           setUser(null);
           setIsUserCreated(false);
           setUserHasInterests(false);
@@ -170,26 +181,14 @@ export default function App() {
       }
     );
 
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, [isUserCreated]);
-  
-  const onUserCreationComplete: () => void = () => {
+    return () => unsubscribe(); // Cleanup subscription on unmount
+  }, []);
+
+  const onUserCreationComplete = () => {
     setIsUserCreated(true);
   };
 
-  const checkUserInterests = async () => {
-    // Check if user has interests
-    UserService.fetchUserProfile().then((profile) => {
-      if (profile && Array.isArray(profile.interests)) {
-        setUserHasInterests(profile.interests.length > 0);
-      } else {
-        setUserHasInterests(false);
-      }
-    });
-  };
   const setUserInterests = (hasInterests: boolean) => {
-    console.log("Updating userInterests to:", hasInterests);
     setUserHasInterests(hasInterests);
   };
 

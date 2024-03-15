@@ -19,13 +19,16 @@ import TripLogo from "./components/SVGLogos/TripLogo";
 import ThemeProvider from "./context/ThemeProvider";
 import ThemeContext from "./context/ThemeContext";
 import * as UserService from "./services/userServices";
-
+import { RootStackParamList } from "./types/navigationTypes";
+import { MainStackParamList } from "./types/navigationTypes";
+import { BottomTabParamList } from "./types/navigationTypes";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 // Declare your stacks
-const RootStack = createNativeStackNavigator();
-const MainStack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+// Declare your stacks
+const RootStack = createNativeStackNavigator<RootStackParamList>();
+const MainStack = createNativeStackNavigator<MainStackParamList>();
+const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 // Tab Navigator
 function BottomTabNavigation() {
@@ -65,7 +68,6 @@ function BottomTabNavigation() {
     >
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Trip" component={Trip} />
-
       <Tab.Screen name="Account" component={Account} />
     </Tab.Navigator>
   );
@@ -174,8 +176,6 @@ export default function App() {
   const checkUserInterests = async () => {
     // Check if user has interests
     UserService.fetchUserProfile().then((profile) => {
-      console.log("Profile");
-      console.log(profile);
       //profile &&
       //profile.interests.length &&
       //setUserHasInterests(profile.interests.length > 0);
