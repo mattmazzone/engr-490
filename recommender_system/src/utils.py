@@ -431,9 +431,6 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
 
     trip_meetings.sort(key=lambda x: x['start'])
 
-    for i in range(len(similarity_tables)):
-        trip_meetings[i]['nearby_place_similarities'] = similarity_tables[i]
-
     for slot in free_slots:
         formatted = False
         for format in format_slots:

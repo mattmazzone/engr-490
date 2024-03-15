@@ -178,7 +178,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
           tripStart
         );
         nearbyPlaces.push({ places: responseData.places, timeZone: timeZone });
-        nearbyRestaurants.push(restoData);
       }
     }
 
