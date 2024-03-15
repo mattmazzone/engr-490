@@ -112,6 +112,7 @@ async function addCoordsToMeetings(meetings) {
       meeting.coords = coords;
     }
   }
+  return meetings;
 }
 
 // Gets list of restaurants per day per meeting for breakfast lunch and dinner
@@ -120,7 +121,7 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
   const numberOfDays = calculateNumberOfDays(tripStart, tripEnd);
 
   // Add coordinates to meetings
-  await addCoordsToMeetings(meetings);
+  const meetingsWithCoords = await addCoordsToMeetings(meetings);
 
   // Start date object for iteration
   let currentDate = new Date(tripStart);
@@ -132,7 +133,7 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
     restaurantsByDate[dayIndex] = { breakfast: [], lunch: [], dinner: [] };
 
     // Filter meetings for the current UTC day
-    const meetingsForDay = meetings.filter((meeting) => {
+    const meetingsForDay = meetingsWithCoords.filter((meeting) => {
       return meeting.start.split("T")[0] === dateStr;
     });
 
@@ -211,7 +212,7 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
       // If there are no meetings for this day, find the closest previous meeting's location
       const closestMeeting = findClosestMeetingToTargetDate(
         currentDate,
-        meetings
+        meetingsWithCoords
       );
       if (closestMeeting) {
         restaurantsByDate[dayIndex].breakfast = await getRestaurants(
@@ -252,6 +253,7 @@ async function getRestaurantsWithNoMeetings(tripStart, tripEnd, location) {
   const numberOfDays = calculateNumberOfDays(tripStart, tripEnd);
 
   for (let dayIndex = 0; dayIndex < numberOfDays; dayIndex++) {
+    restaurantsByDate[dayIndex] = { breakfast: [], lunch: [], dinner: [] };
     restaurantsByDate[dayIndex].breakfast = await getRestaurants(
       location.lat,
       location.lng,
