@@ -8,8 +8,11 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the application source and the SDK key into /app/src/
+# Copy the application source into /app/src/
 COPY src/ ./src/
+
+# Copy the SDK key file into the /app/ directory
+COPY tripwise-sdk-key.json ./
 
 # Change the working directory to /app/src
 WORKDIR /app/src
