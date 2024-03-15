@@ -1,7 +1,7 @@
 import React from "react";
 import {
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
   SafeAreaView,
   StyleSheet,
@@ -21,18 +21,18 @@ const CalendarConfirmModal = ({ closeModal, createTripHandler, rangeDate, calend
         )}
       </View>
       <View style={styles.buttonCalendarContainter}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => closeModal()}
           style={[styles.button, { marginRight: 10 }]}
         >
           <Text style={styles.buttonText}>Go back</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+        </Pressable>
+        <Pressable
           onPress={createTripHandler}
           style={[styles.button, { marginLeft: 10 }]}
         >
           <Text style={styles.buttonText}>Confirm Trip</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

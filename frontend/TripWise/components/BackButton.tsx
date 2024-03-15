@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity, Text, StyleSheet, } from "react-native";
+import { Pressable, Text, StyleSheet, } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import BackButtonIcon from './SVGLogos/BackButtonIcon';
 
@@ -7,9 +7,9 @@ const BackButton = ({onPress}: any) => {
   const navigation = useNavigation();
 
   return (
-    <TouchableOpacity style={[styles.backButtonContainer]} onPress={onPress}>
+    <Pressable style={[styles.backButtonContainer]} onPress={onPress}>
       <BackButtonIcon focused/>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
