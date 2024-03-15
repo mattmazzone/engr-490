@@ -48,8 +48,14 @@ async function getRecentTrips(admin, db, uid, numRecentTrips) {
       .doc(uid)
       .get()
       .then((doc) => {
-        recentTripIds = (doc.data()?.pastTrips ?? []).slice(0, numRecentTrips);
+        recentTripIds = (doc.data()?.pastTrips ?? []).slice(
+          0,
+          Math.min(numRecentTrips, 10)
+        );
       });
+
+    // check for empty string or undefined in recentTripIds
+    recentTripIds = recentTripIds.filter((id) => id);
 
     if (recentTripIds.length < 2) {
       return [REQUEST.SUCCESSFUL, []];
@@ -197,6 +203,42 @@ async function adjustMeetingTimes(meetings, timezone) {
   return adjustedMeetings;
 }
 
+async function useGetNearbyPlacesSevice(
+  latitude,
+  longitude,
+  maxNearbyPlaces,
+  nearByPlaceRadius,
+  includedTypes
+) {
+  const payload = {
+    includedTypes,
+    maxResultCount: maxNearbyPlaces,
+    locationRestriction: {
+      circle: {
+        center: {
+          latitude,
+          longitude,
+        },
+        radius: nearByPlaceRadius,
+      },
+    },
+  };
+
+  let error;
+  // Get nearby place ids and types
+  let [successOrNot, responseData] = await getNearbyPlaces(
+    payload,
+    "places.id,places.types,places.displayName,places.formattedAddress,places.priceLevel,places.rating,places.regularOpeningHours"
+  );
+
+  if (successOrNot != REQUEST.SUCCESSFUL) {
+    error = responseData;
+    throw new BadRequestException(error);
+  }
+
+  return responseData;
+}
+
 module.exports = {
   REQUEST,
   getNearbyPlaces,
@@ -207,4 +249,5 @@ module.exports = {
   getCoords,
   getTimezone,
   adjustMeetingTimes,
+  useGetNearbyPlacesSevice,
 };

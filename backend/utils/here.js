@@ -3,7 +3,7 @@ const {
   calculateNumberOfDays,
   findClosestMeetingToTargetDate,
   findClosestMeetingToMealTime,
-} = require("./timeSlotCalculator");
+} = require("./utils");
 const { getCoords } = require("./services");
 
 //To get info on specific place
