@@ -250,6 +250,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     // Finally pass data into the recommender system and get the activities
     const token = req.headers.authorization;
     //TODO: add TripLocation to the request
+    console.log("Sent request to recommender system");
     const response = await axios.post(
       recommenderURL,
       {
@@ -268,6 +269,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         },
       }
     );
+    console.log("Received response from recommender system");
     const { scheduledActivities } = response.data;
     // Construct trip data for database
     let tripData = {
