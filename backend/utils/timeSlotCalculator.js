@@ -48,7 +48,7 @@ function formatDateInSameTimezone(date, originalDateString) {
 }
 
 // Updated function to calculate free time slots
-exports.calculateFreeTimeSlots = function (
+function calculateFreeTimeSlots(
   originalTripStart,
   tripEnd,
   meetings,
@@ -116,4 +116,38 @@ exports.calculateFreeTimeSlots = function (
   }
 
   return freeSlots;
+};
+
+function calculateNumberOfDays(tripStart, tripEnd) {
+  const start = new Date(tripStart);
+  const end = new Date(tripEnd);
+  const timeDifference = end.getTime() - start.getTime();
+  return Math.ceil(timeDifference / (1000 * 3600 * 24));
+}
+
+function findClosestMeetingToTargetDate(targetDate, meetings) {
+  let closestMeeting = null;
+  let minDiff = Infinity; // Initialize with the largest possible difference
+  const targetDateTime = targetDate.getTime();
+
+  meetings.forEach(meeting => {
+    const meetingTime = new Date(meeting.start).getTime();
+    const diff = Math.abs(targetDateTime - meetingTime); // Use absolute difference
+
+    if (diff < minDiff) {
+      closestMeeting = meeting;
+      minDiff = diff;
+    }
+  });
+
+  return closestMeeting;
+}
+
+
+
+
+module.exports = {
+  calculateNumberOfDays,
+  calculateFreeTimeSlots,
+  findClosestMeetingToTargetDate
 };

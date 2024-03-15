@@ -132,6 +132,18 @@ async function getUserInterests(uid, db) {
     return [REQUEST.ERROR, error];
   }
 }
+
+async function getCoords(location) {
+  const [successOrNot, responseData] = await getPlaceTextSearch(location);
+  if (successOrNot != REQUEST.SUCCESSFUL) {
+    error = responseData;
+    console.error(error);
+    throw new BadRequestException(error);
+  }
+
+  // should only be 1 result
+  return responseData;
+}
 module.exports = {
   REQUEST,
   getNearbyPlaces,
@@ -139,4 +151,5 @@ module.exports = {
   getPlaceDetails,
   getPlaceTextSearch,
   getUserInterests,
+  getCoords,
 };
