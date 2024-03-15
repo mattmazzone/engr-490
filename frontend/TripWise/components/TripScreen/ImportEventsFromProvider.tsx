@@ -41,9 +41,6 @@ const getCalendarEvents = async (
       }
     );
     const data = await response.json();
-
-    console.log("Google Calendar API response:", data);
-
     // Filter properties to only include what we need (title/summary, start, end, location, googleId)
     const calendarEvents: Meeting[] = data.items.map((item: any) => ({
       title: item.summary,
