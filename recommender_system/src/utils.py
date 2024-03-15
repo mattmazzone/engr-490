@@ -232,7 +232,7 @@ place_types = {
     "100-1100-0000" : {"duration": 0.5,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 4}, #Coffee-Tea
     "100-1100-0010" : {"duration": 0.5,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 4}, #Coffee Shop
     "100-1100-0331" : {"duration": 0.5,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 4}, #Tea House
-    "800-068" :  {"duration": 1,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 0} #Creperie
+    "800-068" :  {"duration": 1,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 0}, #Creperie
 
     "304-000" : {"duration": 1,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 6}, #Italian
     "800-057" : {"duration": 1,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 6}, #Pizza
@@ -240,7 +240,8 @@ place_types = {
 
     "372-000" : {"duration": 1,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 6}, #Mediterranean
     "303-000" : {"duration": 1,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 6},  #Greek
-    "311-000" : "311-034", {"duration": 1,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 6},  #Spanish, including Tapas
+    "311-000" : {"duration": 1,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 6}, #Spanish, including Tapas
+    "311-034" : {"duration": 1,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 6},  #Spanish, including Tapas
     "800-075" : {"duration": 1,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 6}, #Seafood
 
     "800-076" : {"duration": 1,"maxAmountPerDay": 3,"MorningOrAftertoonOrEvening": 0}, #Vegan
