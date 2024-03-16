@@ -15,7 +15,7 @@ else {
     BASE_API_URL = "http://localhost:3000/api";
   }
 }
-const AddressAutocomplete = ({ onAddressSelect }: any) => {
+const AddressAutocomplete = ({ onAddressSelect, resetInput, onResetInput }: any) => {
   interface SuggestionItem {
     description: string;
     place_id: string;
@@ -39,6 +39,13 @@ const AddressAutocomplete = ({ onAddressSelect }: any) => {
 
     return () => clearTimeout(timerId);
   }, [input, isSearching]); // Add isSearching as a dependency
+
+  useEffect(() => {
+    if (resetInput) {
+      setInput('');
+      onResetInput(); // Signal to the parent that the input has been reset
+    }
+  }, [resetInput, onResetInput]);
 
   const fetchSuggestions = async (query: string) => {
     try {
