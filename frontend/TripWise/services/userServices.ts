@@ -9,11 +9,18 @@ import { Meeting, TripType } from "../types/tripTypes";
 
 // Base API URL
 let BASE_API_URL: string;
-if (Platform.OS === "android") {
-  BASE_API_URL = "http://10.0.2.2:3000/api";
-} else {
-  BASE_API_URL = "http://localhost:3000/api";
+
+if (process.env.NODE_ENV === 'production') {
+  BASE_API_URL = "https://api.tripwise.cloud/api"
 }
+else {
+  if (Platform.OS === "android") {
+    BASE_API_URL = "http://10.0.2.2:3000/api";
+  } else {
+    BASE_API_URL = "http://localhost:3000/api";
+  }
+}
+console.log("BASE_API_URL", BASE_API_URL);
 
 // Function to create a new user
 export const createUser = async (
@@ -148,7 +155,9 @@ interface TripDataResponse {
 export const createTrip = async (
   tripStart: Date | undefined,
   tripEnd: Date | undefined,
-  tripMeetings: Meeting[] | undefined
+  tripMeetings: Meeting[] | undefined,
+  tripLocation: String | undefined,
+  currentLocation: any
 ): Promise<TripDataResponse | undefined> => {
   if (!FIREBASE_AUTH.currentUser) {
     console.error("No current user found");
@@ -168,6 +177,8 @@ export const createTrip = async (
           tripStart,
           tripEnd,
           tripMeetings,
+          tripLocation,
+          currentLocation,
           maxRecentTrips: 10,
           maxNearbyPlaces: 20,
           nearByPlaceRadius: 1500,
