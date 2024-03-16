@@ -29,11 +29,11 @@ const recommenderPort = 4000;
 const recommenderRoute = "/api/recommend";
 let reccomenderBaseURL;
 if (process.env.NODE_ENV === "production") {
-  recommenderBaseURL = "http://prod_flask-backend";
+  reccomenderBaseURL = "http://prod_flask-backend";
 } else {
   reccomenderBaseURL = "http://localhost";
 }
-const recommenderURL = `${recommenderBaseURL}:${recommenderPort}${recommenderRoute}`;
+const recommenderURL = `${reccomenderBaseURL}:${recommenderPort}${recommenderRoute}`;
 
 // Route to create a new trip
 router.post("/create_trip/:uid", authenticate, async (req, res) => {
