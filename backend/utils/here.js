@@ -105,14 +105,22 @@ async function processRestaurantData(data) {
 }
 
 async function addCoordsToMeetings(meetings) {
+  const meetingsWithCoords = [];
+
   for (let i = 0; i < meetings.length; i++) {
     const meeting = meetings[i];
-    const coords = await getCoords(meeting.location);
-    if (coords) {
-      meeting.coords = coords;
+    // Check if the location exists before attempting to get coords
+    if (meeting.location && meeting.location !== "") {
+      const coords = await getCoords(meeting.location);
+      if (coords) {
+        // If coords exist, add them to the meeting and push it to the result array
+        meeting.coords = coords;
+        meetingsWithCoords.push(meeting);
+      }
     }
   }
-  return meetings;
+
+  return meetingsWithCoords; // Return only meetings with valid locations and coords
 }
 
 // Gets list of restaurants per day per meeting for breakfast lunch and dinner
@@ -122,6 +130,7 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
 
   // Add coordinates to meetings
   const meetingsWithCoords = await addCoordsToMeetings(meetings);
+  console.log("Meetings with coords", meetingsWithCoords);
 
   // Start date object for iteration
   let currentDate = new Date(tripStart);

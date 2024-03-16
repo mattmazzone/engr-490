@@ -1,0 +1,27 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to Server
+      run: |
+        ssh -o StrictHostKeyChecking=no root@185.187.235.116 << 'EOF'
+          cd /root/prod/engr-490
+          git pull origin production
+          docker-compose down
+          docker-compose up -d --build
+        EOF
