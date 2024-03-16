@@ -29,7 +29,7 @@ const recommenderPort = 4000;
 const recommenderRoute = "/api/recommend";
 let reccomenderBaseURL;
 if (process.env.NODE_ENV === "production") {
-  reccomenderBaseURL = "http://prod_flask-backend";
+  reccomenderBaseURL = "http://flask-backend";
 } else {
   reccomenderBaseURL = "http://localhost";
 }
