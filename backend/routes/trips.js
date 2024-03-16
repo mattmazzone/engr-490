@@ -23,10 +23,17 @@ const {
   getRestaurantsWithNoMeetings,
 } = require("../utils/here");
 const axios = require("axios");
+require("dotenv").config();
 
 const recommenderPort = 4000;
 const recommenderRoute = "/api/recommend";
-const recommenderURL = `http://localhost:${recommenderPort}${recommenderRoute}`;
+let reccomenderBaseURL;
+if (process.env.NODE_ENV === "production") {
+  recommenderBaseURL = "http://prod_flask-backend";
+} else {
+  reccomenderBaseURL = "http://localhost";
+}
+const recommenderURL = `${recommenderBaseURL}:${recommenderPort}${recommenderRoute}`;
 
 // Route to create a new trip
 router.post("/create_trip/:uid", authenticate, async (req, res) => {
