@@ -33,6 +33,7 @@ const MeetingCreator = ({
   const [openTimeStart, setOpenTimeStart] = React.useState(false);
   const [openTimeEnd, setOpenTimeEnd] = React.useState(false);
   const {theme} = useContext(ThemeContext);
+  const [resetAddressInput, setResetAddressInput] = React.useState(false);
 
   const [startTime, setStartTime] = React.useState<Time>({
     hours: 0,
@@ -153,12 +154,16 @@ const MeetingCreator = ({
 
       // Check if there is a meeting conflict
       if (checkForMeetingConflict(newMeeting.start, newMeeting.end)) {
-        alert("There is a meeting conflict!");
+        Toast.show({
+          type: 'error',
+          text2: 'There is a meeting conflict!'
+        });
         return;
       }
 
       setMeetings((currentMeetings) => [...currentMeetings, newMeeting]);
       // clear meeting fields
+      setResetAddressInput(true);
       setMeetingTitle("");
       setMeetingLocation("");
       setStartTime({ hours: 0, minutes: 0 });
@@ -196,10 +201,11 @@ const MeetingCreator = ({
 
       <AddressAutocomplete
         onAddressSelect={(item: any) => {
-          console.log(item);
           //Can do item.place_id to get the google place_id 
           setMeetingLocation(item.description);
           }}
+          resetInput={resetAddressInput}
+          onResetInput={() => setResetAddressInput(false)}
         
       />
       <View style={styles.timeContainer}>
