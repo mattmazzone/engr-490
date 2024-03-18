@@ -113,7 +113,7 @@ async function getPlaceTextSearch(address) {
     } else {
       // Handle no results or other API errors
       return [
-        REQUEST.ERROR,
+        REQUEST.GEOCODING_FAILED,
         { message: "Geocoding failed: " + response.data.status },
       ];
     }
