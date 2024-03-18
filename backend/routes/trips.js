@@ -50,6 +50,10 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       nearByPlaceRadius,
     } = req.body; // Destructure expected properties
 
+    // =--=-=-=-=-=-=-=-=
+    // Initialization
+    // =-=-=-=-=-=-=-=-=-=
+
     // Validate trip data
     if (!tripStart || !tripEnd) {
       return res.status(400).send("Missing required trip data");
@@ -81,11 +85,9 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     console.log("Restaurant Interests", restaurantInterests);
     console.log("Non Restaurant Interests", nonRestaurantInterests);
 
-    /*
-    =--=-=-=-=-=-=-=-=
-    Start recommending activities
-    =-=-=-=-=-=-=-=-=-=
-    */
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // Get nearby places/activites and nearby restaurants
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     // 2d array of places for each meeting location except the 1st one
     let nearbyPlaces = [];
@@ -126,12 +128,13 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
           continue;
         }
 
-        if (!meeting.location || meeting.location === "") {
-          meeting.location = locations[locationIndex];
+        const location = await getCoords(meeting.location);
+
+        if (location == null) {
+          location = locations[locationIndex];
           if (locationIndex < locations.length - 1) locationIndex++;
         }
 
-        const location = await getCoords(meeting.location);
         const timeZone = await getTimezone(
           location.lat,
           location.lng,

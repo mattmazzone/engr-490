@@ -4,6 +4,7 @@ const moment = require("moment-timezone");
 const REQUEST = {
   SUCCESSFUL: 0,
   ERROR: 1,
+  GEOCODING_FAILED: 2,
 };
 
 async function getNearbyPlaces(payload, fieldMask) {
@@ -142,7 +143,9 @@ async function getUserInterests(uid, db) {
 async function getCoords(location) {
   console.log("location getCoords: ", location);
   const [successOrNot, responseData] = await getPlaceTextSearch(location);
-  if (successOrNot != REQUEST.SUCCESSFUL) {
+  if (successOrNot == REQUEST.GEOCODING_FAILED) {
+    return null;
+  } else if (successOrNot == REQUEST.ERROR) {
     error = responseData;
     console.error(error);
     throw new BadRequestException(error);
@@ -166,7 +169,7 @@ async function getTimezone(lat, lng, start) {
     } else {
       // Handle no results or other API errors
       return [
-        REQUEST.ERROR,
+        REQUEST.GEOCODING_FAILED,
         { message: "Geocoding failed: " + response.data.status },
       ];
     }
