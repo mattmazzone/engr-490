@@ -110,8 +110,8 @@ async function addCoordsToMeetings(meetings) {
   for (let i = 0; i < meetings.length; i++) {
     const meeting = meetings[i];
     // Check if the location exists before attempting to get coords
-    if (meeting.location && meeting.location !== "") {
-      const coords = await getCoords(meeting.location);
+    const coords = await getCoords(meeting.location);
+    if (coords != null) {
       if (coords) {
         // If coords exist, add them to the meeting and push it to the result array
         meeting.coords = coords;
