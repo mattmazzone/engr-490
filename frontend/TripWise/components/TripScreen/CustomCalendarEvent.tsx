@@ -1,9 +1,12 @@
 import React from "react";
 import { Text, StyleSheet, Pressable } from "react-native";
 import { Meeting } from "../../types/tripTypes";
-import {
-  CalendarTouchableOpacityProps,
-} from "react-native-big-calendar";
+import { CalendarTouchableOpacityProps } from "react-native-big-calendar";
+
+interface CustomCalendarEventProps extends Meeting {
+  touchableOpacityProps: CalendarTouchableOpacityProps;
+  onPress: () => void;
+}
 
 const CustomCalendarEvent = ({
   title,
@@ -11,7 +14,8 @@ const CustomCalendarEvent = ({
   end,
   location,
   touchableOpacityProps,
-}: Meeting & { touchableOpacityProps: CalendarTouchableOpacityProps }) => {
+  onPress,
+}: CustomCalendarEventProps) => {
   const formatTime = (dateString: Date) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -19,10 +23,11 @@ const CustomCalendarEvent = ({
   return (
     <Pressable
       {...touchableOpacityProps}
+      onPress={onPress}
       style={[styles.eventContainer, touchableOpacityProps.style]}
     >
-      <Text style={styles.eventTime}>{`${formatTime(start)} - ${formatTime(end)}`}</Text>
       <Text style={styles.eventTitle}>{title}</Text>
+      <Text style={styles.eventTime}>{`${formatTime(start)} - ${formatTime(end)}`}</Text>
       <Text style={styles.eventLocation}>{location}</Text>
     </Pressable>
   );
