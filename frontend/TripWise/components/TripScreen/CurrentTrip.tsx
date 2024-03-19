@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 import Background from "../Background";
 import { Calendar } from "react-native-big-calendar";
@@ -6,6 +6,8 @@ import { TripType } from "../../types/tripTypes";
 import CustomCalendarEvent from "./CustomCalendarEvent";
 import ThemeContext from "../../context/ThemeContext";
 import { useContext } from "react";
+import { Meeting } from "../../types/tripTypes";
+import CalendarEventModal from "./CalendarEventModal";
 
 interface CurrentTripProps {
   currentTrip: TripType;
@@ -15,6 +17,15 @@ interface CurrentTripProps {
 
 const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
   const {theme} = useContext(ThemeContext);
+
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Meeting | null>(null);
+
+  const handleEventPress = (event: Meeting) => {
+    setSelectedEvent(event);
+    setModalVisible(true);
+  };  
+
   const calendartheme = {
     palette: {
       primary: {
@@ -40,11 +51,10 @@ const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
       color: "#6185d0", // Color for meetings
     })),
     ...currentTrip.scheduledActivities.map((slot) => ({
-      title: `${slot.place_similarity.place_name}\n${
-        slot.place_similarity.address
-      }\nSimilarity: ${slot.place_similarity.score * 100}%`,
+      title: slot.place_similarity.place_name,
       start: new Date(slot.start),
       end: new Date(slot.end),
+      location: slot.place_similarity.address,
       color: "#d3d3d3", // A distinct color for free slots
     })),
   ];
@@ -65,12 +75,26 @@ const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
                     backgroundColor: event.color,
                   };
                 }}
+                onPressEvent={(event) => {
+                  handleEventPress(event);
+                }}
                 renderEvent={(event, touchableOpacityProps) => (
-                  <CustomCalendarEvent {...event} touchableOpacityProps = {touchableOpacityProps} />
+                  <CustomCalendarEvent
+                  {...event}
+                  touchableOpacityProps = {touchableOpacityProps}
+                  onPress={() => {
+                    handleEventPress(event);
+                  }}
+                  />
                 )}
               />
             )}
           </View>
+            <CalendarEventModal
+              event={selectedEvent}
+              isVisible={isModalVisible}
+              onClose={() => setModalVisible(false)}
+            />
       </SafeAreaView>
     </Background>
   );
