@@ -98,7 +98,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             isVisible={true}
             userSettings={userSettings}
             updateUserSettings={updateUserSettings}
-            closeModal={() => setActiveSetting("")}
+            closeModal={() => setActiveSetting("settings")}
             useModal={false}
             navigation={navigation} 
           />

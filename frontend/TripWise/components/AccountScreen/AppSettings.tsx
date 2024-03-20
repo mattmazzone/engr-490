@@ -103,7 +103,7 @@ const AppSettingsPage = ({
 
   const navigateToSelectInterests = () => {
     navigation.navigate("SelectInterests");
-    closeModal(); 
+    closeModal();
   };
 
   const isScreenSmall = useResponsiveScreen(768);
