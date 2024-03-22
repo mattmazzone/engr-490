@@ -130,9 +130,18 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
         const location = await getCoords(meeting.location);
 
-        if (location == null) {
+        if (!meeting.location || meeting.location === "") {
           location = locations[locationIndex];
           if (locationIndex < locations.length - 1) locationIndex++;
+        } else if (location == null) {
+          console.error(
+            `ERROR: Invalid location for meeting "${meeting.title}"`
+          );
+          res.status(400).json({
+            errorNum: REQUEST.GEOCODING_FAILED,
+            message: `Invalid location for meeting "${meeting.title}"`,
+          });
+          return;
         }
 
         const timeZone = await getTimezone(
@@ -297,6 +306,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
 
     return res.status(200).json({ trip: tripData });
   } catch (error) {
+    console.error(error);
     res.status(500).send(error.message);
   }
 });
