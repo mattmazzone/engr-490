@@ -302,7 +302,6 @@ const categories: Category[] = [
       { id: "Clothing Store 👗", titles: ["clothing_store"] },
       { id: "Gift Shop 🎁", titles: ["gift_shop"] },
       { id: "Jewelry Store 💍", titles: ["jewelry_store"] },
-      { id: "Liquor Store 🍷", titles: ["liquor_store"] },
       { id: "Shopping Mall 🏬", titles: ["shopping_mall"] },
     ],
   },
