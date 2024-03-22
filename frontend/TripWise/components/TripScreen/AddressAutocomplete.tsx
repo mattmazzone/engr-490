@@ -1,16 +1,20 @@
 // AddressAutocomplete.js
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, FlatList, Text, Pressable, StyleSheet, Alert } from 'react-native';
 import { Platform } from "react-native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 
 let BASE_API_URL: string;
-if (Platform.OS === "android") {
-  BASE_API_URL = "http://10.0.2.2:3000/api";
-} else {
-  BASE_API_URL = "http://localhost:3000/api";
+if (process.env.NODE_ENV === "production") {
+  BASE_API_URL = "https://api.tripwise.cloud/api";
 }
-
+else {
+  if (Platform.OS === "android") {
+    BASE_API_URL = "http://10.0.2.2:3000/api";
+  } else {
+    BASE_API_URL = "http://localhost:3000/api";
+  }
+}
 const AddressAutocomplete = ({ onAddressSelect }: any) => {
   interface SuggestionItem {
     description: string;
@@ -82,7 +86,7 @@ const AddressAutocomplete = ({ onAddressSelect }: any) => {
         data={suggestions}
         keyExtractor={(item) => item.place_id}
         renderItem={({ item }) => (
-          <TouchableOpacity
+          <Pressable
             style={styles.item}
             onPress={() => {
               setInput(item.description);
@@ -94,7 +98,7 @@ const AddressAutocomplete = ({ onAddressSelect }: any) => {
             }}
           >
             <Text>{item.description}</Text>
-          </TouchableOpacity>
+          </Pressable>
         )}
       />
     </View>

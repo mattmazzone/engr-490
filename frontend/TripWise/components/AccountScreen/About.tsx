@@ -75,17 +75,6 @@ const About = ({ closeModal, navigation }: any) => {
         <Pressable onPress={() => testGoogleAPI()} style={styles.button}>
           <Text style={styles.buttonText}>Test Google API</Text>
         </Pressable>
-
-        <Pressable
-          onPress={() => {
-            navigation.navigate("SelectInterests");
-            closeModal();
-          }}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>Open Select Interest Page</Text>
-        </Pressable>
-
         <Pressable style={styles.button} onPress={UserService.endCurrentTrip}>
           <Text style={styles.buttonText}>End Current Trip</Text>
         </Pressable>
@@ -94,13 +83,16 @@ const About = ({ closeModal, navigation }: any) => {
   );
 };
 
+
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
   },
   button: {
-    backgroundColor: "#2a5",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     flexDirection: "row",
     width: "55%",
     height: 45,
@@ -112,6 +104,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 18,
+    fontWeight: "bold",
     marginRight: 30, // add some space between text and logo
     color: "white",
   },

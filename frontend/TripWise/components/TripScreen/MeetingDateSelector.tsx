@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   meetingDropdown: {
     width: "100%",
     marginBottom: 10,
-    backgroundColor: "grey"
+    backgroundColor: "grey",
   },
   initValueTextStyle: {
     textAlign: "center",

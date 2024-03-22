@@ -196,6 +196,19 @@ export default function App() {
     setIsUserCreated(true);
   };
 
+  const checkUserInterests = async () => {
+    // Check if user has interests
+    UserService.fetchUserProfile().then((profile) => {
+      //profile &&
+      //profile.interests.length &&
+      //setUserHasInterests(profile.interests.length > 0);
+      if (profile && Array.isArray(profile.interests)) {
+        setUserHasInterests(profile.interests.length > 0);
+      } else {
+        setUserHasInterests(false);
+      }
+    });
+  };
   const setUserInterests = (hasInterests: boolean) => {
     setUserHasInterests(hasInterests);
   };

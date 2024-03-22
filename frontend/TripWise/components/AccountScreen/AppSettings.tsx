@@ -12,6 +12,7 @@ import {
 import Background from "../Background";
 import ThemeContext from "../../context/ThemeContext";
 import BackButton from "../BackButton";
+import { NavigationProp } from "@react-navigation/native";
 
 interface AppSettingsPageProps {
   isVisible: boolean;
@@ -19,6 +20,7 @@ interface AppSettingsPageProps {
   updateUserSettings: any;
   closeModal: any;
   useModal: boolean;
+  navigation:NavigationProp<any, any>;
 }
 const useResponsiveScreen = (breakpoint: number) => {
   const [isScreenSmall, setIsScreenSmall] = useState(
@@ -50,6 +52,7 @@ const AppSettingsPage = ({
   updateUserSettings,
   closeModal = () => {},
   useModal = false,
+  navigation,
 }: AppSettingsPageProps) => {
   const { theme, setTheme } = useContext(ThemeContext);
   const [isEnabled, setIsEnabled] = useState<boolean>(false);
@@ -97,6 +100,12 @@ const AppSettingsPage = ({
       closeModal();
     }
   };
+
+  const navigateToSelectInterests = () => {
+    navigation.navigate("SelectInterests");
+    closeModal();
+  };
+
   const isScreenSmall = useResponsiveScreen(768);
 
   const content = (
@@ -150,7 +159,7 @@ const AppSettingsPage = ({
           </Text>
           <Switch
             style={{ height: 25 }}
-            trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
+            trackColor={{ false: "#767577", true: "rgba(34, 170, 85, 1)" }}
             thumbColor={isEmailEnabled ? "#32cd32" : "#f4f3f4"}
             ios_backgroundColor="#3e3e3e"
             onValueChange={toggleEmailSwitch}
@@ -168,12 +177,43 @@ const AppSettingsPage = ({
           </Text>
           <Switch
             style={{ height: 25 }}
-            trackColor={{ false: "#767577", true: "#rgba(34, 170, 85, 1)" }}
+            trackColor={{ false: "#767577", true: "rgba(34, 170, 85, 1)" }}
             thumbColor={"#f4f3f4"}
             ios_backgroundColor="#3e3e3e"
             onValueChange={togglePushSwitch}
             value={isPushEnabled}
           />
+        </View>
+        <Text
+            style={[
+            styles.subtitleText,
+            { color: theme === "Dark" ? "white" : "black" },
+            ]}
+            >
+              User Settings
+          </Text>
+
+          <View style={styles.notificationChoice}>
+              <Text
+                style={[
+                  styles.updateInterestsText,
+                  { color: theme === "Dark" ? "white" : "black" },
+                ]}
+              >
+                Update Interests
+              </Text>
+              <Pressable
+                onPress={navigateToSelectInterests}
+              >
+                <Text
+                  style={[
+                    styles.arrowText,
+                    { color: theme === "Dark" ? "white" : "grey" },
+                  ]}
+                >
+                  {'>'}
+                </Text>
+              </Pressable>
         </View>
         <View>
           <Pressable
@@ -261,6 +301,16 @@ const styles = StyleSheet.create({
     width: 315, //325
     marginBottom: 32,
   },
+  updateInterestsText: {
+    color: "white",
+    alignSelf: "center",
+    fontSize: 20,
+    fontWeight: "bold",
+    width: 315, //325
+    marginBottom: 32,
+    marginRight: 30,
+  },
+
   notificationSpaces: {
     alignItems: "flex-start",
     height: 120,
@@ -275,23 +325,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "75%",
     height: 45,
-    borderRadius: 7,
+    borderRadius: 5,
     justifyContent: "center",
+    alignItems: "center",
     alignSelf: "center",
+    padding: 10,
   },
   buttonText: {
     color: "white",
     textAlign: "center",
-    marginTop: 10,
     fontSize: 18,
-    width: 150,
-    height: 50,
+    fontWeight: "bold",
+    width: 120,
+    flex: 1,
   },
   backButtonContainer: {
     position: "absolute",
     top: 0,
     left: 0,
     margin: 20,
+  },
+  arrowText: {
+    fontSize: 24,
+    fontWeight: 'bold',
   },
 });
 

@@ -18,7 +18,7 @@ const CurrentTrip = ({ currentTrip }: CurrentTripProps) => {
   const calendartheme = {
     palette: {
       primary: {
-        main: "#22aa55",
+        main: "rgba(34, 170, 85, 1)",
         contrastText: "#000",
       },
       gray: {
