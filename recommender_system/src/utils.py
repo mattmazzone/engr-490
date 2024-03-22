@@ -15,7 +15,7 @@ import re
 # https://developers.google.com/maps/documentation/places/web-service/place-types
 #FOR duration: double represents hour
 #FOR maxAmountPerDay, integer represents number of times to recommend per day
-#FOR MorningOrAftertoonOrEvening
+#FOR preferredTimeSlot
 #Morning only: 1 (8am-12pm)
 #Afternoon only: 2 (12pm-6pm)
 #Evening only: 3 (6pm-11pm)
@@ -23,6 +23,234 @@ import re
 #Morning or Evening: 5
 #Afternoon or Evening: 6
 #All three/any: 0
+detailed_place_types = {
+    "cultural_center" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 4},
+    #"chinese_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"japanese_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"indonesian_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"korean_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"ramen_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"sushi_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"vietnamese_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"thai_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"lebanese_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"middle_eastern_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"turkish_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"american_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"barbecue_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"hamburger_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"pizza_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"cafe" : {"duration": 0.5,"maxAmountPerDay": 3,"preferredTimeSlot": 4},
+    #"bakery" : {"duration": 0.25,"maxAmountPerDay": 1,"preferredTimeSlot": 1},
+    #"sandwich_shop" : {"duration": 0.5,"maxAmountPerDay": 1,"preferredTimeSlot": 1},
+    #"breakfast_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 1},
+    #"brunch_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 1},
+    #"italian_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"mediterranean_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"greek_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"vegan_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"vegetarian_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"brazilian_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    #"mexican_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    "amusement_park" : {"duration": 4,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
+    "aquarium" : {"duration": 2,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
+    "bowling_alley" : {"duration": 2,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
+    "casino" : {"duration": 2,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    "movie_theater" : {"duration": 2.5,"maxAmountPerDay": 1,"preferredTimeSlot": 6},
+    "national_park" : {"duration": 3,"maxAmountPerDay": 1,"preferredTimeSlot": 4},
+    "hiking_area" : {"duration": 3,"maxAmountPerDay": 1,"preferredTimeSlot": 4},
+    "night_club" : {"duration": 3,"maxAmountPerDay": 1,"preferredTimeSlot": 3},
+    "tourist_attraction" : {"duration": 2,"maxAmountPerDay": 10,"preferredTimeSlot": 0},
+    "zoo" : {"duration": 2,"maxAmountPerDay": 1,"preferredTimeSlot": 4},
+    "historical_landmark" : {"duration": 1,"maxAmountPerDay": 5,"preferredTimeSlot": 4},
+    "spa" : {"duration": 4,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
+    "church" : {"duration": 1.5,"maxAmountPerDay": 1,"preferredTimeSlot": 4},
+    "hindu_temple" : {"duration": 1.5,"maxAmountPerDay": 1,"preferredTimeSlot": 4},
+    "mosque" : {"duration": 1.5,"maxAmountPerDay": 1,"preferredTimeSlot": 4},
+    "synagogue" : {"duration": 1.5,"maxAmountPerDay": 1,"preferredTimeSlot": 4},
+    "book_store" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
+    "clothing_store" : {"duration": 0.5,"maxAmountPerDay": 10,"preferredTimeSlot": 0},
+    "gift_shop" : {"duration": 0.5,"maxAmountPerDay": 2,"preferredTimeSlot": 0},
+    "jewelry_store" : {"duration": 0.5,"maxAmountPerDay": 2,"preferredTimeSlot": 0},
+    "liquor_store" : {"duration": 0.25,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
+    "shopping_mall" : {"duration": 4,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
+    "golf_course" : {"duration": 4,"maxAmountPerDay": 1,"preferredTimeSlot": 4},
+    "gym" : {"duration": 1.5,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
+    "playground" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
+    "ski_resort" : {"duration": 4,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
+    "sports_club" : {"duration": 2,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
+    "swimming_pool" : {"duration": 2,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
+
+    "102-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Mexican 
+    "102-005" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Mexican-Yucateca
+    "102-006" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Mexican-Oaxaquena
+    "102-007" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Mexican-Veracruzana
+    "102-008" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Mexican-Poblana
+    "404-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Argentinean
+    "406-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Brazilian
+    "406-035" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Brazilian-Baiana
+    "406-038" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Brazilian-Bakery
+    "406-036" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Brazilian-Capixaba
+    "406-037" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Brazilian-Mineira
+    "405-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Chilean
+    "403-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Latin American
+    "407-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Peruvian
+    "400-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #South American
+    "401-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Surinamese
+    "402-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Venezuelan 
+
+    "200-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Asian
+    "201-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese
+    "201-009" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Szechuan
+    "201-010" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Cantonese
+    "201-041" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Shanghai
+    "201-042" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Beijing
+    "201-043" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Hunan/Hubei
+    "201-044" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Jiangsu/Zhejiang
+    "201-045" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Shandong
+    "201-046" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Northeastern
+    "201-047" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Inner Mongolian
+    "201-048" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Yunnan/Guizhou
+    "201-049" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Taiwanese
+    "201-050" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Guangxi
+    "201-051" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Jiangxi
+    "201-052" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Northwestern
+    "201-053" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Porridge
+    "201-054" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Islamic
+    "201-055" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Chinese-Hot Pot
+    "203-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Japanese
+    "203-026" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Japanese-Sushi
+    "204-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Southeast Asian
+    "205-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Thai
+    "206-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Vietnamese
+    "207-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Korean
+    "208-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Pakistani
+    "209-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Malaysian
+    "210-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Bruneian
+    "211-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Indonesian
+    "212-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Filipino
+    "800-085" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},#Noodles
+    "202-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian
+    "202-011" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-Tandoori
+    "202-012" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-Punjabi
+    "202-013" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-Rajasthani
+    "202-014" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-Mughlai
+    "202-015" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-Bengali
+    "202-016" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-Goan
+    "202-017" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-Jain
+    "202-018" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-Konkani
+    "202-019" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-Gujarati
+    "202-020" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-Parsi
+    "202-021" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-South Indian
+    "202-022" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-Maharashtrian
+    "202-023" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-North Indian
+    "202-024" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-Malvani
+    "202-025" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Indian-Hyderabad 
+
+    "250-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Middle Eastern
+    "251-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Azerbaijani
+    "252-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Turkish
+    "253-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Lebanese
+    "254-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Yemeni
+    "255-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Burmese
+    "256-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Cambodian
+    "257-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Singaporean
+    "258-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Sri Lankan
+    "259-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Tibetan 
+    "101-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #American
+    "101-001" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #American-Californian
+    "101-002" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #American-Southwestern
+    "101-003" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #American-Barbecue/Southern
+    "101-004" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #American-Creole
+    "101-039" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #American-Native American
+    "101-040" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #American-Soul Food
+    "101-070" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #American-Cajun
+    "103-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Canadian
+    "150-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Australian
+    "151-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Hawaiian/Polynesian
+    "152-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Caribbean
+    "153-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Cuban
+    "800-067" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Burgers
+    "800-056" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Steak House
+    "800-059" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Hot Dogs
+    "800-062" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Chicken 
+
+    "300-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #European
+    "301-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #French
+    "301-027" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #French-Alsatian
+    "301-028" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #French-Auvergnate
+    "301-029" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #French-Basque
+    "301-030" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #French-Corse
+    "301-031" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #French-Lyonnaise
+    "301-032" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #French-Provencale
+    "301-033" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #French-Sud-ouest
+    "302-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #German
+    "303-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Greek"
+    "304-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Italian"
+    "305-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Irish
+    "306-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Austrian
+    "307-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Belgian
+    "308-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #British Isles
+    "309-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Dutch
+    "310-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Swiss
+    "313-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Portuguese 
+
+    "373-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Baltic
+    "374-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Belorusian
+    "375-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Ukrainian
+    "376-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Polish
+    "377-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Russian
+    "378-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Bohemian
+    "379-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Balkan
+    "380-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Caucasian
+    "381-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Romanian
+    "382-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Armenian
+    "370-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #East European
+    "371-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Hungarian 
+
+    "350-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Scandinavian
+    "351-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Finnish
+    "352-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Swedish
+    "353-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Norwegian
+    "354-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Danish
+    "309-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Dutch
+    "310-000" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Swiss 
+
+    "500-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #African
+    "501-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Moroccan
+    "502-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Egyptian
+    "503-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Ethiopian
+    "504-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Seychellois
+    "505-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #South African
+    "506-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #North African 
+
+    "800-060" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Sandwhich
+    "800-061" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 1}, #Breakfast
+    "800-072" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 1}, #Brunch
+    "800-073" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Bistro
+    "800-080" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Soup
+    "100-1100-0000" : {"duration": 0.5,"maxAmountPerDay": 1,"preferredTimeSlot": 4}, #Coffee-Tea
+    "100-1100-0010" : {"duration": 0.5,"maxAmountPerDay": 1,"preferredTimeSlot": 4}, #Coffee Shop
+    "100-1100-0331" : {"duration": 0.5,"maxAmountPerDay": 1,"preferredTimeSlot": 4}, #Tea House
+    "800-068" :  {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 0}, #Creperie
+
+    "304-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Italian
+    "800-057" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Pizza
+    "315-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Sicilian
+
+    "372-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Mediterranean
+    "303-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},  #Greek
+    "311-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Spanish, including Tapas
+    "311-034" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6},  #Spanish, including Tapas
+    "800-075" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Seafood
+
+    "800-076" : {"duration": 1,"maxAmountPerDay": 3,"preferredTimeSlot": 0}, #Vegan
+    "800-077" : {"duration": 1,"maxAmountPerDay": 3,"preferredTimeSlot": 0}, #Vegetarian
+    "800-083" : {"duration": 1,"maxAmountPerDay": 3,"preferredTimeSlot": 0}, #Natural/Healthy
+    "800-084" : {"duration": 1,"maxAmountPerDay": 3,"preferredTimeSlot": 0}, #Organic
+}
+
+# https://developers.google.com/maps/documentation/places/web-service/place-types
 place_types = {
     "cultural_center" : {"duration": 1,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 4},
     #"chinese_restaurant" : {"duration": 1,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 6},
@@ -342,10 +570,6 @@ def addHighestRestaurant(places, nearby_places_picked, start_time, end_time):
                 closingDay = closingDay + 1
             closingTime = time(closingHour, closingMinute)
 
-            print("Opening time: ", openingTime)
-            print("Start time: ", start_time.time())
-            print("End time: ", end_time.time())
-            print ("Closing time: ", closingTime) 
 
             if openingTime <= start_time.time() and (openingDay != closingDay or closingTime >= end_time.time()):
                 nearby_places_picked.add(best_place_id)
@@ -361,13 +585,73 @@ def parse_datetime(date_str, format_str):
             continue
     raise ValueError(f"Time data '{date_str}' does not match any format in {format_str}")
 
+def adjust_similarity_based_on_timeslot(places, start_time):
+    # Determine the actual time slot from the start_time
+    hour = start_time.hour
+    if 8 <= hour < 12:
+        actual_time_slot = 1  # Morning
+    elif 12 <= hour < 18:
+        actual_time_slot = 2  # Afternoon
+    elif 18 <= hour < 23:
+        actual_time_slot = 3  # Evening
+    else:
+        actual_time_slot = 0  # Times outside the defined slots
+    
+    for place in places:
+
+        # Collect preferred time slots for all the place's types
+        preferred_slots = []
+        for place_type in place['info']['types']:
+            print("Place Types: ", place['info']['types'])
+            if place_type in detailed_place_types:
+                preferred_slots.append(detailed_place_types[place_type]['preferredTimeSlot'])
+        print("Preferred slots: ", preferred_slots)
+
+
+        # Use majority rule for determining the most suitable preferred time slot
+        if preferred_slots:
+            preferred_time_slot = max(set(preferred_slots), key=preferred_slots.count)
+        else:
+            preferred_time_slot = 0  # Default to flexible if no specific types matched
+
+        # Define weights for adjusting the similarity score
+        perfect_match_weight = 0.2
+        partial_match_weight = 0.1
+        non_match_weight = -0.1
+
+        # Determine match type and apply weight
+        if preferred_time_slot == 0 or preferred_time_slot == actual_time_slot:
+            match_weight = perfect_match_weight
+        elif (actual_time_slot in [1, 2] and preferred_time_slot == 4) or \
+            (actual_time_slot in [1, 3] and preferred_time_slot == 5) or \
+            (actual_time_slot in [2, 3] and preferred_time_slot == 6):
+            match_weight = partial_match_weight
+        else:
+            match_weight = non_match_weight
+
+        # Calculate new similarity
+        new_similarity = place['similarity'] * (1 + match_weight)
+        place['new_similarity'] = new_similarity
+        if new_similarity <= place['similarity']:
+            print("New similarity vs old similarity: ", new_similarity, place['similarity'])
+ 
 
 
 def addHighestPlace(places, nearby_places_picked, start_time, end_time):
+    print("Start time: ", start_time)
+    print("End time: ", end_time)
     if start_time.weekday() == 6:
         weekday = 0
     else:
         weekday = start_time.weekday()+1
+        
+    #new similarity = Old similarity + new weights
+    
+    # Adjust similarity based on the time slot
+    adjust_similarity_based_on_timeslot(places, start_time)
+    
+    #Sort by new similarity descending
+    places = sorted(places, key=lambda x: x['new_similarity'], reverse=True)
 
     for place in places:
         best_place_id = place['info']['id']
@@ -388,8 +672,6 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
                         break
                 if weekday == comparison and change == False:
                     continue    
-            weigth = averageWeight(place['info']['types'])
-            print("Weight: ", weigth)
             #get the opening time
             openingDay = place['info']['regularOpeningHours']['periods'][weekday]['open']['day']
             openingHour = place['info']['regularOpeningHours']['periods'][weekday]['open']['hour']
@@ -402,17 +684,12 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
             closingMinute = place['info']['regularOpeningHours']['periods'][weekday]['close']['minute']
             closingTime = time(closingHour, closingMinute)
 
-            print("Opening time: ", openingTime)
-            print("Start time: ", start_time.time())
-            print("End time: ", end_time.time())
-            print ("Closing time: ", closingTime) 
 
             if openingTime <= start_time.time() and (openingDay != closingDay or closingTime >= end_time.time()):
                 nearby_places_picked.add(best_place_id)
-                return {'place_id': best_place_id, 'place_name': place['info']['displayName']['text'], 'address': place['info']['formattedAddress'], 'score': place['similarity']}
+                return {'place_id': best_place_id, 'place_name': place['info']['displayName']['text'], 'address': place['info']['formattedAddress'], 'score': place['new_similarity']}
 
 def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings, time_zones, nearbyRestaurants):
-    print("Similarity tables, create scheduled: ", similarity_tables)
     format_trips = ['%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dT%H:%M:%S.%f%z', '%Y-%m-%dT%H:%M:%S.%f%Z']
     format_slots = ['%Y-%m-%dT%H:%M:%S.%f%z',
                     '%Y-%m-%dT%H:%M:%S.%f%Z',]
@@ -533,9 +810,6 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
 
         #change index to the next day if the next free time slot is on the next day of trip
         if i < len(broken_up_free_slots)-1 and broken_up_free_slots[i]['end'].weekday() != broken_up_free_slots[i+1]['start'].weekday():
-            print("Day index changed")
-            print("Day end free time slot:", broken_up_free_slots[i]['end'].weekday())
-            print("Day start next free time slot:", broken_up_free_slots[i+1]['start'].weekday())
             dayIndex += 1
     
     filtered_data = [entry for entry in broken_up_free_slots if entry['place_similarity'] is not None]
@@ -662,6 +936,6 @@ def convert_opening_hours(opening_hours_list):
 def averageWeight(types):
     sum = 0
     for type in types:
-        sum += place_types[type]['MorningOrAftertoonOrEvening']
+        sum += place_types[type]['preferredTimeSlot']
     sum = math.floor(sum/len(types))
     return sum
