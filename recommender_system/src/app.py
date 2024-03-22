@@ -231,6 +231,7 @@ foodTypes = {
 @app.route('/api/recommend', methods=['POST'])
 @authenticate
 def recommend():
+    print("Recommendation API called")
 
     #Call function to get list of google recommendations
         #Check if meetings has any slots that has locations
@@ -273,6 +274,7 @@ def recommend():
     # Extracting the restaurants from the interests
     pattern = re.compile(r'^\d{3}-\d{3}$')
     resto_interests = [interest for interest in interests if pattern.match(interest)]
+    print("Resto Interests: ", resto_interests)
     
     if len(recent_places) < 5:
         for day, categories in nearbyRestaurants.items():
@@ -291,6 +293,7 @@ def recommend():
                     restaurant["openingHours"] = convert_opening_hours(restaurant["openingHours"])
                     # Calculate and add similarity score to each restaurant
                     restaurant["similarity"] = calculate_similarity_score(restaurant, recentRestaurants, all_types=restoTypeList)
+    print("Done nearby Restaurants: ", nearbyRestaurants)
 
 
 
@@ -540,4 +543,4 @@ def scheduleActivities():
 
 # Start the server
 if __name__ == '__main__':
-    app.run(port=4000, debug=True)
+    app.run(host='0.0.0.0', port=4000)

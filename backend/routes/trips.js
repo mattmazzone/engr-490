@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const admin = require("firebase-admin");
 const db = admin.firestore();
+const fetch = require("node-fetch");
 const authenticate = require("../middlewares/authenticate");
 const {
   calculateFreeTimeSlots,
@@ -22,10 +23,17 @@ const {
   getRestaurantsWithNoMeetings,
 } = require("../utils/here");
 const axios = require("axios");
+require("dotenv").config();
 
 const recommenderPort = 4000;
 const recommenderRoute = "/api/recommend";
-const recommenderURL = `http://localhost:${recommenderPort}${recommenderRoute}`;
+let reccomenderBaseURL;
+if (process.env.NODE_ENV === "production") {
+  reccomenderBaseURL = "http://flask-backend";
+} else {
+  reccomenderBaseURL = "http://localhost";
+}
+const recommenderURL = `${reccomenderBaseURL}:${recommenderPort}${recommenderRoute}`;
 
 // Route to create a new trip
 router.post("/create_trip/:uid", authenticate, async (req, res) => {
@@ -98,6 +106,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         tripEnd,
         adsjustedMeetings
       );
+      console.log("Nearby Restaurants", nearbyRestaurants);
 
       // Get all meeting locations
       let locations = [];
@@ -248,6 +257,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
     // Finally pass data into the recommender system and get the activities
     const token = req.headers.authorization;
     //TODO: add TripLocation to the request
+    console.log("Sent request to recommender system");
     const response = await axios.post(
       recommenderURL,
       {
@@ -266,6 +276,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         },
       }
     );
+    console.log("Received response from recommender system");
     const { scheduledActivities } = response.data;
     // Construct trip data for database
     let tripData = {
