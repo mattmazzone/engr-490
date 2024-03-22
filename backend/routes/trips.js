@@ -21,6 +21,7 @@ const {
 const {
   processDaysAndGetRestaurants,
   getRestaurantsWithNoMeetings,
+  lookupPlaceById,
 } = require("../utils/here");
 const axios = require("axios");
 require("dotenv").config();
@@ -66,7 +67,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       tripMeetings,
       dailyStartTime,
       dailyEndTime,
-      bufferInMinutes,
+      bufferInMinutes
     );
 
     const [success, interests] = await getUserInterests(uid, db);
@@ -194,7 +195,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       admin,
       db,
       uid,
-      maxRecentTrips,
+      maxRecentTrips
     );
 
     if (successOrNotTrips != REQUEST.SUCCESSFUL) {
@@ -274,7 +275,7 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
           "Content-Type": "application/json",
           Authorization: token,
         },
-      },
+      }
     );
     console.log("Received response from recommender system");
     const { scheduledActivities } = response.data;
@@ -328,44 +329,70 @@ router.post("/end_trip/:uid", authenticate, async (req, res) => {
     const trip = await db.collection("trips").doc(tripId).get();
     const tripData = trip.data();
     const scheduledActivities = tripData.scheduledActivities;
-    const scheduledActivity = scheduledActivities[0];
-    const placeId = scheduledActivity.place_similarity.place_id;
 
-    // Get place details
-    const [successOrNotPlaceDetails, responsePlaceDetails] =
-      await getPlaceDetails(placeId, "id,displayName,photos");
-    if (successOrNotPlaceDetails != REQUEST.SUCCESSFUL) {
-      error = responsePlaceDetails;
-      console.error("Error getting place details");
-      res.status(400).json(error);
-      return;
-    }
-    const placeDetails = responsePlaceDetails;
-    const photos = placeDetails.photos;
-
-    // Loop through photos and select the first horizontal photo
-    // If no horizontal photo is found, select the first photo
-    let photoName = "";
-    for (const photo of photos) {
-      if (photo.widthPx > photo.heightPx) {
-        photoName = photo.name;
-        break;
+    let placeId = "";
+    for (const activity of scheduledActivities) {
+      if (activity.place_similarity.place_id.startsWith("here")) {
+        continue;
       }
-    }
-    if (photoName === "") {
-      photoName = photos[0].name;
+      placeId = activity.place_similarity.place_id;
     }
 
-    // Get the photo
-    const photoUrl = `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=400&maxWidthPx=400&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+    // const scheduledActivity = scheduledActivities[0];
+    // const placeId = scheduledActivity.place_similarity.place_id;
 
+    let photoUrl = "";
+
+    // If the place is a Here place, get the photo from Here API
+    if (placeId.startsWith("here")) {
+      const place = await lookupPlaceById(placeId);
+      console.log("Place", place);
+      const photos = place.media.images.items;
+      for (const photo of photos) {
+        if (photo.widthPx > photo.heightPx) {
+          photoUrl = photo.href;
+          break;
+        }
+      }
+      if (photoUrl === "") {
+        photoUrl = photos[0].href;
+      }
+    } else {
+      // Get the photo from Google Places API
+      const [successOrNotPlaceDetails, responsePlaceDetails] =
+        await getPlaceDetails(placeId, "id,displayName,photos");
+      if (successOrNotPlaceDetails != REQUEST.SUCCESSFUL) {
+        error = responsePlaceDetails;
+        console.error("Error getting place details");
+        res.status(400).json(error);
+        return;
+      }
+      const placeDetails = responsePlaceDetails;
+
+      const photos = placeDetails.photos;
+
+      // Loop through photos and select the first horizontal photo
+      // If no horizontal photo is found, select the first photo
+      let photoName = "";
+      for (const photo of photos) {
+        if (photo.widthPx > photo.heightPx) {
+          photoName = photo.name;
+          break;
+        }
+      }
+      if (photoName === "") {
+        photoName = photos[0].name;
+      }
+
+      // Get the photo
+      photoUrl = `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=400&maxWidthPx=400&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+    }
     // Download the photo then upload to firebase storage
     const photoResponse = await axios.get(photoUrl, {
       responseType: "arraybuffer",
     });
     const photoBuffer = Buffer.from(photoResponse.data, "binary");
-    const fileName = `${tripId}.jpg`;
-    const photoPath = `trip-pictures/${fileName}`;
+    const photoPath = `trip-pictures/${tripId}`;
     const bucket = admin.storage().bucket();
     const file = bucket.file(photoPath);
     const stream = file.createWriteStream({
