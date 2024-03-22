@@ -72,6 +72,7 @@ place_types = {
     "clothing_store" : {"duration": 0.5,"maxAmountPerDay": 10,"MorningOrAftertoonOrEvening": 0},
     "gift_shop" : {"duration": 0.5,"maxAmountPerDay": 2,"MorningOrAftertoonOrEvening": 0},
     "jewelry_store" : {"duration": 0.5,"maxAmountPerDay": 2,"MorningOrAftertoonOrEvening": 0},
+    "liquor_store" : {"duration": 0.25,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 0},
     "shopping_mall" : {"duration": 4,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 0},
     "golf_course" : {"duration": 4,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 4},
     "gym" : {"duration": 1.5,"maxAmountPerDay": 1,"MorningOrAftertoonOrEvening": 0},
