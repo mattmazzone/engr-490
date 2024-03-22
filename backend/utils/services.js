@@ -140,6 +140,7 @@ async function getUserInterests(uid, db) {
 }
 
 async function getCoords(location) {
+  console.log("location getCoords: ", location);
   const [successOrNot, responseData] = await getPlaceTextSearch(location);
   if (successOrNot != REQUEST.SUCCESSFUL) {
     error = responseData;

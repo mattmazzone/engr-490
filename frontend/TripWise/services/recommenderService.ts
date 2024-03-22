@@ -4,10 +4,15 @@ import { RecommendActivitiesResponse } from "../types/recommenderTypes";
 
 // Base API URL
 let BASE_API_URL: string;
-if (Platform.OS === "android") {
-  BASE_API_URL = "http://10.0.2.2:3000/api/recommend-activities";
-} else {
-  BASE_API_URL = "http://localhost:3000/api/recommend-activities";
+if (process.env.NODE_ENV = 'production') {
+  BASE_API_URL = "https://api.tripwise.cloud/api/recommend-activities"
+}
+else {
+  if (Platform.OS === "android") {
+    BASE_API_URL = "http://10.0.2.2:3000/api/recommend-activities";
+  } else {
+    BASE_API_URL = "http://localhost:3000/api/recommend-activities";
+  }
 }
 
 export const recommendActivities = async (
