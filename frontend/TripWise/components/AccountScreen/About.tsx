@@ -76,18 +76,7 @@ const About = ({ closeModal, navigation }: any) => {
         <Pressable onPress={() => testGoogleAPI()} style={styles.button}>
           <Text style={styles.buttonText}>Test Google API</Text>
         </Pressable>
-
-        <Pressable
-          onPress={() => {
-            navigation.navigate("SelectInterests");
-            closeModal();
-          }}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>Open Select Interest Page</Text>
-        </Pressable>
-
-        <Pressable style={styles.button} onPress={() => { UserService.endCurrentTrip(); }}>
+        <Pressable style={styles.button} onPress={UserService.endCurrentTrip}>
           <Text style={styles.buttonText}>End Current Trip</Text>
           <Toast />
         </Pressable>
@@ -95,6 +84,9 @@ const About = ({ closeModal, navigation }: any) => {
     </Background>
   );
 };
+
+
+
 
 const styles = StyleSheet.create({
   container: {
