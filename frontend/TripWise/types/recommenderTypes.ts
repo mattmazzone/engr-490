@@ -4,13 +4,13 @@ export interface RecommendActivitiesResponse {
 
 export interface Activity {
   id: string;
-  types: string[];
+  types: string[];//type of restaurant
   formattedAddress: string;
   rating: number;
   regularOpeningHours?: RegularOpeningHours;
   priceLevel?: string;
   displayName: DisplayName;
-  similarity: number;
+  similarity: number;//similarity value for how good the activity is best
 }
 
 export interface RegularOpeningHours {

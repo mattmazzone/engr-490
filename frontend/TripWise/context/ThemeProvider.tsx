@@ -9,7 +9,7 @@ const ThemeProvider = ({ children }: any) => {
   });
 
   useEffect(() => {
-    if (!isFetchingProfile) {
+    if (!isFetchingProfile && userProfile) {
       const userTheme = userProfile?.settings.backgroundTheme;
       setTheme(userTheme ? "Dark" : "Light");
     }

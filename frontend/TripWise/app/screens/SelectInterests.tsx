@@ -35,53 +35,236 @@ const categories: Category[] = [
     name: "Food & Drink 🍔",
     items: [
       {
-        id: "Asian Cuisine 🥢",
+        id: "Mexican Cuisine 🥘",
         titles: [
-          "chinese_restaurant",
-          "japanese_restaurant",
-          "indonesian_restaurant",
-          "korean_restaurant",
-          "ramen_restaurant",
-          "sushi_restaurant",
-          "vietnamese_restaurant",
-          "thai_restaurant",
+          "102-000",  //Mexican
+          "102-005",  //Mexican-Yucateca
+          "102-006",  //Mexican-Oaxaquena
+          "102-007",  //Mexican-Veracruzana
+          "102-008",  //Mexican-Poblana
+          "404-000",  //Argentinean
+          "406-000",  //Brazilian
+          "406-035",  //Brazilian-Baiana
+          "406-038",  //Brazilian-Bakery
+          "406-036",  //Brazilian-Capixaba
+          "406-037",  //Brazilian-Mineira
+          "405-000",  //Chilean
+          "403-000",  //Latin American
+          "407-000",  //Peruvian
+          "400-000",  //South American
+          "401-000",  //Surinamese
+          "402-000",  //Venezuelan
+        ],
+      },
+      {
+        id: "Chinese/Japanese/Korean Cuisine 🥢",
+        titles: [
+          "200-000",  //Asian
+          "201-000",  //Chinese
+          "201-009",  //Chinese-Szechuan
+          "201-010",  //Chinese-Cantonese
+          "201-041",  //Chinese-Shanghai
+          "201-042",  //Chinese-Beijing
+          "201-043",  //Chinese-Hunan/Hubei
+          "201-044",  //Chinese-Jiangsu/Zhejiang
+          "201-045",  //Chinese-Shandong
+          "201-046",  //Chinese-Northeastern
+          "201-047",  //Chinese-Inner Mongolian
+          "201-048",  //Chinese-Yunnan/Guizhou
+          "201-049",  //Chinese-Taiwanese
+          "201-050",  //Chinese-Guangxi
+          "201-051",  //Chinese-Jiangxi
+          "201-052",  //Chinese-Northwestern
+          "201-053",  //Chinese-Porridge
+          "201-054",  //Chinese-Islamic
+          "201-055",  //Chinese-Hot Pot
+          "203-000",  //Japanese
+          "203-026",  //Japanese-Sushi
+          "204-000",  //Southeast Asian
+          "205-000",  //Thai
+          "206-000",  //Vietnamese
+          "207-000",  //Korean
+          "208-000",  //Pakistani
+          "209-000",  //Malaysian
+          "210-000",  //Bruneian
+          "211-000",  //Indonesian
+          "212-000",  //Filipino
+          "800-085",  //Noodles 
+        ],
+      },
+      {
+        id: "Indian Cuisine 🍛",
+        titles: [
+          "202-000",  //Indian
+          "202-011",  //Indian-Tandoori
+          "202-012",  //Indian-Punjabi
+          "202-013",  //Indian-Rajasthani
+          "202-014",  //Indian-Mughlai
+          "202-015",  //Indian-Bengali
+          "202-016",  //Indian-Goan
+          "202-017",  //Indian-Jain
+          "202-018",  //Indian-Konkani
+          "202-019",  //Indian-Gujarati
+          "202-020",  //Indian-Parsi
+          "202-021",  //Indian-South Indian
+          "202-022",  //Indian-Maharashtrian
+          "202-023",  //Indian-North Indian
+          "202-024",  //Indian-Malvani
+          "202-025",  //Indian-Hyderabadi
         ],
       },
       {
         id: "Middle Eastern Cuisine 🧆",
         titles: [
-          "lebanese_restaurant",
-          "middle_eastern_restaurant",
-          "turkish_restaurant",
+          "250-000",  //Middle Eastern
+          "251-000",  //Azerbaijani
+          "252-000",  //Turkish
+          "253-000",  //Lebanese
+          "254-000",  //Yemeni
+          "255-000",  //Burmese
+          "256-000",  //Cambodian
+          "257-000",  //Singaporean
+          "258-000",  //Sri Lankan
+          "259-000",  //Tibetan
         ],
       },
       {
         id: "American Cuisine 🍟",
         titles: [
-          "american_restaurant",
-          "barbecue_restaurant",
-          "hamburger_restaurant",
-          "pizza_restaurant",
+          "101-000",  //American
+          "101-001",  //American-Californian
+          "101-002",  //American-Southwestern
+          "101-003",  //American-Barbecue/Southern
+          "101-004",  //American-Creole
+          "101-039",  //American-Native American
+          "101-040",  //American-Soul Food
+          "101-070",  //American-Cajun
+          "103-000",  //Canadian
+          "150-000",  //Australian
+          "151-000",  //Hawaiian/Polynesian
+          "152-000",  //Caribbean
+          "153-000",  //Cuban
+          "800-067",  //Burgers
+          "800-056",  //Steak House
+          "800-059",  //Hot Dogs
+          "800-062",  //Chicken
         ],
       },
-      { id: "Cafe ☕", titles: ["cafe", "bakery", "sandwich_shop"] },
+      {
+        id: "European Cuisine 🥐",
+        titles: [
+          "300-000",  //European
+          "301-000",  //French
+          "301-027",  //French-Alsatian
+          "301-028",  //French-Auvergnate
+          "301-029",  //French-Basque
+          "301-030",  //French-Corse
+          "301-031",  //French-Lyonnaise
+          "301-032",  //French-Provencale
+          "301-033",  //French-Sud-ouest
+          "302-000",  //German
+          "303-000",  //Greek"
+          "304-000",  //Italian"
+          "305-000",  //Irish
+          "306-000",  //Austrian
+          "307-000",  //Belgian
+          "308-000",  //British Isles
+          "309-000",  //Dutch
+          "310-000",  //Swiss
+          "313-000",  //Portuguese
+        ],
+      },
+      {
+        id: "Eastern European Cuisine 🍲",
+        titles: [
+          "373-000", //Baltic
+          "374-000", //Belorusian
+          "375-000", //Ukrainian
+          "376-000", //Polish
+          "377-000", //Russian
+          "378-000", //Bohemian
+          "379-000", //Balkan
+          "380-000", //Caucasian
+          "381-000", //Romanian
+          "382-000", //Armenian
+          "370-000", //East European
+          "371-000", //Hungarian
+
+        ]
+      },
+      {
+        id: "Scandinavian Cuisine 🍲",
+        titles: [
+          "350-000",  //Scandinavian
+          "351-000",  //Finnish
+          "352-000",  //Swedish
+          "353-000",  //Norwegian
+          "354-000",  //Danish
+          "309-000",  //Dutch
+          "310-000",  //Swiss
+        ]
+      },
+      {
+        id: "African Cuisine 🍲",
+        titles: [
+          "500-000", //African
+          "501-000", //Moroccan
+          "502-000", //Egyptian
+          "503-000", //Ethiopian
+          "504-000", //Seychellois
+          "505-000", //South African
+          "506-000", //North African
+        ]
+      },
+      {
+        id: "Cafe ☕", titles: [
+          "800-060",  //Sandwhich
+          "800-061",  //Breakfast
+          "800-072",  //Brunch
+          "800-073",  //Bistro
+          "800-080",  //Soup
+          "100-1100-0000", //Coffee-Tea
+          "100-1100-0010", //Coffee Shop
+          "100-1100-0331", //Tea House
+
+        ]
+      },
       {
         id: "Breakfast 🍳",
-        titles: ["breakfast_restaurant", "brunch_restaurant"],
+        titles: [
+          "800-061",  //Breakfast
+          "800-072",  //Brunch
+          "800-068",  //Creperie
+        ],
       },
       {
         id: "Italian Cuisine 🍝",
-        titles: ["italian_restaurant", "pizza_restaurant"],
+        titles: [
+          "304-000", //Italian
+          "800-057", //Pizza
+          "315-000", //Sicilian
+        ],
       },
       {
         id: "Mediterranean Cuisine 🍱",
-        titles: ["mediterranean_restaurant", "greek_restaurant"],
+        titles: [
+          "372-000", // Mediterranean
+          "303-000", // Greek
+          "311-000", "311-034", // Spanish, including Tapas
+          "800-075", //Seafood
+        ],
       },
-      { id: "Vegan 🌱", titles: ["vegan_restaurant", "vegetarian_restaurant"] },
       {
-        id: "South American Cuisine 🥘",
-        titles: ["brazilian_restaurant", "mexican_restaurant"],
+        id: "Vegan 🌱", titles: [
+          "800-076", //Vegan
+          "800-077", //Vegetarian
+          "800-083", //Natural/Healthy
+          "800-084", //Organic
+
+
+        ]
       },
+
     ],
   },
   {
@@ -137,11 +320,11 @@ const categories: Category[] = [
 ];
 interface RouterProps {
   navigation:
-    | NavigationProp<MainStackParamList, "SelectInterests">
-    | NavigationProp<RootStackParamList, "SelectInterests">;
+  | NavigationProp<MainStackParamList, "SelectInterests">
+  | NavigationProp<RootStackParamList, "SelectInterests">;
   route:
-    | RouteProp<MainStackParamList, "SelectInterests">
-    | RouteProp<RootStackParamList, "SelectInterests">;
+  | RouteProp<MainStackParamList, "SelectInterests">
+  | RouteProp<RootStackParamList, "SelectInterests">;
 }
 const SelectInterests = ({ navigation, route }: RouterProps) => {
   const { theme } = useContext(ThemeContext);
@@ -294,7 +477,7 @@ const styles = StyleSheet.create({
   button: {
     padding: 15,
     borderRadius: 25,
-    backgroundColor: "#2a5",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     marginTop: 20,
   },
   buttonText: {
