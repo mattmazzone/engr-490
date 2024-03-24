@@ -463,7 +463,6 @@ place_types = {
     "home_goods_store": 0,
     "home_improvement_store": 0,
     "jewelry_store": 0,
-    "liquor_store": 0,
     "market": 0,
     "pet_store": 0,
     "shoe_store": 0,
@@ -631,7 +630,6 @@ def addHighestRestaurant(places, nearby_places_picked, start_time, end_time):
                 closingDay = closingDay + 1
             closingTime = time(closingHour, closingMinute)
 
-
             if openingTime <= start_time.time() and (openingDay != closingDay or closingTime >= end_time.time()):
                 nearby_places_picked.add(best_place_id)
                 return {'place_id': best_place_id, 'place_name': place['title'], 'address': place['address'], 'score': place['similarity'], 'types': place['types']}
@@ -657,7 +655,7 @@ def adjust_similarity_based_on_timeslot(places, start_time):
         actual_time_slot = 3  # Evening
     else:
         actual_time_slot = 0  # Times outside the defined slots
-    
+
     for place in places:
 
         # Collect preferred time slots for all the place's types
@@ -695,7 +693,7 @@ def adjust_similarity_based_on_timeslot(places, start_time):
         place['new_similarity'] = new_similarity
         if new_similarity <= place['similarity']:
             print("New similarity vs old similarity: ", new_similarity, place['similarity'])
- 
+
 
 
 def addHighestPlace(places, nearby_places_picked, start_time, end_time):
@@ -707,10 +705,10 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
         weekday = start_time.weekday()+1
         
     #new similarity = Old similarity + new weights
-    
+
     # Adjust similarity based on the time slot
     adjust_similarity_based_on_timeslot(places, start_time)
-    
+
     #Sort by new similarity descending
     places = sorted(places, key=lambda x: x['new_similarity'], reverse=True)
 
@@ -744,7 +742,6 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
             closingHour = place['info']['regularOpeningHours']['periods'][weekday]['close']['hour']
             closingMinute = place['info']['regularOpeningHours']['periods'][weekday]['close']['minute']
             closingTime = time(closingHour, closingMinute)
-
 
             if openingTime <= start_time.time() and (openingDay != closingDay or closingTime >= end_time.time()):
                 nearby_places_picked.add(best_place_id)
