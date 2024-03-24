@@ -4,6 +4,7 @@ from contextlib import closing
 import copy
 from datetime import date, datetime, timedelta, time, timezone
 from types import NoneType
+import types
 from unittest import result
 from weakref import ref
 from sklearn.metrics.pairwise import cosine_similarity
@@ -374,8 +375,6 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
 
     for place in places:
         best_place_id = place['id']
-        print (place)
-        print(weekday)
 
         if best_place_id not in nearby_places_picked:
             #get the opening time
@@ -394,7 +393,7 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
 
             if openingTime <= start_time.time() and (openingDay != closingDay or closingTime >= end_time.time()):
                 nearby_places_picked.add(best_place_id)
-                return {'place_id': best_place_id, 'place_name': place['displayName']['text'], 'address': place['formattedAddress'], 'score': place['similarity']}
+                return {'place_id': best_place_id, 'place_name': place['displayName']['text'], 'address': place['formattedAddress'], 'score': place['similarity'], 'types': place['types']}
 
 def create_scheduled_activities(nearby_places, free_slots, trip_meetings, time_zones, nearbyRestaurants):
     format_trips = ['%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dT%H:%M:%S.%f%z', '%Y-%m-%dT%H:%M:%S.%f%Z']

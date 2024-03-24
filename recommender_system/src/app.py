@@ -267,6 +267,8 @@ def recommend():
     
     # Remove meetings without start and end times (all day meetings)
     trip_meetings = [meeting for meeting in trip_meetings if 'start' in meeting and 'end' in meeting]
+    
+    print("Past Trips: ", recent_places)
 
     
     
@@ -294,25 +296,22 @@ def recommend():
 
     if len(recent_places) < 5:
         # Use interests
-        for places in nearby_places:
-            for place in places:
-                place["regularOpeningHours"] = convert_opening_place_hours(place)
-                place["similarity"] = calculate_similarity_score(place, [{'place_similarity': {'types':non_resto_interests}}], all_types=place_types)
-            print(places)
-      
-            scheduled_activities = create_scheduled_activities(
-            places, free_slots, trip_meetings, time_zones, nearbyRestaurants)
-            return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
+        print(nearby_places[0])
+        for place in nearby_places[0]:
+            place["regularOpeningHours"] = convert_opening_place_hours(place)
+            place["similarity"] = calculate_similarity_score(place, [{'place_similarity': {'types':non_resto_interests}}], all_types=place_types)
+        scheduled_activities = create_scheduled_activities(
+        nearby_places[0], free_slots, trip_meetings, time_zones, nearbyRestaurants)
+        return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
 
     else:
-        for places in nearby_places:
-            for place in places:
-                place["regularOpeningHours"] = convert_opening_place_hours(place)
-                place["similarity"] = calculate_similarity_score(place, recent_places, all_types=place_types)
+        for place in nearby_places[0]:
+            place["regularOpeningHours"] = convert_opening_place_hours(place)
+            place["similarity"] = calculate_similarity_score(place, recent_places, all_types=place_types)
             
-            scheduled_activities = create_scheduled_activities(
-                places, free_slots, trip_meetings, time_zones, nearbyRestaurants)
-            return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
+        scheduled_activities = create_scheduled_activities(
+            nearby_places[0], free_slots, trip_meetings, time_zones, nearbyRestaurants)
+        return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
 
 
 
