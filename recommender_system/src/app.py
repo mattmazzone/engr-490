@@ -268,10 +268,6 @@ def recommend():
     # Remove meetings without start and end times (all day meetings)
     trip_meetings = [meeting for meeting in trip_meetings if 'start' in meeting and 'end' in meeting]
     
-    print("Past Trips: ", recent_places)
-
-    
-    
     restoTypeList = list(foodTypes.keys())
  
     if len(recent_places) < 5:
@@ -296,7 +292,6 @@ def recommend():
 
     if len(recent_places) < 5:
         # Use interests
-        print(nearby_places[0])
         for place in nearby_places[0]:
             place["regularOpeningHours"] = convert_opening_place_hours(place)
             place["similarity"] = calculate_similarity_score(place, [{'place_similarity': {'types':non_resto_interests}}], all_types=place_types)
