@@ -267,7 +267,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         recentRestaurants,
         freeSlots,
         tripMeetings,
-        interests,
+        nonRestaurantInterests,
+        restaurantInterests,
       },
       {
         headers: {
