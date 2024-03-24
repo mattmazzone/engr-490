@@ -196,7 +196,6 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
       uid,
       maxRecentTrips
     );
-    console.log("Got recent trips", responseDataTrips);
 
     if (successOrNotTrips != REQUEST.SUCCESSFUL) {
       error = responseDataTrips;
