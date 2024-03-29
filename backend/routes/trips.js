@@ -229,29 +229,13 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
           recentRestaurants.push(place);
           continue;
         }
-        const [successOrNotPlaceDetails, responsePlaceDetails] =
-          await getPlaceDetails(placeId, "id,types");
-        if (successOrNotPlaceDetails != REQUEST.SUCCESSFUL) {
-          console.error("Error getting place details");
-          return res.status(400).json(responsePlaceDetails);
-        }
 
-        const placeDetails = responsePlaceDetails;
-        placeDetails.rating = place.rating;
-        recentTripsPlaceDetails.push(placeDetails);
+        recentTripsPlaceDetails.push(place);
 
-        if (
-          recentTripsPlaceDetails.length >= maxRecentTrips ||
-          recentRestaurants.length >= maxRecentTrips
-        )
-          break;
+        if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
       }
 
-      if (
-        recentTripsPlaceDetails.length >= maxRecentTrips ||
-        recentRestaurants.length >= maxRecentTrips
-      )
-        break;
+      if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
     }
 
     // Finally pass data into the recommender system and get the activities
@@ -267,7 +251,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         recentRestaurants,
         freeSlots,
         tripMeetings,
-        interests,
+        nonRestaurantInterests,
+        restaurantInterests,
       },
       {
         headers: {

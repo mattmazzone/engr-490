@@ -3,6 +3,9 @@ from calendar import week
 from contextlib import closing
 import copy
 from datetime import date, datetime, timedelta, time, timezone
+from types import NoneType
+import types
+from unittest import result
 import math
 from weakref import ref
 from sklearn.metrics.pairwise import cosine_similarity
@@ -713,41 +716,28 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
     places = sorted(places, key=lambda x: x['new_similarity'], reverse=True)
 
     for place in places:
-        best_place_id = place['info']['id']
-        #make sure there is information when accessing the regular opening hours of the place
-        openingHours = place['info'].get('regularOpeningHours')
-        information = place.get('info')
-        if openingHours is None or information is None:
-            continue
+        best_place_id = place['id']
+
         if best_place_id not in nearby_places_picked:
-            #make sure to select the right index for the day of the week
-            if len(place['info']['regularOpeningHours']['periods']) < 7:
-                comparison = weekday
-                change = False
-                for i in range(len(place['info']['regularOpeningHours']['periods'])-1):
-                    if weekday == place['info']['regularOpeningHours']['periods'][i]['open']['day']:
-                        weekday = i
-                        change = True
-                        break
-                if weekday == comparison and change == False:
-                    continue    
             #get the opening time
-            openingDay = place['info']['regularOpeningHours']['periods'][weekday]['open']['day']
-            openingHour = place['info']['regularOpeningHours']['periods'][weekday]['open']['hour']
-            openingMinute = place['info']['regularOpeningHours']['periods'][weekday]['open']['minute']
+            openingDay = place['regularOpeningHours']['periods'][weekday]['open']['day']
+            openingHour = place['regularOpeningHours']['periods'][weekday]['open']['hour']
+            openingMinute = place['regularOpeningHours']['periods'][weekday]['open']['minute']
             openingTime = time(openingHour, openingMinute)
             
             #get the closing time
-            closingDay = place['info']['regularOpeningHours']['periods'][weekday]['close']['day']
-            closingHour = place['info']['regularOpeningHours']['periods'][weekday]['close']['hour']
-            closingMinute = place['info']['regularOpeningHours']['periods'][weekday]['close']['minute']
+            closingDay = place['regularOpeningHours']['periods'][weekday]['close']['day']
+            closingHour = place['regularOpeningHours']['periods'][weekday]['close']['hour']
+            closingMinute = place['regularOpeningHours']['periods'][weekday]['close']['minute']
             closingTime = time(closingHour, closingMinute)
+
+
 
             if openingTime <= start_time.time() and (openingDay != closingDay or closingTime >= end_time.time()):
                 nearby_places_picked.add(best_place_id)
-                return {'place_id': best_place_id, 'place_name': place['info']['displayName']['text'], 'address': place['info']['formattedAddress'], 'score': place['new_similarity']}
+                return {'place_id': best_place_id, 'place_name': place['displayName']['text'], 'address': place['formattedAddress'], 'score': place['similarity'], 'types': place['types']}
 
-def create_scheduled_activities(similarity_tables, nearby_places, free_slots, trip_meetings, time_zones, nearbyRestaurants):
+def create_scheduled_activities(nearby_places, free_slots, trip_meetings, time_zones, nearbyRestaurants):
     format_trips = ['%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dT%H:%M:%S.%f%z', '%Y-%m-%dT%H:%M:%S.%f%Z']
     format_slots = ['%Y-%m-%dT%H:%M:%S.%f%z',
                     '%Y-%m-%dT%H:%M:%S.%f%Z',]
@@ -793,27 +783,6 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
         if not formatted:
             raise ValueError('No valid date format found')
 
-    if len(trip_meetings) == 0:
-        # Since there are no trip meetings, there can only be 1 similarity table and 1 nearby places array
-        if len(nearby_places) != 1 or len(similarity_tables) != 1:
-            raise ValueError(
-                "nearby_places or similarity_table incorrect length")
-
-        for slot in broken_up_free_slots:
-            slot['place_similarity'] = similarity_tables[0]
-            slot['places_dict'] = nearby_places[0]
-    else:
-        trip_meetings.sort(key=lambda x: x['start'])
-
-        for i in range(len(similarity_tables)):
-            trip_meetings[i]['nearby_place_similarities'] = similarity_tables[i]
-
-        for slot in broken_up_free_slots:
-            index = find_relavent_meeting(trip_meetings, slot['end'])
-            relevant_meeting = trip_meetings[index]
-            slot['place_similarity'] = relevant_meeting['nearby_place_similarities']
-            slot['places_dict'] = nearby_places[index]
-
     nearby_places_picked = set()
     breakfast_time_range = {"start": time(8, 0, 0), "end": time(10, 0, 0)}
     lunch_time_range = {"start":   time(12, 0, 0), "end": time(14, 0, 0)}
@@ -827,20 +796,15 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
         slot = broken_up_free_slots[i]
         slot_start = slot['start']
         slot_end = slot['end']
-        similarity_table: pd.DataFrame = slot['place_similarity']
-        places_dict = slot['places_dict']
 
         breakfast_places = nearbyRestaurants[str(dayIndex)]["breakfast"]
         lunch_places = nearbyRestaurants[str(dayIndex)]["lunch"]
         dinner_places = nearbyRestaurants[str(dayIndex)]["dinner"]
         other_places = []
 
-        for place in places_dict:
-            print("Place: ", place)
-            sim = similarity_table.loc[place['id'], 'similarity']
-            obj = {"info": place, "similarity": sim}
+        for place in nearby_places:
             if 'breakfast_restaurant' not in place['types'] and 'coffee_shop' not in place['types'] and 'cafe' not in place['types'] and 'brunch_restaurant' not in place['types'] and 'restaurant' not in place['types']:
-                other_places.append(obj)
+                other_places.append(place)
 
         breakfast_places = sorted(
             breakfast_places, key=lambda x: x['similarity'])
@@ -865,7 +829,6 @@ def create_scheduled_activities(similarity_tables, nearby_places, free_slots, tr
         else:
             slot['place_similarity'] = addHighestPlace(
                 other_places, nearby_places_picked, slot_start, slot_end)
-        del slot['places_dict']
 
         #change index to the next day if the next free time slot is on the next day of trip
         if i < len(broken_up_free_slots)-1 and broken_up_free_slots[i]['end'].weekday() != broken_up_free_slots[i+1]['start'].weekday():
@@ -942,6 +905,61 @@ def day_range_to_numbers(day_range):
     else:
         return [day_map[day_range.strip()]]
 
+#Function to convert opening hours for Places
+def convert_opening_place_hours(place):
+    day_index_mapping = {
+        "Sunday": 0,
+        "Monday": 1,
+        "Tuesday": 2,
+        "Wednesday": 3,
+        "Thursday": 4,
+        "Friday": 5,
+        "Saturday": 6
+    }
+    
+    # Initialize all days as closed
+    existing_periods = {
+        i: {"open": {"day": i, "hour": 0, "minute": 0}, "close": {"day": i, "hour": 0, "minute": 0}}
+        for i in range(7)
+    }
+
+    opening_hours = place.get("regularOpeningHours")
+    if opening_hours:
+        # Update with existing periods if available
+        for p in opening_hours.get("periods", []):
+            existing_periods[p['open']['day']] = p
+
+        if "weekdayDescriptions" in opening_hours:
+            for description in opening_hours["weekdayDescriptions"]:
+                day_name, status = description.split(":")[0], description.split(":")[1].strip()
+                day_index = day_index_mapping[day_name]
+
+                # For "Open 24 hours", update the period
+                if "Open 24 hours" in status:
+                    existing_periods[day_index] = {
+                        "open": {"day": day_index, "hour": 0, "minute": 0},
+                        "close": {"day": day_index, "hour": 23, "minute": 59}
+                    }
+                # Additional conditions can be added here based on other possible statuses
+
+        # Reconstruct periods from the updated existing_periods
+        opening_hours["periods"] = list(existing_periods.values())
+
+    else:
+        # Assume open 24/7 if regularOpeningHours is missing
+        opening_hours = {
+            "periods": [
+                {"open": {"day": i, "hour": 0, "minute": 0}, "close": {"day": i, "hour": 23, "minute": 59}}
+                for i in range(7)
+            ]
+        }
+
+    # Return updated opening_hours
+    return opening_hours
+
+      
+
+# Function to convert opening hours for Restaurants
 def convert_opening_hours(opening_hours_list):
     all_days = set(range(7))  # Representing days as 0-6 for Sun-Sat
     results = []

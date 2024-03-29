@@ -12,6 +12,7 @@ import {
 import Background from "../Background";
 import ThemeContext from "../../context/ThemeContext";
 import BackButton from "../BackButton";
+import { NavigationProp } from "@react-navigation/native";
 
 interface AppSettingsPageProps {
   isVisible: boolean;
@@ -19,6 +20,7 @@ interface AppSettingsPageProps {
   updateUserSettings: any;
   closeModal: any;
   useModal: boolean;
+  navigation:NavigationProp<any, any>;
 }
 const useResponsiveScreen = (breakpoint: number) => {
   const [isScreenSmall, setIsScreenSmall] = useState(
@@ -50,6 +52,7 @@ const AppSettingsPage = ({
   updateUserSettings,
   closeModal = () => {},
   useModal = false,
+  navigation,
 }: AppSettingsPageProps) => {
   const { theme, setTheme } = useContext(ThemeContext);
   const [isEnabled, setIsEnabled] = useState<boolean>(false);
@@ -97,6 +100,12 @@ const AppSettingsPage = ({
       closeModal();
     }
   };
+
+  const navigateToSelectInterests = () => {
+    navigation.navigate("SelectInterests");
+    closeModal();
+  };
+
   const isScreenSmall = useResponsiveScreen(768);
 
   const content = (
@@ -174,6 +183,37 @@ const AppSettingsPage = ({
             onValueChange={togglePushSwitch}
             value={isPushEnabled}
           />
+        </View>
+        <Text
+            style={[
+            styles.subtitleText,
+            { color: theme === "Dark" ? "white" : "black" },
+            ]}
+            >
+              User Settings
+          </Text>
+
+          <View style={styles.notificationChoice}>
+              <Text
+                style={[
+                  styles.updateInterestsText,
+                  { color: theme === "Dark" ? "white" : "black" },
+                ]}
+              >
+                Update Interests
+              </Text>
+              <Pressable
+                onPress={navigateToSelectInterests}
+              >
+                <Text
+                  style={[
+                    styles.arrowText,
+                    { color: theme === "Dark" ? "white" : "grey" },
+                  ]}
+                >
+                  {'>'}
+                </Text>
+              </Pressable>
         </View>
         <View>
           <Pressable
@@ -261,6 +301,16 @@ const styles = StyleSheet.create({
     width: 315, //325
     marginBottom: 32,
   },
+  updateInterestsText: {
+    color: "white",
+    alignSelf: "center",
+    fontSize: 20,
+    fontWeight: "bold",
+    width: 315, //325
+    marginBottom: 32,
+    marginRight: 30,
+  },
+
   notificationSpaces: {
     alignItems: "flex-start",
     height: 120,
@@ -294,6 +344,10 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     margin: 20,
+  },
+  arrowText: {
+    fontSize: 24,
+    fontWeight: 'bold',
   },
 });
 
