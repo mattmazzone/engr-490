@@ -47,7 +47,6 @@ detailed_place_types = {
     "convention_center": {"duration": 2,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
     "cultural_center": {"duration": 2,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
     "dog_park": {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
-    "event_venue": {"duration": 2,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
     "hiking_area": {"duration": 2,"maxAmountPerDay": 1,"preferredTimeSlot": 4},
     "historical_landmark": {"duration": 2,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
     "marina": {"duration": 3,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
@@ -119,7 +118,7 @@ detailed_place_types = {
     "gym": {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
     "playground": {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 4},
     "ski_resort": {"duration": 4,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
-    "sports_club": {"duration": 3,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
+    "sports_club": {"duration": 3,"maxAmountPerDay": 1,"preferredTimeSlot": 3},
     "sports_complex": {"duration": 3,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
     "stadium": {"duration": 3,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
     "swimming_pool": {"duration": 2,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
@@ -128,6 +127,7 @@ detailed_place_types = {
     "light_rail_station": {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
     "park_and_ride": {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
     "train_station": {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 0},
+    "bar" : {"duration": 2,"maxAmountPerDay": 1,"preferredTimeSlot": 3},
 
 
     "102-000" : {"duration": 1,"maxAmountPerDay": 1,"preferredTimeSlot": 6}, #Mexican 
@@ -660,11 +660,9 @@ def adjust_similarity_based_on_timeslot(places, start_time):
         actual_time_slot = 0  # Times outside the defined slots
 
     for place in places:
-
         # Collect preferred time slots for all the place's types
         preferred_slots = []
-        for place_type in place['info']['types']:
-            print("Place Types: ", place['info']['types'])
+        for place_type in place['types']:
             if place_type in detailed_place_types:
                 preferred_slots.append(detailed_place_types[place_type]['preferredTimeSlot'])
         print("Preferred slots: ", preferred_slots)
@@ -735,7 +733,7 @@ def addHighestPlace(places, nearby_places_picked, start_time, end_time):
 
             if openingTime <= start_time.time() and (openingDay != closingDay or closingTime >= end_time.time()):
                 nearby_places_picked.add(best_place_id)
-                return {'place_id': best_place_id, 'place_name': place['displayName']['text'], 'address': place['formattedAddress'], 'score': place['similarity'], 'types': place['types']}
+                return {'place_id': best_place_id, 'place_name': place['displayName']['text'], 'address': place['formattedAddress'], 'score': place['new_similarity'], 'types': place['types']}
 
 def create_scheduled_activities(nearby_places, free_slots, trip_meetings, time_zones, nearbyRestaurants):
     format_trips = ['%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dT%H:%M:%S.%f%z', '%Y-%m-%dT%H:%M:%S.%f%Z']
