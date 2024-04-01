@@ -12,9 +12,10 @@ registerTranslation("en", en);
 
 interface DateRangePickerProps {
   onData: (dateRange: DateRange) => void;
+  setMeetings: React.Dispatch<React.SetStateAction<Meeting[]>>;
 }
 
-const DateRangePicker = ({ onData }: DateRangePickerProps) => {
+const DateRangePicker = ({ onData, setMeetings }: DateRangePickerProps) => {
   const [rangeDate, setRangeDate] = React.useState<DateRange>({
     startDate: undefined,
     endDate: undefined,
@@ -37,8 +38,15 @@ const DateRangePicker = ({ onData }: DateRangePickerProps) => {
     ({ startDate, endDate }: DateRange) => {
       setOpenDate(false);
       setRangeDate({ startDate, endDate });
+      if (startDate && endDate) { // Ensure both dates are defined
+        setMeetings((currentMeetings) => {
+          return currentMeetings.filter((meeting) => {
+            return meeting.start >= startDate && meeting.end <= endDate;
+          });
+        });
+      }
     },
-    [setOpenDate, setRangeDate]
+    [setOpenDate, setRangeDate, setMeetings]
   );
 
   const validRange = {

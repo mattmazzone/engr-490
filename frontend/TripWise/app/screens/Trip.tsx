@@ -213,7 +213,7 @@ const Trip = ({ navigation }: RouterProps) => {
             Trip Planner
           </Text>
 
-          <DateRangePicker onData={getDateRange} />
+          <DateRangePicker onData={getDateRange} setMeetings={setMeetings} />
 
 
           {rangeDate.startDate && rangeDate.endDate && importEventsVisible ? (
