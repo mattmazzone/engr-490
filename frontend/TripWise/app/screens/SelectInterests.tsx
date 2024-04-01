@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from "react-native";
 import Background from "../../components/Background";
 import { UserProfile } from "../../types/userTypes";
 import * as UserService from "../../services/userServices";
@@ -14,6 +14,7 @@ import {
 } from "../../types/navigationTypes";
 
 import { useUserProfile } from "../../hooks/useUserProfile";
+import Toast from "react-native-toast-message";
 
 interface Item {
   id: string;
@@ -360,33 +361,43 @@ const SelectInterests = ({ navigation, route }: RouterProps) => {
   }, []);
 
   // Function to handle updating interests
-  const handleUpdateInterests = async () => {
-    if (userProfile && userProfile.uid) {
-      try {
-        // Create an array of interest titles
-        const selectedInterestTitles = selectedInterests
-          .map((interestId) => {
-            const foundInterest = categories
-              .flatMap((category) => category.items)
-              .find((categoryItem) => categoryItem.id === interestId);
-            return foundInterest ? foundInterest.titles : [];
-          })
-          .flat();
+const handleUpdateInterests = async () => {
+  if (userProfile && userProfile.uid) {
+    try {
+      // Create an array of interest titles
+      const selectedInterestTitles = selectedInterests
+        .map((interestId) => {
+          const foundInterest = categories
+            .flatMap((category) => category.items)
+            .find((categoryItem) => categoryItem.id === interestId);
+          return foundInterest ? foundInterest.titles : [];
+        })
+        .flat();
 
-        // Update user interests using the array of interest titles
-        await UserService.updateUserInterests(selectedInterestTitles);
+      // Update user interests using the array of interest titles
+      await UserService.updateUserInterests(selectedInterestTitles);
 
-        // Store selected interests in AsyncStorage
-        await AsyncStorage.setItem(
-          "selectedInterests",
-          JSON.stringify(selectedInterests)
-        );
-        setUserInterests?.(true);
-      } catch (error) {
-        console.error("Error updating interests:", error);
-      }
+      // Store selected interests in AsyncStorage
+      await AsyncStorage.setItem(
+        "selectedInterests",
+        JSON.stringify(selectedInterests)
+      );
+      setUserInterests?.(true);
+
+      //navigation.goBack();
+      Toast.show({
+        type: 'success',
+        position: 'bottom', // This positions the Toast at the bottom of the screen
+        text2: 'Your trip has been successfully ended.',
+        bottomOffset: 50, // Adjust this value to move the Toast up above the button
+      });
+      
+    } catch (error) {
+      console.error("Error updating interests:", error);
     }
-  };
+  }
+};
+
 
   const hasChangedInterests = useCallback(() => {
     return (
@@ -399,7 +410,7 @@ const SelectInterests = ({ navigation, route }: RouterProps) => {
   if (isFetchingProfile) {
     return (
       <Background>
-        <Text>Loading...</Text>
+        <ActivityIndicator style={styles.spinner} size="large" color="rgba(34, 170, 85, 1)" />
       </Background>
     );
   }
@@ -447,6 +458,7 @@ const SelectInterests = ({ navigation, route }: RouterProps) => {
           ]}
         >
           <Text style={styles.buttonText}>{buttonText}</Text>
+          <Toast />
         </Pressable>
       </ScrollView>
     </Background>
@@ -455,6 +467,11 @@ const SelectInterests = ({ navigation, route }: RouterProps) => {
 
 // Styles for the component
 const styles = StyleSheet.create({
+  spinner: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     padding: 20,
   },
