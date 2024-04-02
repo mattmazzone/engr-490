@@ -13,21 +13,18 @@ async function lookupPlaceById(placeId) {
   // Define the URL for the lookupbyid endpoint
   const url = `https://lookup.search.hereapi.com/v1/lookup?id=${placeId}&apiKey=${apiKey}`;
 
-  // Make the GET request using Axios
-  axios
-    .get(url)
-    .then((response) => {
-      const processedData = processPlaceData(response.data);
-      return processedData;
-    })
-    .catch((error) => {
-      // Handle any errors
-      console.error(
-        "Error:",
-        error.response ? error.response.status : error.message
-      );
-      return null;
-    });
+  try {
+    // Make the GET request using Axios
+    const response = await axios.get(url);
+    return response.data; // Return the data from the API request
+  } catch (error) {
+    // Handle any errors
+    console.error(
+      "Error:",
+      error.response ? error.response.status : error.message
+    );
+    return null;
+  }
 }
 
 async function getRestaurants(latitude, longitude, limit, mealType) {
@@ -287,6 +284,7 @@ async function getRestaurantsWithNoMeetings(tripStart, tripEnd, location) {
 }
 
 module.exports = {
+  lookupPlaceById,
   processDaysAndGetRestaurants,
   getRestaurantsWithNoMeetings,
 };

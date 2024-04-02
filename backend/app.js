@@ -21,6 +21,7 @@ const serviceAccount = require("./tripwise-sdk-key.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
+  storageBucket: "tripwise-3ecc6.appspot.com",
 });
 
 // Import routes
