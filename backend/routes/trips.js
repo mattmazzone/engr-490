@@ -322,71 +322,70 @@ router.post("/end_trip/:uid", authenticate, async (req, res) => {
   try {
     const uid = req.params.uid;
     const user = await db.collection("users").doc(uid).get();
+    if (!user.exists) {
+      throw new Error("User not found");
+    }
     const userData = user.data();
     const tripId = userData.currentTrip;
 
-    // Select a picture for the trip
     const trip = await db.collection("trips").doc(tripId).get();
+    if (!trip.exists) {
+      throw new Error("Trip not found");
+    }
     const tripData = trip.data();
     const scheduledActivities = tripData.scheduledActivities;
 
     let placeId = "";
     for (const activity of scheduledActivities) {
-      if (activity.place_similarity.place_id.startsWith("here")) {
-        continue;
+      if (!activity.place_similarity.place_id.startsWith("here")) {
+        placeId = activity.place_similarity.place_id;
+        break; // Exit the loop once a valid placeId is found
       }
-      placeId = activity.place_similarity.place_id;
     }
 
-    // const scheduledActivity = scheduledActivities[0];
-    // const placeId = scheduledActivity.place_similarity.place_id;
+    // Initialize photoUrl with a default photo URL
+    let photoUrl =
+      "https://www.themgroup.co.uk/wp-content/uploads/2020/12/landscape-placeholder-e1608289113759-768x387.png"; // Set your default photo URL here
 
-    let photoUrl = "";
+    try {
+      if (placeId.startsWith("here")) {
+        const place = await lookupPlaceById(placeId);
+        if (
+          place &&
+          place.media &&
+          place.media.images &&
+          Array.isArray(place.media.images.items) &&
+          place.media.images.items.length > 0
+        ) {
+          const photos = place.media.images.items;
+          const foundPhoto =
+            photos.find((photo) => photo.widthPx > photo.heightPx) || photos[0];
+          photoUrl = foundPhoto.href; // Override default if a suitable photo is found
+        }
+      } else {
+        const [successOrNotPlaceDetails, responsePlaceDetails] =
+          await getPlaceDetails(placeId, "id,displayName,photos");
+        if (successOrNotPlaceDetails != REQUEST.SUCCESSFUL) {
+          throw new Error(responsePlaceDetails);
+        }
+        const placeDetails = responsePlaceDetails;
 
-    // If the place is a Here place, get the photo from Here API
-    if (placeId.startsWith("here")) {
-      const place = await lookupPlaceById(placeId);
-      console.log("Place", place);
-      const photos = place.media.images.items;
-      for (const photo of photos) {
-        if (photo.widthPx > photo.heightPx) {
-          photoUrl = photo.href;
-          break;
+        if (
+          placeDetails.photos &&
+          Array.isArray(placeDetails.photos) &&
+          placeDetails.photos.length > 0
+        ) {
+          const photos = placeDetails.photos;
+          const foundPhoto =
+            photos.find((photo) => photo.widthPx > photo.heightPx) || photos[0];
+          photoUrl = `https://places.googleapis.com/v1/${foundPhoto.name}/media?maxHeightPx=400&maxWidthPx=400&key=${process.env.GOOGLE_MAPS_API_KEY}`; // Override default if a suitable photo is found
         }
       }
-      if (photoUrl === "") {
-        photoUrl = photos[0].href;
-      }
-    } else {
-      // Get the photo from Google Places API
-      const [successOrNotPlaceDetails, responsePlaceDetails] =
-        await getPlaceDetails(placeId, "id,displayName,photos");
-      if (successOrNotPlaceDetails != REQUEST.SUCCESSFUL) {
-        error = responsePlaceDetails;
-        console.error("Error getting place details");
-        res.status(400).json(error);
-        return;
-      }
-      const placeDetails = responsePlaceDetails;
-
-      const photos = placeDetails.photos;
-
-      // Loop through photos and select the first horizontal photo
-      // If no horizontal photo is found, select the first photo
-      let photoName = "";
-      for (const photo of photos) {
-        if (photo.widthPx > photo.heightPx) {
-          photoName = photo.name;
-          break;
-        }
-      }
-      if (photoName === "") {
-        photoName = photos[0].name;
-      }
-
-      // Get the photo
-      photoUrl = `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=400&maxWidthPx=400&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+    } catch (photoError) {
+      console.error("Error getting photo details", photoError);
+      // No need to set a default URL here as it's already the initial value of photoUrl
     }
+
     // Download the photo then upload to firebase storage
     const photoResponse = await axios.get(photoUrl, {
       responseType: "arraybuffer",
@@ -405,23 +404,23 @@ router.post("/end_trip/:uid", authenticate, async (req, res) => {
       console.error("Error uploading file to Firebase Storage:", err);
     });
 
-    stream.on("finish", () => {
+    stream.on("finish", async () => {
       console.log("File uploaded successfully to Firebase Storage.");
+      await db
+        .collection("users")
+        .doc(uid)
+        .update({
+          pastTrips: admin.firestore.FieldValue.arrayUnion(tripId),
+          currentTrip: "",
+        });
+
+      return res.status(200).json({ message: "Trip ended successfully" });
     });
-
-    // Add trip to user's past trips
-    await db
-      .collection("users")
-      .doc(uid)
-      .update({
-        pastTrips: admin.firestore.FieldValue.arrayUnion(tripId),
-        currentTrip: "",
-      });
-
-    return res.status(200).json({ message: "Trip ended successfully" });
   } catch (error) {
     console.error("Error ending trip", error);
-    res.status(500).send(error.message);
+    return res
+      .status(500)
+      .send({ message: error.message || "An unexpected error occurred" });
   }
 });
 
