@@ -287,6 +287,7 @@ def recommend():
                     restaurant["openingHours"] = convert_opening_hours(restaurant["openingHours"])
                     # Calculate and add similarity score to each restaurant
                     restaurant["similarity"] = calculate_similarity_score(restaurant, recentRestaurants, all_types=restoTypeList)
+                    
 
 
 
