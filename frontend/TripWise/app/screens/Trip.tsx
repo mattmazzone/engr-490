@@ -8,6 +8,7 @@ import {
   ScrollView,
   Modal,
   View,
+  ActivityIndicator,
   Platform,
   PermissionsAndroid, Alert
 } from "react-native";
@@ -62,6 +63,7 @@ const Trip = ({ navigation }: RouterProps) => {
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [currentTrip, setCurrentTrip] = useState<TripType | null>(null);
   const { theme } = useContext(ThemeContext);
+  const [isloading, setIsLoading] = useState<boolean>(false);
   const [currentLocation, locationError] = useLocationService();
 
 
@@ -137,6 +139,7 @@ const Trip = ({ navigation }: RouterProps) => {
 
     setConfirmTripModalVisible(true);
 
+    setIsLoading(true);
     // API call to create trip
     const createTripResponse = await createTrip(
       rangeDate.startDate,
@@ -149,6 +152,7 @@ const Trip = ({ navigation }: RouterProps) => {
     if (createTripResponse) {
       const trip = createTripResponse.trip;
       setCurrentTrip(trip);
+      setIsLoading(false);
     }
   };
 
@@ -185,13 +189,10 @@ const Trip = ({ navigation }: RouterProps) => {
   }, [locationModalClosed]);
 
 
-  if (isFetching) {
+  if (isFetching || isloading) {
     return (
       <Background>
-        <SafeAreaView style={styles.container}>
-          <Text style={styles.title}>Trip Planner</Text>
-          <Text style={styles.subTitle}>Loading...</Text>
-        </SafeAreaView>
+          <ActivityIndicator style={styles.spinner} size="large" color="rgba(34, 170, 85, 1)" />
       </Background>
     );
   }
@@ -213,7 +214,7 @@ const Trip = ({ navigation }: RouterProps) => {
             Trip Planner
           </Text>
 
-          <DateRangePicker onData={getDateRange} />
+          <DateRangePicker onData={getDateRange} setMeetings={setMeetings} />
 
 
           {rangeDate.startDate && rangeDate.endDate && importEventsVisible ? (
@@ -288,6 +289,11 @@ const Trip = ({ navigation }: RouterProps) => {
 export default Trip;
 
 const styles = StyleSheet.create({
+  spinner: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     flex: 1,
     alignItems: "flex-start",

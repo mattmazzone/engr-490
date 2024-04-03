@@ -4,7 +4,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
 import Login from "./app/screens/Login";
 import SignUp from "./app/screens/SignUp";
@@ -19,13 +19,16 @@ import TripLogo from "./components/SVGLogos/TripLogo";
 import ThemeProvider from "./context/ThemeProvider";
 import ThemeContext from "./context/ThemeContext";
 import * as UserService from "./services/userServices";
+import { RootStackParamList } from "./types/navigationTypes";
+import { MainStackParamList } from "./types/navigationTypes";
+import { BottomTabParamList } from "./types/navigationTypes";
 
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 // Declare your stacks
-const RootStack = createNativeStackNavigator();
-const MainStack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
+const MainStack = createNativeStackNavigator<MainStackParamList>();
+const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 // Tab Navigator
 function BottomTabNavigation() {
@@ -91,7 +94,13 @@ function RootNavigator({
   isUserCreated,
   userHasInterests,
   setUserInterests,
-}: any) {
+}: {
+  user: User | null;
+  onUserCreationComplete: () => void;
+  isUserCreated: boolean;
+  userHasInterests: boolean;
+  setUserInterests: (hasInterests: boolean) => void;
+}) {
   return (
     <RootStack.Navigator>
       {user && isUserCreated ? (
@@ -130,6 +139,7 @@ function RootNavigator({
             name="SignUp"
             component={SignUp}
             options={{ headerShown: false }}
+            initialParams={{ onUserCreationComplete }}
           />
         </>
       )}
@@ -138,7 +148,7 @@ function RootNavigator({
 }
 
 export default function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isUserCreated, setIsUserCreated] = useState(false);
   const [userHasInterests, setUserHasInterests] = useState(false);
 
@@ -153,17 +163,33 @@ export default function App() {
       });
     }
 
-    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user: any) => {
-      setUser(user);
-      if (FIREBASE_AUTH.currentUser) {
-        setIsUserCreated(true);
-        // Check if user has interests
-        checkUserInterests();
+    const unsubscribe = onAuthStateChanged(
+      FIREBASE_AUTH,
+      async (currentUser) => {
+        if (currentUser) {
+          setUser(currentUser);
+          try {
+            const profile = await UserService.fetchUserProfile();
+            const hasInterests: boolean | null =
+              profile &&
+              Array.isArray(profile.interests) &&
+              profile.interests.length > 0;
+            setUserHasInterests(hasInterests !== null ? hasInterests : false);
+            setIsUserCreated(true);
+          } catch (error) {
+            setUserHasInterests(false);
+            setIsUserCreated(false);
+          }
+        } else {
+          // Reset state if no user is signed in
+          setUser(null);
+          setIsUserCreated(false);
+          setUserHasInterests(false);
+        }
       }
-    });
+    );
 
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
+    return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
 
   const onUserCreationComplete = () => {

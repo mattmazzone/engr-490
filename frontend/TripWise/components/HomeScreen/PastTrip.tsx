@@ -1,31 +1,36 @@
 import React, { useState, useEffect, useContext } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Modal,
-  Animated,
-} from "react-native";
+import { View, Text, StyleSheet, Pressable, Animated } from "react-native";
+import PastTripDetailsModal from "./PastTripDetailsModal";
 import { TripType } from "../../types/tripTypes";
 import * as UserService from "../../services/userServices";
 import PastTripSkeleton from "./PastTripSkeleton";
 import { Image } from "expo-image";
-import { faker } from "@faker-js/faker";
 import ThemeContext from "../../context/ThemeContext";
+import { ref, getDownloadURL } from "firebase/storage";
+import { FIREBASE_STORAGE } from "../../FirebaseConfig";
 
-const PastTrip = ({ pastTrip }: any) => {
+const PastTrip = ({ pastTrip }: { pastTrip: string }) => {
+  const [tripImageUrl, setTripImageUrl] = useState<string>("");
   const { theme } = useContext(ThemeContext);
   const [pastTripData, setPastTripData] = useState<TripType | null>(null);
-  const [isFetching, setIsFetching] = useState<boolean>(true);
   const [tripDetailsModalVisible, setTripDetailsModalVisible] =
     useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [fadeAnim] = useState(new Animated.Value(0)); // Initial opacity is 0
+  const [imageNotFound, setImageNotFound] = useState<boolean>(false);
 
   useEffect(() => {
+    setIsLoading(true);
     const fetchPastTripData = async () => {
       try {
         const fetchedData = await UserService.fetchPastTripData(pastTrip);
+        const imageUrl = await getDownloadURL(
+          ref(FIREBASE_STORAGE, `trip-pictures/${pastTrip}`)
+        );
+        setTripImageUrl(imageUrl);
+        if (!imageUrl) {
+          setImageNotFound(true);
+        }
         setTimeout(() => {
           if (fetchedData) {
             setPastTripData(fetchedData);
@@ -36,8 +41,9 @@ const PastTrip = ({ pastTrip }: any) => {
         }, 3000); // Ensure skeleton is visible for 3 seconds
       } catch (error) {
         console.error("Error fetching past trip data:", error);
+        setImageNotFound(true);
       } finally {
-        setTimeout(() => setIsFetching(false), 3000); // Delay hiding skeleton
+        setTimeout(() => setIsLoading(false), 3000); // Delay hiding skeleton
       }
     };
     fetchPastTripData();
@@ -51,12 +57,12 @@ const PastTrip = ({ pastTrip }: any) => {
     }).start();
   };
   useEffect(() => {
-    if (!isFetching) {
+    if (!isLoading) {
       fadeIn();
     }
-  }, [isFetching]);
+  }, [isLoading]);
 
-  if (isFetching || !pastTripData) {
+  if (isLoading || !pastTripData) {
     return <PastTripSkeleton />;
   }
 
@@ -99,9 +105,7 @@ const PastTrip = ({ pastTrip }: any) => {
           ]}
         >
           <Image
-            source={faker.image.urlLoremFlickr({
-              category: "landscape",
-            })}
+            source={{ uri: tripImageUrl }}
             style={{
               height: 100,
               borderTopLeftRadius: 5,
@@ -114,35 +118,15 @@ const PastTrip = ({ pastTrip }: any) => {
               { color: theme === "Dark" ? "white" : "black" },
             ]}
           >
-            {faker.location.city()}
-          </Text>
-          <Text
-            style={[
-              styles.date,
-              { color: theme === "Dark" ? "white" : "black" },
-            ]}
-          >
             {formattedStartDate} - {formattedEndDate}
           </Text>
         </View>
 
-        <Modal
-          animationType="slide"
-          transparent={false}
-          visible={tripDetailsModalVisible}
-          onRequestClose={() => {
-            setTripDetailsModalVisible(!tripDetailsModalVisible);
-          }}
-        >
-          <View>
-            <View>
-              <Text>This is my modal</Text>
-              <Pressable onPress={() => setTripDetailsModalVisible(false)}>
-                <Text>close</Text>
-              </Pressable>
-            </View>
-          </View>
-        </Modal>
+        <PastTripDetailsModal
+          tripData={pastTripData}
+          isVisible={tripDetailsModalVisible}
+          onClose={() => setTripDetailsModalVisible(false)}
+        />
       </Animated.View>
     </Pressable>
   );
@@ -168,14 +152,5 @@ const styles = StyleSheet.create({
     textAlign: "left",
     marginTop: 10,
     marginLeft: 10,
-  },
-  date: {
-    fontSize: 12,
-    textAlign: "left",
-    marginLeft: 10,
-  },
-
-  text: {
-    fontSize: 16,
   },
 });

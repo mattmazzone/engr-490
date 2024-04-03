@@ -21,6 +21,7 @@ const {
 const {
   processDaysAndGetRestaurants,
   getRestaurantsWithNoMeetings,
+  lookupPlaceById,
 } = require("../utils/here");
 const axios = require("axios");
 require("dotenv").config();
@@ -229,29 +230,13 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
           recentRestaurants.push(place);
           continue;
         }
-        const [successOrNotPlaceDetails, responsePlaceDetails] =
-          await getPlaceDetails(placeId, "id,types");
-        if (successOrNotPlaceDetails != REQUEST.SUCCESSFUL) {
-          console.error("Error getting place details");
-          return res.status(400).json(responsePlaceDetails);
-        }
 
-        const placeDetails = responsePlaceDetails;
-        placeDetails.rating = place.rating;
-        recentTripsPlaceDetails.push(placeDetails);
+        recentTripsPlaceDetails.push(place);
 
-        if (
-          recentTripsPlaceDetails.length >= maxRecentTrips ||
-          recentRestaurants.length >= maxRecentTrips
-        )
-          break;
+        if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
       }
 
-      if (
-        recentTripsPlaceDetails.length >= maxRecentTrips ||
-        recentRestaurants.length >= maxRecentTrips
-      )
-        break;
+      if (recentTripsPlaceDetails.length >= maxRecentTrips) break;
     }
 
     // Finally pass data into the recommender system and get the activities
@@ -267,7 +252,8 @@ router.post("/create_trip/:uid", authenticate, async (req, res) => {
         recentRestaurants,
         freeSlots,
         tripMeetings,
-        interests,
+        nonRestaurantInterests,
+        restaurantInterests,
       },
       {
         headers: {
@@ -321,22 +307,105 @@ router.post("/end_trip/:uid", authenticate, async (req, res) => {
   try {
     const uid = req.params.uid;
     const user = await db.collection("users").doc(uid).get();
+    if (!user.exists) {
+      throw new Error("User not found");
+    }
     const userData = user.data();
     const tripId = userData.currentTrip;
 
-    // Add trip to user's past trips
-    await db
-      .collection("users")
-      .doc(uid)
-      .update({
-        pastTrips: admin.firestore.FieldValue.arrayUnion(tripId),
-        currentTrip: "",
-      });
+    const trip = await db.collection("trips").doc(tripId).get();
+    if (!trip.exists) {
+      throw new Error("Trip not found");
+    }
+    const tripData = trip.data();
+    const scheduledActivities = tripData.scheduledActivities;
 
-    return res.status(200).json({ message: "Trip ended successfully" });
+    let placeId = "";
+    for (const activity of scheduledActivities) {
+      if (!activity.place_similarity.place_id.startsWith("here")) {
+        placeId = activity.place_similarity.place_id;
+        break; // Exit the loop once a valid placeId is found
+      }
+    }
+
+    // Initialize photoUrl with a default photo URL
+    let photoUrl =
+      "https://www.themgroup.co.uk/wp-content/uploads/2020/12/landscape-placeholder-e1608289113759-768x387.png"; // Set your default photo URL here
+
+    try {
+      if (placeId.startsWith("here")) {
+        const place = await lookupPlaceById(placeId);
+        if (
+          place &&
+          place.media &&
+          place.media.images &&
+          Array.isArray(place.media.images.items) &&
+          place.media.images.items.length > 0
+        ) {
+          const photos = place.media.images.items;
+          const foundPhoto =
+            photos.find((photo) => photo.widthPx > photo.heightPx) || photos[0];
+          photoUrl = foundPhoto.href; // Override default if a suitable photo is found
+        }
+      } else {
+        const [successOrNotPlaceDetails, responsePlaceDetails] =
+          await getPlaceDetails(placeId, "id,displayName,photos");
+        if (successOrNotPlaceDetails != REQUEST.SUCCESSFUL) {
+          throw new Error(responsePlaceDetails);
+        }
+        const placeDetails = responsePlaceDetails;
+
+        if (
+          placeDetails.photos &&
+          Array.isArray(placeDetails.photos) &&
+          placeDetails.photos.length > 0
+        ) {
+          const photos = placeDetails.photos;
+          const foundPhoto =
+            photos.find((photo) => photo.widthPx > photo.heightPx) || photos[0];
+          photoUrl = `https://places.googleapis.com/v1/${foundPhoto.name}/media?maxHeightPx=400&maxWidthPx=400&key=${process.env.GOOGLE_MAPS_API_KEY}`; // Override default if a suitable photo is found
+        }
+      }
+    } catch (photoError) {
+      console.error("Error getting photo details", photoError);
+      // No need to set a default URL here as it's already the initial value of photoUrl
+    }
+
+    // Download the photo then upload to firebase storage
+    const photoResponse = await axios.get(photoUrl, {
+      responseType: "arraybuffer",
+    });
+    const photoBuffer = Buffer.from(photoResponse.data, "binary");
+    const photoPath = `trip-pictures/${tripId}`;
+    const bucket = admin.storage().bucket();
+    const file = bucket.file(photoPath);
+    const stream = file.createWriteStream({
+      metadata: {
+        contentType: "image/jpeg",
+      },
+    });
+    stream.end(photoBuffer);
+    stream.on("error", (err) => {
+      console.error("Error uploading file to Firebase Storage:", err);
+    });
+
+    stream.on("finish", async () => {
+      console.log("File uploaded successfully to Firebase Storage.");
+      await db
+        .collection("users")
+        .doc(uid)
+        .update({
+          pastTrips: admin.firestore.FieldValue.arrayUnion(tripId),
+          currentTrip: "",
+        });
+
+      return res.status(200).json({ message: "Trip ended successfully" });
+    });
   } catch (error) {
     console.error("Error ending trip", error);
-    res.status(500).send(error.message);
+    return res
+      .status(500)
+      .send({ message: error.message || "An unexpected error occurred" });
   }
 });
 
