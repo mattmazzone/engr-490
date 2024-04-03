@@ -3,10 +3,6 @@ from calendar import week
 from contextlib import closing
 import copy
 from datetime import date, datetime, timedelta, time, timezone
-from types import NoneType
-import types
-from unittest import result
-from weakref import ref
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import random
