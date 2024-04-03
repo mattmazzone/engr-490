@@ -100,7 +100,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             updateUserSettings={updateUserSettings}
             closeModal={() => setActiveSetting("settings")}
             useModal={false}
-            navigation={navigation} 
+            navigation={navigation}
           />
         );
       case "notification":
@@ -220,7 +220,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
               )}
             </View>
             <SettingOption
-              icon={<AccountLogo focused={false} />}
+              icon={<AccountLogo focused={true} />}
               title="Account Settings"
               onPress={() => setAccountSettingsVisible(true)}
               hasBorder={true}
@@ -281,7 +281,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             updateUserSettings={updateUserSettings}
             closeModal={() => setAppSettingsModalVisible(false)}
             useModal={true}
-            navigation={navigation}     
+            navigation={navigation}
           />
           <Modal
             animationType="slide"
