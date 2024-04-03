@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { TripType } from "../../types/tripTypes";
 import ThemeContext from "../../context/ThemeContext";
+import Background from "../../components/Background";
 
 interface PastTripDetailsModalProps {
   tripData: TripType | null;
@@ -61,107 +62,109 @@ const PastTripDetailsModal: React.FC<PastTripDetailsModalProps> = ({
       visible={isVisible}
       onRequestClose={onClose}
     >
-      <ScrollView
-        contentContainerStyle={styles.modalContent}
-        ref={scrollViewRef}
-      >
-        <Text
-          style={[
-            styles.modalHeading,
-            { color: theme === "Dark" ? "#fff" : "#000" },
-          ]}
+      <Background>
+        <ScrollView
+          contentContainerStyle={styles.modalContent}
+          ref={scrollViewRef}
         >
-          Trip Details
-        </Text>
-        <Text
-          style={[
-            styles.modalText,
-            { color: theme === "Dark" ? "#fff" : "#000" },
-          ]}
-        >
-          Duration: {formattedStartDate} to {formattedEndDate}
-        </Text>
+          <Text
+            style={[
+              styles.modalHeading,
+              { color: theme === "Dark" ? "#fff" : "#000" },
+            ]}
+          >
+            Trip Details
+          </Text>
+          <Text
+            style={[
+              styles.modalText,
+              { color: theme === "Dark" ? "#fff" : "#000" },
+            ]}
+          >
+            Duration: {formattedStartDate} to {formattedEndDate}
+          </Text>
 
-        {/* Meetings */}
-        <Text
-          style={[
-            styles.modalSectionTitle,
-            { color: theme === "Dark" ? "#fff" : "#000" },
-          ]}
-        >
-          Meetings:
-        </Text>
-        {tripData.tripMeetings.map((meeting, index) => (
-          <View key={index} style={styles.modalItem}>
-            <Text
-              style={[
-                styles.modalItemTitle,
-                { color: theme === "Dark" ? "#fff" : "#000" },
-              ]}
-            >
-              {meeting.title}
-            </Text>
-            <Text
-              style={[
-                styles.modalText,
-                { color: theme === "Dark" ? "#fff" : "#000" },
-              ]}
-            >
-              Date & Time: {new Date(meeting.start).toLocaleString()}
-            </Text>
-            <Text
-              style={[
-                styles.modalText,
-                { color: theme === "Dark" ? "#fff" : "#000" },
-              ]}
-            >
-              Location: {meeting.location}
-            </Text>
-          </View>
-        ))}
+          {/* Meetings */}
+          <Text
+            style={[
+              styles.modalSectionTitle,
+              { color: theme === "Dark" ? "#fff" : "#000" },
+            ]}
+          >
+            Meetings:
+          </Text>
+          {tripData.tripMeetings.map((meeting, index) => (
+            <View key={index} style={styles.modalItem}>
+              <Text
+                style={[
+                  styles.modalItemTitle,
+                  { color: theme === "Dark" ? "#fff" : "#000" },
+                ]}
+              >
+                {meeting.title}
+              </Text>
+              <Text
+                style={[
+                  styles.modalText,
+                  { color: theme === "Dark" ? "#fff" : "#000" },
+                ]}
+              >
+                Date & Time: {new Date(meeting.start).toLocaleString()}
+              </Text>
+              <Text
+                style={[
+                  styles.modalText,
+                  { color: theme === "Dark" ? "#fff" : "#000" },
+                ]}
+              >
+                Location: {meeting.location}
+              </Text>
+            </View>
+          ))}
 
-        {/* Scheduled Activities */}
-        <Text
-          style={[
-            styles.modalSectionTitle,
-            { color: theme === "Dark" ? "#fff" : "#000" },
-          ]}
-        >
-          Scheduled Activities:
-        </Text>
-        {tripData.scheduledActivities.map((activity, index) => (
-          <View key={index} style={styles.modalItem}>
-            <Text
-              style={[
-                styles.modalItemTitle,
-                { color: theme === "Dark" ? "#fff" : "#000" },
-              ]}
-            >
-              {activity.place_similarity.place_name}
-            </Text>
-            <Text
-              style={[
-                styles.modalText,
-                { color: theme === "Dark" ? "#fff" : "#000" },
-              ]}
-            >
-              Date & Time: {new Date(activity.start).toLocaleString()}
-            </Text>
-            <Text
-              style={[
-                styles.modalText,
-                { color: theme === "Dark" ? "#fff" : "#000" },
-              ]}
-            >
-              Address: {activity.place_similarity.address}
-            </Text>
-          </View>
-        ))}
+          {/* Scheduled Activities */}
+          <Text
+            style={[
+              styles.modalSectionTitle,
+              { color: theme === "Dark" ? "#fff" : "#000" },
+            ]}
+          >
+            Scheduled Activities:
+          </Text>
+          {tripData.scheduledActivities.map((activity, index) => (
+            <View key={index} style={styles.modalItem}>
+              <Text
+                style={[
+                  styles.modalItemTitle,
+                  { color: theme === "Dark" ? "#fff" : "#000" },
+                ]}
+              >
+                {activity.place_similarity.place_name}
+              </Text>
+              <Text
+                style={[
+                  styles.modalText,
+                  { color: theme === "Dark" ? "#fff" : "#000" },
+                ]}
+              >
+                Date & Time: {new Date(activity.start).toLocaleString()}
+              </Text>
+              <Text
+                style={[
+                  styles.modalText,
+                  { color: theme === "Dark" ? "#fff" : "#000" },
+                ]}
+              >
+                Address: {activity.place_similarity.address}
+              </Text>
+            </View>
+          ))}
 
-        <Pressable style={styles.closeButton} onPress={onClose}>
-          <Text style={styles.closeButtonText}>Close</Text>
-        </Pressable>
-      </ScrollView>
+          <Pressable style={styles.closeButton} onPress={onClose}>
+            <Text style={styles.closeButtonText}>Close</Text>
+          </Pressable>
+        </ScrollView>
+      </Background>
     </Modal>
   );
 };
