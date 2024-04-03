@@ -3,6 +3,8 @@ import { View, Text, Pressable, StyleSheet, Platform } from "react-native";
 import { getUserProvider } from "../../services/userServices";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DateRange, Meeting } from "../../types/tripTypes";
+import ThemeContext from "../../context/ThemeContext";
+import { useContext } from "react";
 
 interface ImportEventsFromProviderProps {
   dateRange: DateRange;
@@ -39,9 +41,6 @@ const getCalendarEvents = async (
       }
     );
     const data = await response.json();
-
-    console.log("Google Calendar API response:", data);
-
     // Filter properties to only include what we need (title/summary, start, end, location, googleId)
     const calendarEvents: Meeting[] = data.items.map((item: any) => ({
       title: item.summary,
@@ -64,10 +63,12 @@ const promptUserToUseProvider = (
 ) => {
   const provider = getUserProvider();
 
+  const {theme} = useContext(ThemeContext);
+
   return (
     provider && (
-      <View style={styles.container}>
-        <Text style={styles.subTitle}>
+      <View style={[styles.container, {backgroundColor: theme === "Dark" ? "#ffffff33" : "#d3d3d3"}]}>
+        <Text style={[styles.subTitle, {color: theme === "Dark" ? "#fff" : "#000",}]}>
           Import your meetings from {provider} calendar?
         </Text>
         <View style={styles.buttonContainer}>
@@ -116,7 +117,6 @@ const styles = StyleSheet.create({
   },
   subTitle: {
     fontSize: 16,
-    color: "white",
     marginBottom: 20,
   },
   buttonContainer: {
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   buttonYes: {
-    backgroundColor: "rgba(0, 255, 85, 0.6)",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     padding: 10,
     width: 100,
     borderRadius: 5,

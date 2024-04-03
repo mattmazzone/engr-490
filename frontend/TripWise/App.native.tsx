@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { SafeAreaView, Platform, Dimensions, StatusBar } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
 import Login from "./app/screens/Login";
 import SignUp from "./app/screens/SignUp";
@@ -17,16 +17,22 @@ import AccountLogo from "./components/SVGLogos/AccountLogo";
 import HomeLogo from "./components/SVGLogos/HomeLogo";
 import TripLogo from "./components/SVGLogos/TripLogo";
 import ThemeProvider from "./context/ThemeProvider";
+import ThemeContext from "./context/ThemeContext";
+import * as UserService from "./services/userServices";
+import { RootStackParamList } from "./types/navigationTypes";
+import { MainStackParamList } from "./types/navigationTypes";
+import { BottomTabParamList } from "./types/navigationTypes";
 
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 // Declare your stacks
-const RootStack = createNativeStackNavigator();
-const MainStack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
+const MainStack = createNativeStackNavigator<MainStackParamList>();
+const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 // Tab Navigator
 function BottomTabNavigation() {
+  const { theme } = useContext(ThemeContext);
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -42,15 +48,17 @@ function BottomTabNavigation() {
         headerShown: false,
         tabBarStyle: {
           position: "absolute",
-          borderTopColor: "white", // Top border color
+          borderTopColor: theme === "Dark" ? "rgba(80, 80, 80, 1)" : "white", // Top border color
           borderTopWidth: 2, // Top border width
           borderStyle: "solid", // Add solid border style
-          backgroundColor: "rgba(255, 255, 255, 0.2)", // Only the background is semi-transparent
+          backgroundColor:
+            theme === "Dark"
+              ? "rgba(80, 80, 80, 0.9)"
+              : "rgba(255,255,255, 0.9)", // Only the background is semi-transparent
           height: 100, // Set the height of the tab bar
-          elevation: 0, // Set elevation to 0 to remove shadow (Android)
         },
-        tabBarActiveTintColor: "grey",
-        tabBarInactiveTintColor: "white",
+        tabBarActiveTintColor: theme === "Dark" ? "white" : "black",
+        tabBarInactiveTintColor: "grey",
         tabBarLabelPosition: "beside-icon",
         tabBarLabelStyle: {
           fontSize: 16,
@@ -58,13 +66,9 @@ function BottomTabNavigation() {
         },
       })}
     >
-      {/*Change back to Home when done*/}
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Trip" component={Trip} />
-      {/* Dont display in nav */}
-
       <Tab.Screen name="Account" component={Account} />
-      {/* <Tab.Screen name="SelectInterests" component={SelectInterests} /> */}
     </Tab.Navigator>
   );
 }
@@ -79,31 +83,52 @@ function LoggedInStack() {
         options={{ headerShown: false }}
       />
       <MainStack.Screen name="SelectInterests" component={SelectInterests} />
-      {/* Add more screens that should be part of the main stack here */}
     </MainStack.Navigator>
   );
 }
 
 // Root navigator to switch between authentication and main app
-function RootNavigator({ user }: any) {
+function RootNavigator({
+  user,
+  onUserCreationComplete,
+  isUserCreated,
+  userHasInterests,
+  setUserInterests,
+}: {
+  user: User | null;
+  onUserCreationComplete: () => void;
+  isUserCreated: boolean;
+  userHasInterests: boolean;
+  setUserInterests: (hasInterests: boolean) => void;
+}) {
   return (
     <RootStack.Navigator>
-      {user ? (
-        <>
-          <RootStack.Group>
-            <RootStack.Screen
-              name="LoggedInStack"
-              component={LoggedInStack}
-              options={{ headerShown: false }}
-            />
-          </RootStack.Group>
-        </>
+      {user && isUserCreated ? (
+        userHasInterests ? (
+          <>
+            <RootStack.Group>
+              <RootStack.Screen
+                name="LoggedInStack"
+                component={LoggedInStack}
+                options={{ headerShown: false }}
+              />
+            </RootStack.Group>
+          </>
+        ) : (
+          <RootStack.Screen
+            name="SelectInterests"
+            component={SelectInterests}
+            options={{ headerShown: false }}
+            initialParams={{ setUserInterests }}
+          />
+        )
       ) : (
         <>
           <RootStack.Screen
             name="SelectLogin"
             component={SelectLogin}
             options={{ headerShown: false }}
+            initialParams={{ onUserCreationComplete }}
           />
           <RootStack.Screen
             name="Login"
@@ -114,6 +139,7 @@ function RootNavigator({ user }: any) {
             name="SignUp"
             component={SignUp}
             options={{ headerShown: false }}
+            initialParams={{ onUserCreationComplete }}
           />
         </>
       )}
@@ -122,7 +148,9 @@ function RootNavigator({ user }: any) {
 }
 
 export default function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [isUserCreated, setIsUserCreated] = useState(false);
+  const [userHasInterests, setUserHasInterests] = useState(false);
 
   useEffect(() => {
     if (Platform.OS === "ios" || Platform.OS === "android") {
@@ -135,21 +163,68 @@ export default function App() {
       });
     }
 
-    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user: any) => {
-      setUser(user);
-    });
+    const unsubscribe = onAuthStateChanged(
+      FIREBASE_AUTH,
+      async (currentUser) => {
+        if (currentUser) {
+          setUser(currentUser);
+          try {
+            const profile = await UserService.fetchUserProfile();
+            const hasInterests: boolean | null =
+              profile &&
+              Array.isArray(profile.interests) &&
+              profile.interests.length > 0;
+            setUserHasInterests(hasInterests !== null ? hasInterests : false);
+            setIsUserCreated(true);
+          } catch (error) {
+            setUserHasInterests(false);
+            setIsUserCreated(false);
+          }
+        } else {
+          // Reset state if no user is signed in
+          setUser(null);
+          setIsUserCreated(false);
+          setUserHasInterests(false);
+        }
+      }
+    );
 
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
+    return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
+
+  const onUserCreationComplete = () => {
+    setIsUserCreated(true);
+  };
+
+  const checkUserInterests = async () => {
+    // Check if user has interests
+    UserService.fetchUserProfile().then((profile) => {
+      //profile &&
+      //profile.interests.length &&
+      //setUserHasInterests(profile.interests.length > 0);
+      if (profile && Array.isArray(profile.interests)) {
+        setUserHasInterests(profile.interests.length > 0);
+      } else {
+        setUserHasInterests(false);
+      }
+    });
+  };
+  const setUserInterests = (hasInterests: boolean) => {
+    setUserHasInterests(hasInterests);
+  };
 
   return (
     <SafeAreaProvider>
-      {/*This removes the white top bar on Android */}
       <StatusBar backgroundColor="transparent" translucent={true} />
       <ThemeProvider>
         <NavigationContainer>
-          <RootNavigator user={user} />
+          <RootNavigator
+            user={user}
+            onUserCreationComplete={onUserCreationComplete}
+            isUserCreated={isUserCreated}
+            userHasInterests={userHasInterests}
+            setUserInterests={setUserInterests}
+          />
         </NavigationContainer>
       </ThemeProvider>
     </SafeAreaProvider>

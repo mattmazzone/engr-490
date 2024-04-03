@@ -2,20 +2,32 @@ const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
 const app = express();
-require("dotenv").config({ path: __dirname + "/../.env" });
+
+require("dotenv").config();
+
+// check if the environment variables are set
+if (!process.env.GOOGLE_MAPS_API_KEY) {
+  console.error("GOOGLE_MAPS_API_KEY environment variable not set");
+  process.exit(1);
+}
+
+if (!process.env.HERE_API_KEY) {
+  console.error("HERE_API_KEY environment variable not set");
+  process.exit(1);
+}
 
 // Initialize Firebase Admin with your project's credentials
 const serviceAccount = require("./tripwise-sdk-key.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
+  storageBucket: "tripwise-3ecc6.appspot.com",
 });
 
 // Import routes
 const tripRoutes = require("./routes/trips");
 const userRoutes = require("./routes/users");
 const placesRoutes = require("./routes/places");
-const recommendedActivitiesRoutes = require("./routes/recommended-activities");
 
 app.use(cors());
 app.use(express.json());
@@ -24,10 +36,9 @@ app.use(express.json());
 app.use("/api", tripRoutes);
 app.use("/api", userRoutes);
 app.use("/api", placesRoutes);
-app.use("/api", recommendedActivitiesRoutes);
 
 // Start the server
 const port = 3000;
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
 });

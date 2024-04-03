@@ -1,4 +1,5 @@
 const axios = require("axios");
+const moment = require("moment-timezone");
 
 const REQUEST = {
   SUCCESSFUL: 0,
@@ -47,16 +48,17 @@ async function getRecentTrips(admin, db, uid, numRecentTrips) {
       .doc(uid)
       .get()
       .then((doc) => {
-        recentTripIds = doc.data().pastTrips.slice(0, numRecentTrips);
+        recentTripIds = (doc.data()?.pastTrips ?? []).slice(
+          0,
+          Math.min(numRecentTrips, 10)
+        );
       });
 
-    console.log("Retreived recent trip IDs");
+    // check for empty string or undefined in recentTripIds
+    recentTripIds = recentTripIds.filter((id) => id);
 
-    if (recentTripIds.length < 5) {
-      // Change to throw a proper error
-      console.log(
-        "Minimum number of trips >= 5. Around 10 to get a good recommendation"
-      );
+    if (recentTripIds.length < 2) {
+      return [REQUEST.SUCCESSFUL, []];
     }
 
     let recentTrips = [];
@@ -69,7 +71,6 @@ async function getRecentTrips(admin, db, uid, numRecentTrips) {
           recentTrips.push(trip);
         });
       });
-    console.log("Retreived recent trip data");
     return [REQUEST.SUCCESSFUL, recentTrips];
   } catch (error) {
     console.log(error.message);
@@ -95,9 +96,159 @@ async function getPlaceDetails(id, fieldMask) {
     return [REQUEST.ERROR, error];
   }
 }
+
+async function getPlaceTextSearch(address) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+    address
+  )}&key=${apiKey}`;
+  try {
+    const response = await axios.get(url);
+    // Check if the API call was successful and if results were found
+    if (response.data.status === "OK" && response.data.results.length > 0) {
+      // Getting first result
+      const geocodedData = response.data.results[0];
+      return [REQUEST.SUCCESSFUL, geocodedData.geometry.location];
+    } else {
+      // Handle no results or other API errors
+      return [
+        REQUEST.ERROR,
+        { message: "Geocoding failed: " + response.data.status },
+      ];
+    }
+  } catch (error) {
+    console.error(error);
+    return [REQUEST.ERROR, error.response ? error.response.data : error];
+  }
+}
+
+async function getUserInterests(uid, db) {
+  try {
+    let interests = [];
+    await db
+      .collection("users")
+      .doc(uid)
+      .get()
+      .then((doc) => {
+        interests = doc.data().interests;
+      });
+    return [REQUEST.SUCCESSFUL, interests];
+  } catch (error) {
+    console.error(error);
+    return [REQUEST.ERROR, error];
+  }
+}
+
+async function getCoords(location) {
+  console.log("location getCoords: ", location);
+  const [successOrNot, responseData] = await getPlaceTextSearch(location);
+  if (successOrNot != REQUEST.SUCCESSFUL) {
+    error = responseData;
+    console.error(error);
+    throw new BadRequestException(error);
+  }
+
+  // should only be 1 result
+  return responseData;
+}
+
+async function getTimezone(lat, lng, start) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const secondsSinceEpoch = Math.floor(new Date(start).getTime() / 1000);
+  const url = `https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${lng}&timestamp=${secondsSinceEpoch}&key=${apiKey}`;
+  try {
+    const response = await axios.get(url);
+    // Check if the API call was successful and if results were found
+    if (response.data.status === "OK") {
+      // Getting first result
+      const timeZoneData = response.data;
+      return timeZoneData;
+    } else {
+      // Handle no results or other API errors
+      return [
+        REQUEST.ERROR,
+        { message: "Geocoding failed: " + response.data.status },
+      ];
+    }
+  } catch (error) {
+    console.error(error);
+    return [REQUEST.ERROR, error.response ? error.response.data : error];
+  }
+}
+
+async function adjustMeetingTimes(meetings, timezone) {
+  const adjustedMeetings = [];
+
+  for (const meeting of meetings) {
+    if (meeting.start && meeting.end) {
+      try {
+        // Create a new meeting object with adjusted times
+        const adjustedMeeting = {
+          ...meeting,
+          start: moment.utc(meeting.start).tz(timezone).format(),
+          end: moment.utc(meeting.end).tz(timezone).format(),
+        };
+
+        adjustedMeetings.push(adjustedMeeting);
+      } catch (error) {
+        console.error(
+          `Failed to adjust time for meeting "${meeting.title}" due to:`,
+          error
+        );
+        // Add the original meeting object in case of failure
+        adjustedMeetings.push(meeting);
+      }
+    }
+  }
+
+  return adjustedMeetings;
+}
+
+async function useGetNearbyPlacesSevice(
+  latitude,
+  longitude,
+  maxNearbyPlaces,
+  nearByPlaceRadius,
+  includedTypes
+) {
+  const payload = {
+    includedTypes,
+    maxResultCount: maxNearbyPlaces,
+    locationRestriction: {
+      circle: {
+        center: {
+          latitude,
+          longitude,
+        },
+        radius: nearByPlaceRadius,
+      },
+    },
+  };
+
+  let error;
+  // Get nearby place ids and types
+  let [successOrNot, responseData] = await getNearbyPlaces(
+    payload,
+    "places.id,places.types,places.displayName,places.formattedAddress,places.priceLevel,places.rating,places.regularOpeningHours"
+  );
+
+  if (successOrNot != REQUEST.SUCCESSFUL) {
+    error = responseData;
+    throw new BadRequestException(error);
+  }
+
+  return responseData;
+}
+
 module.exports = {
   REQUEST,
   getNearbyPlaces,
   getRecentTrips,
   getPlaceDetails,
+  getPlaceTextSearch,
+  getUserInterests,
+  getCoords,
+  getTimezone,
+  adjustMeetingTimes,
+  useGetNearbyPlacesSevice,
 };

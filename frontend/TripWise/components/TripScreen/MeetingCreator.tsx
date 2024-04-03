@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useContext} from "react";
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
 } from "react-native";
 import { TimePickerModal } from "react-native-paper-dates";
 import MeetingDateSelector from "./MeetingDateSelector";
 import { DateRange, Meeting, Time } from "../../types/tripTypes";
+import AddressAutocomplete from "./AddressAutocomplete";
+import ThemeContext from "../../context/ThemeContext";
+import Toast from 'react-native-toast-message';
 
 interface MeetingCreatorProps {
   rangeDate: DateRange;
@@ -29,6 +32,8 @@ const MeetingCreator = ({
   // Time
   const [openTimeStart, setOpenTimeStart] = React.useState(false);
   const [openTimeEnd, setOpenTimeEnd] = React.useState(false);
+  const {theme} = useContext(ThemeContext);
+  const [resetAddressInput, setResetAddressInput] = React.useState(false);
 
   const [startTime, setStartTime] = React.useState<Time>({
     hours: 0,
@@ -96,6 +101,40 @@ const MeetingCreator = ({
   };
 
   const addMeeting = () => {
+    const meetingLocationMissing = !meetingLocation || meetingLocation.trim() === '';
+    const meetingTimeMissing = startTime.hours === 0 && startTime.minutes === 0 || endTime.hours === 0 && endTime.minutes === 0;
+    if (meetingLocationMissing) {
+      Toast.show({
+        type: 'error',
+        text2: 'Please enter a location for the meeting.',
+      });
+      return;
+    }
+    if (meetingTimeMissing) {
+      Toast.show({
+        type: 'error',
+        text2: 'Please enter a start and end time for the meeting.',
+      });
+      return;
+    }
+    if (!selectedMeetingDate) {
+      Toast.show({
+        type: 'error',
+        text2: 'Please select a date for the meeting.'
+      });
+      return;
+    }
+    const startDateTime = new Date(selectedMeetingDate);
+    startDateTime.setHours(startTime.hours, startTime.minutes);
+    const endDateTime = new Date(selectedMeetingDate);
+    endDateTime.setHours(endTime.hours, endTime.minutes);
+    if (endDateTime <= startDateTime) {
+      Toast.show({
+        type: 'error',
+        text2: 'The end time must be after the start time.',
+      });
+      return;
+    }
     if (selectedMeetingDate) {
       const newMeeting: Meeting = {
         title: meetingTitle,
@@ -115,12 +154,16 @@ const MeetingCreator = ({
 
       // Check if there is a meeting conflict
       if (checkForMeetingConflict(newMeeting.start, newMeeting.end)) {
-        alert("There is a meeting conflict!");
+        Toast.show({
+          type: 'error',
+          text2: 'There is a meeting conflict!'
+        });
         return;
       }
 
       setMeetings((currentMeetings) => [...currentMeetings, newMeeting]);
       // clear meeting fields
+      setResetAddressInput(true);
       setMeetingTitle("");
       setMeetingLocation("");
       setStartTime({ hours: 0, minutes: 0 });
@@ -132,14 +175,14 @@ const MeetingCreator = ({
 
   return (
     <View style={styles.meetingContainer}>
-      <Text style={styles.subTitle}>Add your meetings here</Text>
+      <Text style={[styles.subTitle, {color: theme === "Dark" ? "#fff" : "#000",}]}>Add your meetings here</Text>
       <TimePickerModal
         visible={openTimeStart}
         onDismiss={onDismissTimeStart}
         onConfirm={onConfirmTimeStart}
         defaultInputType="keyboard"
         hours={12}
-        minutes={14}
+        minutes={0}
       />
       <TimePickerModal
         visible={openTimeEnd}
@@ -147,7 +190,7 @@ const MeetingCreator = ({
         onConfirm={onConfirmTimeEnd}
         defaultInputType="keyboard"
         hours={12}
-        minutes={14}
+        minutes={0}
       />
       <TextInput
         placeholder="Enter meeting title"
@@ -156,14 +199,17 @@ const MeetingCreator = ({
         value={meetingTitle}
       />
 
-      <TextInput
-        placeholder="Enter meeting location"
-        style={styles.meetingTitleInput}
-        onChangeText={(text) => setMeetingLocation(text)}
-        value={meetingLocation}
+      <AddressAutocomplete
+        onAddressSelect={(item: any) => {
+          //Can do item.place_id to get the google place_id 
+          setMeetingLocation(item.description);
+          }}
+          resetInput={resetAddressInput}
+          onResetInput={() => setResetAddressInput(false)}
+        
       />
       <View style={styles.timeContainer}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => setOpenTimeStart(true)}
           style={styles.pickRangeBtn}
         >
@@ -174,8 +220,8 @@ const MeetingCreator = ({
           ) : (
             <Text style={styles.pickRangeBtnTxt}>Start time</Text>
           )}
-        </TouchableOpacity>
-        <TouchableOpacity
+        </Pressable>
+        <Pressable
           onPress={() => setOpenTimeEnd(true)}
           style={styles.pickRangeBtn}
         >
@@ -186,7 +232,7 @@ const MeetingCreator = ({
           ) : (
             <Text style={styles.pickRangeBtnTxt}>End time</Text>
           )}
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       <MeetingDateSelector
@@ -194,12 +240,13 @@ const MeetingCreator = ({
         onData={getSelectedMeetingDate}
       />
 
-      <TouchableOpacity
+      <Pressable
         onPress={() => addMeeting()}
         style={styles.addMeetingBtn}
       >
         <Text style={styles.addMeetingBtnTxt}>Add Meeting</Text>
-      </TouchableOpacity>
+        <Toast />
+      </Pressable>
     </View>
   );
 };
@@ -235,7 +282,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   addMeetingBtn: {
-    backgroundColor: "rgba(0, 255, 85, 0.6)",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     padding: 10,
     borderRadius: 5,
     marginBottom: 5,
@@ -246,9 +293,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
-
   pickRangeBtn: {
-    backgroundColor: "rgba(0, 255, 85, 0.6)",
+    backgroundColor: "rgba(34, 170, 85, 1)",
     padding: 10,
     borderRadius: 5,
     marginBottom: 15,

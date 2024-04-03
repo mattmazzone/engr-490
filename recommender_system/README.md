@@ -18,8 +18,8 @@
 
 ## To run the script (mac)
 
-1. `.venv/bin/python3 app.py`
+1. `.venv/bin/python3 src/app.py`
 
 ## To run the script (Windows)
 
-1. `.venv\Scripts\python3 app.py`
+1. `.venv\Scripts\python.exe src\app.py`

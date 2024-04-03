@@ -3,17 +3,25 @@ import { FIREBASE_AUTH } from "../FirebaseConfig";
 import { UserProfile } from "../types/userTypes";
 import { UserSettings } from "../types/userTypes";
 import { Platform } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { Meeting, TripType } from "../types/tripTypes";
+import Toast from 'react-native-toast-message';
 
 // Base API URL
 let BASE_API_URL: string;
-if (Platform.OS === "android") {
-  BASE_API_URL = "http://10.0.2.2:3000/api";
-} else {
-  BASE_API_URL = "http://localhost:3000/api";
-}
 
+if (process.env.NODE_ENV === 'production') {
+  BASE_API_URL = "https://api.tripwise.cloud/api"
+}
+else {
+  if (Platform.OS === "android") {
+    BASE_API_URL = "http://10.0.2.2:3000/api";
+  } else {
+    BASE_API_URL = "http://localhost:3000/api";
+  }
+}
+console.log("BASE_API_URL", BASE_API_URL);
 
 // Function to create a new user
 export const createUser = async (
@@ -86,6 +94,19 @@ export const updateUserSettings = async (
           body: JSON.stringify({ userSettings }),
         }
       );
+
+      const storedProfile = await AsyncStorage.getItem("userProfile");
+      if (storedProfile !== null) {
+        const parsedProfile = JSON.parse(storedProfile);
+        AsyncStorage.setItem(
+          "userProfile",
+          JSON.stringify({
+            ...parsedProfile,
+            settings: { ...parsedProfile.settings, ...userSettings },
+          })
+        );
+      }
+
       if (!response.ok) {
         throw new Error("Failed to update user notifications.");
       }
@@ -135,7 +156,9 @@ interface TripDataResponse {
 export const createTrip = async (
   tripStart: Date | undefined,
   tripEnd: Date | undefined,
-  tripMeetings: Meeting[] | undefined
+  tripMeetings: Meeting[] | undefined,
+  tripLocation: String | undefined,
+  currentLocation: any
 ): Promise<TripDataResponse | undefined> => {
   if (!FIREBASE_AUTH.currentUser) {
     console.error("No current user found");
@@ -151,7 +174,16 @@ export const createTrip = async (
           "Content-Type": "application/json",
         },
         method: "POST",
-        body: JSON.stringify({ tripStart, tripEnd, tripMeetings }),
+        body: JSON.stringify({
+          tripStart,
+          tripEnd,
+          tripMeetings,
+          tripLocation,
+          currentLocation,
+          maxRecentTrips: 10,
+          maxNearbyPlaces: 20,
+          nearByPlaceRadius: 1500,
+        }),
       }
     );
 
@@ -208,6 +240,10 @@ export const endCurrentTrip = async (): Promise<any> => {
         throw new Error("Failed to end current trip.");
       }
       const data = await response.json();
+      Toast.show({
+        type: 'success',
+        text2: 'Your trip has been successfully ended.',
+      });
       return data;
     }
   } catch (error) {
