@@ -1,6 +1,6 @@
 import { NavigationProp } from "@react-navigation/native";
 import React, { useState, useContext } from "react";
-import { Text, View, StyleSheet, Pressable } from "react-native";
+import { Text, View, StyleSheet, Pressable, ActivityIndicator } from "react-native";
 import Background from "../../components/Background";
 import ThemeContext from "../../context/ThemeContext";
 import * as UserService from "../../services/userServices";
@@ -43,15 +43,13 @@ const Home = ({ navigation }: RouterProps) => {
   useFocusEffect(
     React.useCallback(() => {
       loadTripData();
-    }, [])
+    }, []),
   );
 
   if (isFetchingProfile) {
     return (
       <Background>
-        <View style={styles.container}>
-          <Text style={styles.title}>Loading...</Text>
-        </View>
+          <ActivityIndicator style={styles.spinner} size="large" color="rgba(34, 170, 85, 1)" />
       </Background>
     );
   }
@@ -102,6 +100,11 @@ const Home = ({ navigation }: RouterProps) => {
 export default Home;
 
 const styles = StyleSheet.create({
+  spinner: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   header: {
     width: "100%",
     alignItems: "center",

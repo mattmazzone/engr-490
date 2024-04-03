@@ -21,6 +21,7 @@ const serviceAccount = require("./tripwise-sdk-key.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
+  storageBucket: "tripwise-3ecc6.appspot.com",
 });
 
 // Import routes
@@ -38,6 +39,6 @@ app.use("/api", placesRoutes);
 
 // Start the server
 const port = 3000;
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
 });

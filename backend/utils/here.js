@@ -13,21 +13,18 @@ async function lookupPlaceById(placeId) {
   // Define the URL for the lookupbyid endpoint
   const url = `https://lookup.search.hereapi.com/v1/lookup?id=${placeId}&apiKey=${apiKey}`;
 
-  // Make the GET request using Axios
-  axios
-    .get(url)
-    .then((response) => {
-      const processedData = processPlaceData(response.data);
-      return processedData;
-    })
-    .catch((error) => {
-      // Handle any errors
-      console.error(
-        "Error:",
-        error.response ? error.response.status : error.message
-      );
-      return null;
-    });
+  try {
+    // Make the GET request using Axios
+    const response = await axios.get(url);
+    return response.data; // Return the data from the API request
+  } catch (error) {
+    // Handle any errors
+    console.error(
+      "Error:",
+      error.response ? error.response.status : error.message
+    );
+    return null;
+  }
 }
 
 async function getRestaurants(latitude, longitude, limit, mealType) {
@@ -105,13 +102,22 @@ async function processRestaurantData(data) {
 }
 
 async function addCoordsToMeetings(meetings) {
+  const meetingsWithCoords = [];
+
   for (let i = 0; i < meetings.length; i++) {
     const meeting = meetings[i];
-    const coords = await getCoords(meeting.location);
-    if (coords) {
-      meeting.coords = coords;
+    // Check if the location exists before attempting to get coords
+    if (meeting.location && meeting.location !== "") {
+      const coords = await getCoords(meeting.location);
+      if (coords) {
+        // If coords exist, add them to the meeting and push it to the result array
+        meeting.coords = coords;
+        meetingsWithCoords.push(meeting);
+      }
     }
   }
+
+  return meetingsWithCoords; // Return only meetings with valid locations and coords
 }
 
 // Gets list of restaurants per day per meeting for breakfast lunch and dinner
@@ -120,7 +126,8 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
   const numberOfDays = calculateNumberOfDays(tripStart, tripEnd);
 
   // Add coordinates to meetings
-  await addCoordsToMeetings(meetings);
+  const meetingsWithCoords = await addCoordsToMeetings(meetings);
+  console.log("Meetings with coords", meetingsWithCoords);
 
   // Start date object for iteration
   let currentDate = new Date(tripStart);
@@ -132,7 +139,7 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
     restaurantsByDate[dayIndex] = { breakfast: [], lunch: [], dinner: [] };
 
     // Filter meetings for the current UTC day
-    const meetingsForDay = meetings.filter((meeting) => {
+    const meetingsForDay = meetingsWithCoords.filter((meeting) => {
       return meeting.start.split("T")[0] === dateStr;
     });
 
@@ -211,7 +218,7 @@ async function processDaysAndGetRestaurants(tripStart, tripEnd, meetings) {
       // If there are no meetings for this day, find the closest previous meeting's location
       const closestMeeting = findClosestMeetingToTargetDate(
         currentDate,
-        meetings
+        meetingsWithCoords
       );
       if (closestMeeting) {
         restaurantsByDate[dayIndex].breakfast = await getRestaurants(
@@ -252,6 +259,7 @@ async function getRestaurantsWithNoMeetings(tripStart, tripEnd, location) {
   const numberOfDays = calculateNumberOfDays(tripStart, tripEnd);
 
   for (let dayIndex = 0; dayIndex < numberOfDays; dayIndex++) {
+    restaurantsByDate[dayIndex] = { breakfast: [], lunch: [], dinner: [] };
     restaurantsByDate[dayIndex].breakfast = await getRestaurants(
       location.lat,
       location.lng,
@@ -276,6 +284,7 @@ async function getRestaurantsWithNoMeetings(tripStart, tripEnd, location) {
 }
 
 module.exports = {
+  lookupPlaceById,
   processDaysAndGetRestaurants,
   getRestaurantsWithNoMeetings,
 };

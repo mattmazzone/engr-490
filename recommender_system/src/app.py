@@ -12,7 +12,7 @@ from functools import wraps
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import numpy as np
-from utils import create_df, create_rating_df, multiply_rating, create_scheduled_activities, create_interests_df, calculate_similarity_score, convert_opening_hours
+from utils import create_scheduled_activities, calculate_similarity_score, convert_opening_hours, convert_opening_place_hours, place_types
 import json
 from datetime import date, datetime, timedelta, time
 
@@ -231,6 +231,7 @@ foodTypes = {
 @app.route('/api/recommend', methods=['POST'])
 @authenticate
 def recommend():
+    print("Recommendation API called")
 
     #Call function to get list of google recommendations
         #Check if meetings has any slots that has locations
@@ -259,21 +260,16 @@ def recommend():
     recent_places = request_body["recentTripsPlaceDetails"]
     free_slots = request_body["freeSlots"]
     trip_meetings = request_body["tripMeetings"]
-    interests = request_body['interests']
+    non_resto_interests = request_body['nonRestaurantInterests']
+    resto_interests = request_body['restaurantInterests']
     nearbyRestaurants = request_body['nearbyRestaurants']
     recentRestaurants = request_body['recentRestaurants']
     
     # Remove meetings without start and end times (all day meetings)
     trip_meetings = [meeting for meeting in trip_meetings if 'start' in meeting and 'end' in meeting]
-
-    
     
     restoTypeList = list(foodTypes.keys())
-    
-    # Extracting the restaurants from the interests
-    pattern = re.compile(r'^\d{3}-\d{3}$')
-    resto_interests = [interest for interest in interests if pattern.match(interest)]
-    
+ 
     if len(recent_places) < 5:
         for day, categories in nearbyRestaurants.items():
             for category, restaurants in categories.items():  # Iterate over each category within the day
@@ -296,85 +292,20 @@ def recommend():
 
     if len(recent_places) < 5:
         # Use interests
-        similarity_tables = []
-        for places in nearby_places:
-            # Create nearby places df
-            nearby_places_df = create_df(places)
-
-            interests_df = create_interests_df(interests)
-
-            #  drop useless index column (calcultion purposes)
-            nearby_places_df_copy = nearby_places_df.reset_index(drop=True)
-            interests_df_copy = interests_df.reset_index(drop=True)
-
-            # compute cosine similarity and convert back to df
-            similarity_df = cosine_similarity(
-                interests_df_copy, nearby_places_df_copy)
-            similarity_df = pd.DataFrame(similarity_df)
-
-            cols = {}
-            for i in range(len(nearby_places_df.index)):
-                cols[i] = nearby_places_df.index[i]
-            similarity_df = similarity_df.rename(cols, axis=1)
-            similarity_df = similarity_df.rename(
-                index={0: 'similarity'})
-            similarity_df = similarity_df.transpose()
-
-
-            similarity_tables.append(similarity_df)
-
-
-            
-            
+        for place in nearby_places[0]:
+            place["regularOpeningHours"] = convert_opening_place_hours(place)
+            place["similarity"] = calculate_similarity_score(place, [{'place_similarity': {'types':non_resto_interests}}], all_types=place_types)
         scheduled_activities = create_scheduled_activities(
-            similarity_tables, nearby_places, free_slots, trip_meetings, time_zones, nearbyRestaurants)
+        nearby_places[0], free_slots, trip_meetings, time_zones, nearbyRestaurants)
         return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
 
     else:
-        # Create recent places df & user rating df for the recent places
-        # Doesn't ever change
-        recent_places_df = create_df(recent_places)
-        # recent_place_ratings_df = create_rating_df(recent_places)
-
-        similarity_tables = []
-        # For each meeting location, get similarity scores for all nearby places in that location
-        for places in nearby_places:
-            # Create nearby places df
-            nearby_places_df = create_df(places)
-
-            #  drop useless index column (calcultion purposes)
-            recent_places_df_copy = recent_places_df.reset_index(drop=True)
-            nearby_places_df_copy = nearby_places_df.reset_index(drop=True)
-
-            # compute cosine similarity and convert back to df
-            similarity_df = cosine_similarity(
-                recent_places_df_copy, nearby_places_df_copy)
-            similarity_df = pd.DataFrame(similarity_df)
-
-            # Rename columns and row indecies
-            recent_place_ids = recent_places_df.index
-            similarity_df = similarity_df.set_index(recent_place_ids)
-            cols = {}
-            for i in range(len(nearby_places_df.index)):
-                cols[i] = nearby_places_df.index[i]
-            similarity_df = similarity_df.rename(cols, axis=1)
-
-            # DONT DELETE THIS
-            # Weight all similarities by the normalized user rating (rating/5) of the recent place
-            # recent_place_ratings = recent_place_ratings_df.to_dict()
-            # weighted_similarity_df = similarity_df.apply(
-            #     multiply_rating, axis=1, args=(recent_place_ratings,))
-
-            # mean_vals_df = weighted_similarity_df.mean(axis=0).to_frame().rename(columns={
-            #     0: 'similarity'}, errors='raise')
-            # similarity_tables.append(mean_vals_df)
-
-            mean_vals_df = similarity_df.mean(axis=0).to_frame().rename(columns={
-                0: 'similarity'}, errors='raise')
-            similarity_tables.append(mean_vals_df)
-
+        for place in nearby_places[0]:
+            place["regularOpeningHours"] = convert_opening_place_hours(place)
+            place["similarity"] = calculate_similarity_score(place, recent_places, all_types=place_types)
+            
         scheduled_activities = create_scheduled_activities(
-            similarity_tables, nearby_places, free_slots, trip_meetings, time_zones, nearbyRestaurants)
+            nearby_places[0], free_slots, trip_meetings, time_zones, nearbyRestaurants)
         return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
 
 
@@ -540,4 +471,4 @@ def scheduleActivities():
 
 # Start the server
 if __name__ == '__main__':
-    app.run(port=4000, debug=True)
+    app.run(debug=True, host='0.0.0.0', port=4000)

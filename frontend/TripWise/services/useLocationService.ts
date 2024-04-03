@@ -37,33 +37,34 @@ const useLocationService = (): [Location, string | null] => {
         return true; // Assume always granted on iOS and web
     };
 
-    useEffect(() => {
-        const getLocation = async () => {
-            if (Platform.OS === 'web' || await requestLocationPermission()) {
-                Geolocation.getCurrentPosition(
-                    (position: any) => {
-                        setLocation({
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude,
-                            timezone: RNLocalize.getTimeZone(),
-                        });
-                    },
-                    (err: any) => setError(err.message),
-                    { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
-                );
-            } else {
-                Alert.alert(
-                    "Permission Denied",
-                    "Location permission is required to use this feature.",
-                    [{ text: "OK" }]
-                );
-            }
-        };
+  useEffect(() => {
+    const getLocation = async () => {
+      const hasPermission = await requestLocationPermission();
+      if (hasPermission) {
+        Geolocation.getCurrentPosition(
+          (position: any) => {
+            setLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+              timezone: RNLocalize.getTimeZone(),
+            });
+          },
+          (err: any) => setError(err.message),
+          { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+        );
+      } else {
+        Alert.alert(
+          "Permission Denied",
+          "Location permission is required to use this feature.",
+          [{ text: "OK" }]
+        );
+      }
+    };
 
-        getLocation();
-    }, []);
+    getLocation();
+  }, []);
 
-    return [location, error];
+  return [location, error];
 };
 
 export default useLocationService;

@@ -6,6 +6,7 @@ import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { Meeting, TripType } from "../types/tripTypes";
+import Toast from 'react-native-toast-message';
 
 // Base API URL
 let BASE_API_URL: string = "https://api.tripwise.cloud/api";
@@ -227,6 +228,10 @@ export const endCurrentTrip = async (): Promise<any> => {
         throw new Error("Failed to end current trip.");
       }
       const data = await response.json();
+      Toast.show({
+        type: 'success',
+        text2: 'Your trip has been successfully ended.',
+      });
       return data;
     }
   } catch (error) {

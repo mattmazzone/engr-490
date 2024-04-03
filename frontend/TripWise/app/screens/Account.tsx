@@ -98,8 +98,9 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             isVisible={true}
             userSettings={userSettings}
             updateUserSettings={updateUserSettings}
-            closeModal={() => setActiveSetting("")}
+            closeModal={() => setActiveSetting("settings")}
             useModal={false}
+            navigation={navigation} 
           />
         );
       case "notification":
@@ -152,7 +153,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
           />
           <SettingOption
             icon={<AppSettingsLogo />}
-            title="App Settings"
+            title="App & User Settings"
             onPress={() => setActiveSetting("settings")}
             hasBorder={false}
             isActive={activeSetting === "settings"}
@@ -226,7 +227,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             />
             <SettingOption
               icon={<AppSettingsLogo />}
-              title="App Settings"
+              title="App & User Settings"
               onPress={() => setAppSettingsModalVisible(true)}
               hasBorder={true}
             />
@@ -280,6 +281,7 @@ const SettingsScreen = ({ navigation }: RouterProps) => {
             updateUserSettings={updateUserSettings}
             closeModal={() => setAppSettingsModalVisible(false)}
             useModal={true}
+            navigation={navigation}     
           />
           <Modal
             animationType="slide"

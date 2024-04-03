@@ -11,6 +11,7 @@ import * as UserService from "../../services/userServices";
 import BackButton from "../BackButton";
 import ThemeContext from "../../context/ThemeContext";
 import Background from "../Background";
+import Toast from 'react-native-toast-message';
 
 const testGoogleAPI = async () => {
   try {
@@ -75,24 +76,17 @@ const About = ({ closeModal, navigation }: any) => {
         <Pressable onPress={() => testGoogleAPI()} style={styles.button}>
           <Text style={styles.buttonText}>Test Google API</Text>
         </Pressable>
-
-        <Pressable
-          onPress={() => {
-            navigation.navigate("SelectInterests");
-            closeModal();
-          }}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>Open Select Interest Page</Text>
-        </Pressable>
-
         <Pressable style={styles.button} onPress={UserService.endCurrentTrip}>
           <Text style={styles.buttonText}>End Current Trip</Text>
+          <Toast />
         </Pressable>
       </SafeAreaView>
     </Background>
   );
 };
+
+
+
 
 const styles = StyleSheet.create({
   container: {
