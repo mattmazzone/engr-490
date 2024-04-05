@@ -310,14 +310,6 @@ def recommend():
         return make_response(jsonify({'scheduledActivities': scheduled_activities}), 200)
 
 
-@app.route('/api/simpleRecommend', methods=['POST'])
-@authenticate
-def simple_recommend():
-    print("Simple Recommendation API called")
-
-    
-
-
 @app.route('/api/scheduleActivities', methods=['POST'])
 @authenticate
 def scheduleActivities():

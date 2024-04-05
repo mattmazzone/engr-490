@@ -39,6 +39,7 @@
 1. Perché
 1. Victoria Square
 1. Musée d'art contemporain de Montréal
+
 1. CORA
 1. Square Saint-Louis
 1. Crystal Dreams St-Denis
