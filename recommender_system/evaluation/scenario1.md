@@ -13,7 +13,6 @@
 - Ski
 - Outdoors
 
-## Collaborative filtering based engine
 
 ### Most Recent (ranked by recommendation system)
 
@@ -50,9 +49,3 @@
 1. Plateau Cuisine Indienne
 1. Émilie-Gamelin Place
 1. Saint-Jean-Baptiste Catholic Church
-
-## Simple interests based engine
-
-### Most Recent (ranked by recommendation system)
-
-### Trip history (earliest -> lastest)
