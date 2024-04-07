@@ -1,19 +1,4 @@
-# User's Interests
-
-- Culture
-- American Cuisine
-- chinese/japanese/korean
-- Italian cuisine
-- Amusement park
-- Aquarium
-- Bowling
-- Movies
-- Tourist Attraction
-- Zoo
-- Ski
-- Outdoors
-
-### Recommended trips
+# Recommended trips
 
 - Cafe Depot - No
 - Montreal City Hall - No
