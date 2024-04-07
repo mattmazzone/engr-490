@@ -75,12 +75,26 @@ nic_ranked = [
 ]
 
 
+ben_ranked = [
+    ["Îlot St-Viateur", Answer.NO.value, 70.71],
+    ['Murale', Answer.YES.value, 70.71],
+    ['Le Réseau Vert - Beaubien', Answer.YES.value, 50],
+    ['Aventures Wet Set MTL', Answer.NO.value, 50],
+    ['Le Réseau Vert - Boyer', Answer.YES.value, 50],
+    ['Promontoire de Camilien-Houde', Answer.NO.value, 50],
+    ['Hindu Mission of Canada', Answer.NO.value, 50],
+    ['Creperie du Marche', Answer.YES.value, 46.29],
+    ["Lloydie's", Answer.YES.value, 33.81],
+    ['Mile End', Answer.YES.value, 28.57],
+]
+
 all_lists = [
     evan_ranked,
     evans_mom_ranked,
     alex_ranked,
     christina_ranked,
-    nic_ranked
+    nic_ranked,
+    ben_ranked,
 ]
 
 
@@ -119,9 +133,10 @@ def MAP_at_k(all_lists, N):
 
 if __name__ == '__main__':
     # Test - PASSED
-    # ranked_list = [["", 1, ""], ["", 0, ""], ["", 0, ""]]
-    # ranked_list2 = [["", 0, ""], ["", 1, ""], ["", 0, ""]]
-    # ranked_list3 = [["", 0, ""], ["", 0, ""], ["", 1, ""]]
+    ranked_list = [["", 1, ""], ["", 0, ""], ["", 0, ""]]
+    ranked_list2 = [["", 0, ""], ["", 1, ""], ["", 0, ""]]
+    ranked_list3 = [["", 0, ""], ["", 0, ""], ["", 1, ""]]
+    ranked_list4 = [["", 1, ""], ["", 1, ""], ["", 1, ""]]
     # p_at_1 = precision_at_k(ranked_list, 1)
     # p_at_2 = precision_at_k(ranked_list, 2)
     # p_at_3 = precision_at_k(ranked_list, 3)
@@ -133,6 +148,7 @@ if __name__ == '__main__':
     # print(AP_at_N(ranked_list, 3))
     # print(AP_at_N(ranked_list2, 3))
     # print(AP_at_N(ranked_list3, 3))
+    print(AP_at_N(ranked_list4, 3))
 
     N = 10
     print(f'MAP@{N} = {MAP_at_k(all_lists, N)}')
